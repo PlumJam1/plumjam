@@ -31,6 +31,13 @@ export interface StageDefinition {
   /** Optional repeating pressure after authored introductory waves. */
   repeat?: { startAt: number; interval: number; kinds: readonly EnemyKind[] };
 }
+export interface TimedBuffs {
+  /** Remaining seconds. A repeated effect refreshes this timer without stacking magnitude. */
+  combat: number;
+  speed: number;
+}
+export type EffectKind = SkillKind | 'support-heal' | 'support-combat' | 'support-speed';
+export interface EffectState { id: number; kind: EffectKind; x: number; radius: number; remaining: number; duration: number }
 export interface UnitState {
   id: number;
   kind: UnitKind;
@@ -43,8 +50,12 @@ export interface UnitState {
   /** Visual feedback timer independent of the attack cooldown. */
   hitFlash: number;
   attackFlash: number;
+  slowRemaining: number;
+  supportCooldown: number;
+  buffs: TimedBuffs;
+  healFlash: number;
 }
-export interface HeroState { id: number; x: number; hp: number; maxHp: number; level: number; hitFlash: number }
+export interface HeroState { id: number; x: number; hp: number; maxHp: number; level: number; hitFlash: number; healFlash: number; buffs: TimedBuffs }
 export interface BaseState { id: number; team: Team; x: number; hp: number; maxHp: number }
 export interface ProjectileState {
   id: number;
@@ -79,4 +90,6 @@ export interface BattleSnapshot {
   units: readonly Readonly<UnitState>[];
   projectiles: readonly Readonly<ProjectileState>[];
   summonCooldowns: Readonly<Record<AllyKind, number>>;
+  skillCooldowns: Readonly<Record<SkillKind, number>>;
+  effects: readonly Readonly<EffectState>[];
 }

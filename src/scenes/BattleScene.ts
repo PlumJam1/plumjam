@@ -31,7 +31,8 @@ export class BattleScene extends Phaser.Scene {
     scope.defer(this.context.bridge.subscribe('battle-command', ({ runId, command }) => {
       if (scope.disposed || runId !== scope.id) return;
       const result = session.dispatch(command);
-      this.context.bridge.emit('battle-feedback', { runId, result });
+      // Movement is continuous input, not a notice; it must not erase skill/funds feedback.
+      if (command.type !== 'move') this.context.bridge.emit('battle-feedback', { runId, result });
       this.publishBattle();
     }));
     scope.defer(this.context.bridge.subscribe('scene-command', ({ runId, command }) => {
@@ -73,7 +74,8 @@ export class BattleScene extends Phaser.Scene {
       if (this.scene.isPaused() || session.snapshot().status !== 'active') return;
       if (['KeyA', 'KeyD', 'ArrowLeft', 'ArrowRight'].includes(event.code)) { event.preventDefault(); pressed.add(event.code); movement(); return; }
       const commands: Record<string, BattleCommand> = {
-        Digit1: { type: 'summon', kind: 'melee' }, Digit2: { type: 'summon', kind: 'ranged' },
+        Digit1: { type: 'summon', kind: 'melee' }, Digit2: { type: 'summon', kind: 'ranged' }, Digit3: { type: 'summon', kind: 'support' },
+        KeyJ: { type: 'skill', skill: 'hello-world' }, KeyK: { type: 'skill', skill: 'sleep' }, KeyL: { type: 'skill', skill: 'heal' },
         KeyU: { type: 'upgrade-economy' },
       };
       if (commands[event.code]) { event.preventDefault(); if (!event.repeat) dispatch(commands[event.code]); }

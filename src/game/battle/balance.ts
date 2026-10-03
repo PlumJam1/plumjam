@@ -24,3 +24,15 @@ export const DEFAULT_STAGE: StageDefinition = {
   ],
   repeat: { startAt: 43, interval: 8, kinds: ['robot-melee', 'robot-melee', 'robot-ranged'] },
 };
+
+
+/** The same battle gold funds every action. Durations and cooldowns use simulation seconds. */
+export const SKILLS = {
+  'hello-world': { label: 'Hello World', cost: 35, cooldown: 2.5, damage: 75, speed: 240, range: 350, description: '오른쪽 첫 적에게 발사 · 레벨에 따라 피해 증가' },
+  sleep: { label: 'sleep()', cost: 65, cooldown: 10, radius: 120, duration: 5, speedMultiplier: 0.4, description: '주변 적 이동속도 -60% · 5초' },
+  heal: { label: '보너스', cost: 90, cooldown: 12, radius: 110, amount: 70, description: '나와 주변 아군 회복 · 레벨에 따라 회복 증가' },
+} as const;
+export const SUPPORT = {
+  period: 5, radius: 100, heal: 35, duration: 7,
+  damageMultiplier: 1.3, receivedDamageMultiplier: 0.75, speedMultiplier: 1.35,
+} as const;
