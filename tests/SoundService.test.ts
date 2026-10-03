@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { SoundService } from '../src/game/presentation/SoundService';
+import { SFX } from '../src/game/presentation/sfx';
 function fixture() {
   const voices: Array<{ stop: ReturnType<typeof vi.fn>; disconnect: ReturnType<typeof vi.fn>; onended: (() => void) | null }> = [];
   const gains: ReturnType<typeof vi.fn>[] = [];
@@ -51,5 +52,39 @@ describe('SoundService ownership', () => {
   it('continues silently when the browser cannot provide audio', () => {
     const service = new SoundService(() => { throw new Error('unsupported'); });
     expect(() => { service.unlock(); service.play('win', 1); service.dispose(); }).not.toThrow();
+  });
+});
+
+describe('SoundService one-shot samples', () => {
+  function sampleFixture() {
+    const elements: Array<{ play: ReturnType<typeof vi.fn>; volume: number }> = [];
+    const factory = vi.fn(() => { const element = { play: vi.fn(async () => {}), volume: 1 }; elements.push(element); return element as unknown as HTMLAudioElement; });
+    const service = new SoundService(() => undefined, factory);
+    return { service, elements, factory };
+  }
+  it('waits for a gesture, then creates one throwaway element per overlapping cue at its own volume', () => {
+    const { service, elements, factory } = sampleFixture();
+    service.playSfx('whoosh');
+    expect(factory).not.toHaveBeenCalled();
+    service.unlock();
+    service.playSfx('whoosh'); service.playSfx('punch');
+    expect(elements).toHaveLength(2);
+    expect(elements[0].play).toHaveBeenCalledTimes(1);
+    expect(elements[0].volume).toBe(SFX.whoosh.volume);
+    expect(elements[1].volume).toBe(SFX.punch.volume);
+    service.dispose();
+  });
+  it('stays silent while muted or disposed and never throws without audio support', () => {
+    const { service, factory } = sampleFixture();
+    service.unlock(); service.setMuted(true);
+    service.playSfx('magic');
+    expect(factory).not.toHaveBeenCalled();
+    service.setMuted(false); service.playSfx('magic');
+    expect(factory).toHaveBeenCalledTimes(1);
+    service.dispose(); service.playSfx('magic');
+    expect(factory).toHaveBeenCalledTimes(1);
+    const unavailable = new SoundService(() => undefined, () => { throw new Error('media unavailable'); });
+    unavailable.unlock();
+    expect(() => unavailable.playSfx('punch-02')).not.toThrow();
   });
 });

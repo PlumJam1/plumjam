@@ -1,4 +1,5 @@
 import { MUSIC, musicUrl, type MusicTrack } from './music';
+import { SFX, sfxUrl, type SfxKey } from './sfx';
 
 export type SoundCue = 'summon' | 'hello-world' | 'sleep' | 'heal' | 'git-push' | 'overclock' | 'foreach' | 'invest' | 'win' | 'lose';
 const pitches: Record<SoundCue, number[]> = {
@@ -64,6 +65,16 @@ export class SoundService {
         music.element.playbackRate = 1;
       }
       if (music.element.paused) void music.element.play().catch(() => {});
+    } catch { /* Missing files and autoplay restrictions must not block gameplay. */ }
+  }
+  /** Fire-and-forget sample playback; overlapping cues each get their own throwaway element. */
+  playSfx(key: SfxKey): void {
+    if (this.disposed || this.muted || !this.unlocked) return;
+    try {
+      const element = this.musicFactory(sfxUrl(key));
+      if (!element) return;
+      element.volume = SFX[key].volume;
+      void element.play().catch(() => {});
     } catch { /* Missing files and autoplay restrictions must not block gameplay. */ }
   }
   play(cue: SoundCue, owner: number): void {

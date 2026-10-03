@@ -1,13 +1,14 @@
 import type { BattleViewMode } from '../game/presentation/battleCamera';
 import { nextStage } from '../game/progression/stages';
 import { battleMusic } from '../game/presentation/music';
+import { battleSfxCues } from '../game/presentation/battleSfx';
 import Phaser from 'phaser';
 import type { AppContext } from '../core/AppContext';
 import type { SceneScope } from '../core/SceneLifetimeManager';
 import { BattleSession, getFormationCommand } from '../game/BattleSession';
 import { PhaserBattleRenderer } from '../game/PhaserBattleRenderer';
 import { FORMATION_PAGE_SIZE } from '../game/battle/balance';
-import type { BattleCommand, BattleSpeed } from '../game/battle/types';
+import type { BattleCommand, BattleSnapshot, BattleSpeed } from '../game/battle/types';
 
 export class BattleScene extends Phaser.Scene {
   private scope!: SceneScope;
@@ -17,6 +18,7 @@ export class BattleScene extends Phaser.Scene {
   private receipt = '';
   private developerRun: () => boolean = () => false;
   private resultPublished = false;
+  private previousSnapshot?: BattleSnapshot;
 
   constructor(private readonly context: AppContext) { super('Battle'); }
 
@@ -31,6 +33,7 @@ export class BattleScene extends Phaser.Scene {
   create(): void {
     const stage = this.context.stageForBattle(this.stageId);
     if (!stage) { this.scene.start('Lobby'); return; }
+    this.previousSnapshot = undefined;
     const scope = this.scope;
     this.context.sound.playMusic(battleMusic(stage.id), scope.id);
     const profile = this.context.profile.snapshot();
@@ -51,6 +54,7 @@ export class BattleScene extends Phaser.Scene {
       if (command.type !== 'move') {
         this.context.bridge.emit('battle-feedback', { runId, result });
         if (result.accepted && command.type !== 'set-speed' && command.type !== 'set-boss-assist') this.context.sound.play(command.type === 'summon' ? 'summon' : command.type === 'skill' ? command.skill : 'invest', runId);
+        if (result.accepted && command.type === 'skill' && command.skill === 'hello-world') this.context.sound.playSfx('whoosh');
       }
       this.publishBattle();
     }));
@@ -159,6 +163,8 @@ export class BattleScene extends Phaser.Scene {
 
   private publishBattle(): void {
     const snapshot = this.session.snapshot();
+    for (const cue of battleSfxCues(this.previousSnapshot, snapshot)) this.context.sound.playSfx(cue);
+    this.previousSnapshot = snapshot;
     this.context.sound.setMusicPaused(this.scope.id, snapshot.status !== 'active');
     if (!this.resultPublished && (snapshot.status === 'won' || snapshot.status === 'lost')) {
       this.context.sound.stopMusic(this.scope.id);
