@@ -525,7 +525,7 @@ body { min-width: 800px; }
 /* Paladog-style close view: keep the lower battlefield clear for the actors. */
 .stage-title { left: 55px; top: 13px; }
 .battle-speed { top: 8px; }
-.battle-view-control { position: absolute; left: calc(27% + 130px); top: 8px; z-index: 14; min-height: 28px; padding: 5px 8px; font-size: 12px; white-space: nowrap; }
+.battle-view-control { position: absolute; left: calc(27% + 142px); top: 8px; z-index: 14; min-height: 28px; padding: 5px 8px; font-size: 12px; white-space: nowrap; }
 .battle-stats { top: 45px; bottom: auto; left: 10px; right: auto; width: min(58%,740px); min-height: 28px; padding: 3px 7px; font-size: 12px; line-height: 1.35; background: #211b13e8; }
 .battle-stats > span { white-space: nowrap; }
 .boss-hud { top: 78px; left: 10px; right: auto; width: min(58%,740px); padding: 4px 7px; }
@@ -571,15 +571,26 @@ body { min-width: 800px; }
 
 /* Short windows use one inline local key; the page/ARIA still exposes the global slot. */
 .unit-button .short-key { display: none; }
-.worker-control .investment-icon { display: block; width: 28px; height: 28px; max-width: 50%; max-height: 28px; min-height: 0; flex: 0 1 28px; object-fit: contain; image-rendering: pixelated; }
-/* Retain the label footprint and enlarge the existing speed buttons by 10%. */
-.speed-controls button.speed-image-button { background: transparent; border-color: transparent; box-shadow: none; zoom: 1.1; }
-.speed-image-button .speed-size-label { visibility: hidden; }
-.speed-image-button img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; pointer-events: none; }
-.speed-controls button.speed-image-button:disabled img { opacity: .55; }
 @media (max-height: 650px) {
-  .worker-control .investment-icon { width: 16px; height: 16px; flex-basis: 16px; }
   .unit-button .unit-slot { display: none; }
   .unit-button .card-label { white-space: nowrap; padding-right: 0; }
   .unit-button .short-key { display: inline-block; margin: 0 2px 0 0; }
 }
+/* Original teammate UI sprites replace only decorative glyphs, not control semantics. */
+.investment-icon { display: block; flex-shrink: 0; width: 28px; height: 28px; object-fit: contain; image-rendering: pixelated; pointer-events: none; }
+.speed-controls button.asset-speed { width: 33px; min-width: 33px; height: 33px; min-height: 33px; padding: 0; border-width: 2px; border-radius: 4px; overflow: visible; background: var(--paper); }
+.speed-icon { display: block; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; pointer-events: none; }
+.speed-controls button.asset-speed[aria-pressed=true] { outline: 3px solid var(--pink); outline-offset: 1px; }
+.speed-controls button.asset-speed:disabled .speed-icon { filter: grayscale(1); opacity: .7; }
+.app-shell .speed-controls button.asset-speed:focus-visible { outline: 3px solid var(--ui-focus); outline-offset: 3px; box-shadow: 0 0 0 2px var(--ink), 0 0 0 6px var(--paper); }
+.pause-banner .pause-speed button.asset-speed { width: 46px; min-width: 46px; height: 46px; min-height: 46px; padding: 0; margin: 5px; }
+@media (max-height:650px) { .worker-control .investment-icon { display: none; } }
+
+@media (min-height:900px) { .investment-icon { width: 32px; height: 32px; } }
+/* Arrow art stays whole; a separate 12px digit keeps speed readable before hover. */
+.speed-controls button.asset-speed { display: flex; align-items: center; justify-content: center; gap: 2px; }
+.speed-controls button.asset-speed .speed-icon { width: 18px; height: 18px; flex-shrink: 0; }
+.speed-number { display: block; min-width: 8px; color: var(--ink); font-size: 12px; line-height: 16px; font-weight: 900; font-variant-numeric: tabular-nums; }
+.pause-banner .pause-speed button.asset-speed .speed-icon { width: 26px; height: 26px; }
+.speed-controls button.asset-speed:disabled { background: var(--ui-disabled-top); border-color: #5f5544; cursor: not-allowed; }
+.speed-controls button.asset-speed:disabled .speed-number { color: var(--ui-on-disabled); }

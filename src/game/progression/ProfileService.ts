@@ -1,6 +1,7 @@
 import type { AllyKind, CharacterKind, CommandResult, SkillKind } from '../battle/types';
 import { ALLY_KINDS, ALLY_UNLOCK_STAGES, FORMATION_SIZE, STARTER_ALLIES, DEFAULT_UNLOCKED_SKILLS, SKILLS, SKILL_UNLOCK_COSTS, SKILL_SLOT_COUNT } from '../battle/balance';
 import { getStage, STAGES } from './stages';
+import { getStory, isStoryUnlocked, type StoryId } from './story';
 
 export const SAVE_KEY = 'plumjam.profile.v1';
 export const MAX_LEVEL = 10;
@@ -17,6 +18,8 @@ export interface ProfileData {
   equippedSkills: readonly SkillKind[];
   unlockedAllies: readonly AllyKind[];
   equippedAllies: readonly (AllyKind | null)[];
+  /** Optional in released v1 saves; story reading never grants campaign progress. */
+  seenStoryIds?: readonly StoryId[];
   muted: boolean;
 }
 export interface ProfileSnapshot {
@@ -29,6 +32,7 @@ export interface ProfileSnapshot {
   readonly equippedSkills: readonly SkillKind[];
   readonly unlockedAllies: readonly AllyKind[];
   readonly equippedAllies: readonly (AllyKind | null)[];
+  readonly seenStoryIds: readonly StoryId[];
   readonly muted: boolean;
   readonly storageMessage: string;
 }
@@ -36,7 +40,7 @@ export interface SaveStorage { getItem(key: string): string | null; setItem(key:
 const defaultFormation = (): (AllyKind | null)[] => [...STARTER_ALLIES, ...Array<null>(FORMATION_SIZE - STARTER_ALLIES.length).fill(null)];
 const validFormation = (value: unknown, unlocked: readonly AllyKind[], size = FORMATION_SIZE): value is (AllyKind | null)[] => Array.isArray(value) && value.length === size && value.some(kind => kind !== null) && value.every(kind => kind === null || unlocked.includes(kind)) && new Set(value.filter(kind => kind !== null)).size === value.filter(kind => kind !== null).length;
 const unlockedFor = (cleared: readonly string[]): AllyKind[] => ALLY_KINDS.filter(kind => STARTER_ALLIES.includes(kind) || !!ALLY_UNLOCK_STAGES[kind] && cleared.includes(ALLY_UNLOCK_STAGES[kind]!));
-const fresh = (): ProfileData => ({ version: 1, xp: 0, levels: Object.fromEntries(CHARACTERS.map(kind => [kind, 1])) as Record<CharacterKind, number>, clearedStages: [], unlockedStages: ['1-1'], unlockedSkills: [...DEFAULT_UNLOCKED_SKILLS], equippedSkills: [...DEFAULT_UNLOCKED_SKILLS], unlockedAllies: [...STARTER_ALLIES], equippedAllies: defaultFormation(), muted: false });
+const fresh = (): ProfileData => ({ version: 1, xp: 0, levels: Object.fromEntries(CHARACTERS.map(kind => [kind, 1])) as Record<CharacterKind, number>, clearedStages: [], unlockedStages: ['1-1'], unlockedSkills: [...DEFAULT_UNLOCKED_SKILLS], equippedSkills: [...DEFAULT_UNLOCKED_SKILLS], unlockedAllies: [...STARTER_ALLIES], equippedAllies: defaultFormation(), seenStoryIds: [], muted: false });
 function parse(value: unknown): ProfileData | null {
   if (!value || typeof value !== 'object') return null;
   const data = value as ProfileData;
@@ -74,7 +78,13 @@ function parse(value: unknown): ProfileData | null {
   const equippedAllies = validFormation(savedFormation, unlockedAllies) ? [...savedFormation]
     : validFormation(savedFormation, unlockedAllies, 5) ? [...savedFormation, ...Array<null>(FORMATION_SIZE - 5).fill(null)]
     : defaultFormation();
-  return { version: 1, xp: data.xp, levels, clearedStages: cleared, unlockedStages: unlocked, unlockedSkills, equippedSkills, unlockedAllies, equippedAllies, muted: data.muted };
+  // Repair only this presentation history; malformed optional values cannot erase earned fields.
+  const seenStoryIds: StoryId[] = [];
+  if (Array.isArray(data.seenStoryIds)) for (const id of data.seenStoryIds) {
+    const story = typeof id === 'string' ? getStory(id) : undefined;
+    if (story && isStoryUnlocked(story, cleared) && !seenStoryIds.includes(story.id)) seenStoryIds.push(story.id);
+  }
+  return { version: 1, xp: data.xp, levels, clearedStages: cleared, unlockedStages: unlocked, unlockedSkills, equippedSkills, unlockedAllies, equippedAllies, seenStoryIds, muted: data.muted };
 }
 /** Pure model; no Phaser/Vue objects. Win receipts live only within this browser app session. */
 export class ProfileService {
@@ -93,12 +103,21 @@ export class ProfileService {
       }
     } catch { this.storageMessage = '저장 데이터를 읽지 못했어. 이번 창에서는 계속 플레이할 수 있어.'; }
   }
-  snapshot(): ProfileSnapshot { return Object.freeze({ ...this.data, levels: Object.freeze({ ...this.data.levels }), clearedStages: Object.freeze([...this.data.clearedStages]), unlockedStages: Object.freeze([...this.data.unlockedStages]), unlockedSkills: Object.freeze([...this.data.unlockedSkills]), equippedSkills: Object.freeze([...this.data.equippedSkills]), unlockedAllies: Object.freeze([...this.data.unlockedAllies]), equippedAllies: Object.freeze([...this.data.equippedAllies]), storageMessage: this.storageMessage }); }
+  snapshot(): ProfileSnapshot { return Object.freeze({ ...this.data, levels: Object.freeze({ ...this.data.levels }), clearedStages: Object.freeze([...this.data.clearedStages]), unlockedStages: Object.freeze([...this.data.unlockedStages]), unlockedSkills: Object.freeze([...this.data.unlockedSkills]), equippedSkills: Object.freeze([...this.data.equippedSkills]), unlockedAllies: Object.freeze([...this.data.unlockedAllies]), equippedAllies: Object.freeze([...this.data.equippedAllies]), seenStoryIds: Object.freeze([...(this.data.seenStoryIds ?? [])]), storageMessage: this.storageMessage }); }
   subscribe(listener: (snapshot: ProfileSnapshot) => void): () => void {
     this.listeners.add(listener); listener(this.snapshot());
     return () => { this.listeners.delete(listener); };
   }
   canStart(id: string): boolean { return !!getStage(id) && this.data.unlockedStages.includes(id); }
+  markStorySeen(id: StoryId): CommandResult {
+    const story = getStory(id);
+    if (!story) return { accepted: false, reason: '존재하지 않는 이야기야.' };
+    if (!isStoryUnlocked(story, this.data.clearedStages)) return { accepted: false, reason: '해당 챕터를 클리어하면 읽을 수 있어.' };
+    const seen = this.data.seenStoryIds ?? [];
+    if (seen.includes(id)) return { accepted: true, reason: '이미 읽은 이야기야.' };
+    this.data.seenStoryIds = [...seen, id];
+    this.persist(); return { accepted: true, reason: '읽음으로 기록했어.' };
+  }
   rewardWin(receipt: string, stageId: string): number {
     const stage = getStage(stageId);
     if (!stage || !this.canStart(stageId) || this.receipts.has(receipt)) return 0;

@@ -4,9 +4,10 @@ import type { SceneState, SceneCommand } from '../../core/GameBridge';
 import type { SceneScope } from '../../core/SceneLifetimeManager';
 import { createBattleViewModel } from './BattleViewModel';
 import { createLobbyViewModel } from './LobbyViewModel';
+import { createStoryViewModel } from './StoryViewModel';
 import { nextStage } from '../../game/progression/stages';
 
-function createScreenViewModel(context: AppContext, scope: SceneScope, initial: SceneState, showIntro: boolean) {
+function createScreenViewModel(context: AppContext, scope: SceneScope, initial: SceneState, showIntro: boolean, blocked: () => boolean) {
   const effects = effectScope(true);
   const state = shallowRef(initial);
   const battleModel = createBattleViewModel(context, scope, showIntro);
@@ -18,7 +19,7 @@ function createScreenViewModel(context: AppContext, scope: SceneScope, initial: 
       ? `${state.value.stageId} · ${isPaused.value ? '일시정지' : battleModel.ended.value ? '전투 종료' : battleModel.time.value}`
       : '출근 전 준비실');
     const command = (value: SceneCommand) => {
-      if (!scope.disposed) context.bridge.emit('scene-command', { runId: scope.id, command: value });
+      if (!scope.disposed && !blocked()) context.bridge.emit('scene-command', { runId: scope.id, command: value });
     };
     return {
       ...battleModel, ...lobbyModel, statusLabel,
@@ -41,6 +42,7 @@ function createScreenViewModel(context: AppContext, scope: SceneScope, initial: 
 
 export function createShellViewModel(context: AppContext) {
   let seenBattleIntro = false;
+  const story = createStoryViewModel(context);
   const assetNotice = shallowRef('');
   const unsubscribeAssets = context.bridge.subscribe('asset-notice', notice => { assetNotice.value = notice; });
   const titleVisible = shallowRef(true);
@@ -50,12 +52,12 @@ export function createShellViewModel(context: AppContext) {
     else {
       const scope = context.lifetimes.getScope(state.runId);
       if (scope && !scope.disposed) {
-        screen.value = createScreenViewModel(context, scope, state, state.scene === 'Battle' && !seenBattleIntro);
+        screen.value = createScreenViewModel(context, scope, state, state.scene === 'Battle' && !seenBattleIntro, () => story.hasOverlay.value);
         if (state.scene === 'Battle') seenBattleIntro = true;
       }
     }
   };
   const unsubscribe = context.bridge.subscribe('scene-state', receive);
   if (context.bridge.sceneState) receive(context.bridge.sceneState);
-  return { assetNotice: readonly(assetNotice), screen: shallowReadonly(screen), titleVisible: readonly(titleVisible), enterLobby: () => { titleVisible.value = false; }, showTitle: () => { titleVisible.value = true; }, dispose: () => { unsubscribe(); unsubscribeAssets(); } };
+  return { story, assetNotice: readonly(assetNotice), screen: shallowReadonly(screen), titleVisible: readonly(titleVisible), enterLobby: () => { if (!story.hasOverlay.value && context.bridge.sceneState?.scene === 'Lobby' && context.bridge.sceneState.phase === 'ready') titleVisible.value = false; }, showTitle: () => { if (!story.hasOverlay.value) titleVisible.value = true; }, dispose: () => { story.dispose(); unsubscribe(); unsubscribeAssets(); } };
 }

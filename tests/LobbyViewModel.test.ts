@@ -34,7 +34,8 @@ describe('lobby MVVM', () => {
     const shell = createShellViewModel(context);
     const scope = context.lifetimes.begin(fakeScene());
     context.bridge.emit('scene-state', { scene: 'Lobby', runId: scope.id, phase: 'ready' });
-    expect(shell.titleVisible.value).toBe(true); shell.enterLobby(); expect(shell.titleVisible.value).toBe(false);
+    expect(shell.titleVisible.value).toBe(true); shell.enterLobby(); expect(shell.titleVisible.value).toBe(true);
+    shell.story.skip(); shell.enterLobby(); expect(shell.titleVisible.value).toBe(false);
     const model = shell.screen.value!;
     model.selectStage('1-5');
     expect(model.selectedStage.value.locked).toBe(true);
