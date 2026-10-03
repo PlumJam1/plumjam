@@ -14,9 +14,12 @@ export class PhaserBattleRenderer {
   private readonly visibleLabels = new Set<string>();
   private readonly actors = new Map<number, { image: Phaser.GameObjects.Image; scale: number; lastX: number; dyingAt?: number }>();
   private readonly scenery: Phaser.GameObjects.GameObject[] = [];
+  private enemyBaseImage?: Phaser.GameObjects.Image;
+  private humanBaseImage?: Phaser.GameObjects.Image;
   private readonly living = new Set<number>();
   constructor(private readonly scene: Phaser.Scene, theme?: 'early' | 'mid' | 'boss', stageId?: string) {
     scene.cameras.main.setBackgroundColor('#233342');
+    const useHumanBaseImage = scene.textures.exists('human-base');
     const enemyBaseKey = stageId === '1-5' ? 'enemy-base-3' : 'enemy-base';
     const useEnemyBaseImage = ['1-1', '1-2', '1-3', '1-4', '1-5'].includes(stageId ?? '') && scene.textures.exists(enemyBaseKey);
     const key = backgroundArt(theme);
@@ -26,23 +29,32 @@ export class PhaserBattleRenderer {
       bg.setScale(Math.min(640 / bg.width, 280 / bg.height));
       this.scenery.push(bg);
       const bases = scene.add.graphics().setDepth(1);
-      bases.fillStyle(0xd0a86b).fillRect(25, 167, 57, 63);
-      bases.fillStyle(0x77614f).fillRect(20, 159, 67, 9);
-      bases.fillStyle(0x453c40).fillRect(46, 197, 18, 33);
+      if (!useHumanBaseImage) {
+        bases.fillStyle(0xd0a86b).fillRect(25, 167, 57, 63);
+        bases.fillStyle(0x77614f).fillRect(20, 159, 67, 9);
+        bases.fillStyle(0x453c40).fillRect(46, 197, 18, 33);
+      }
       if (!useEnemyBaseImage) {
         bases.fillStyle(0x131e2b).fillRect(552, 130, 65, 100);
         bases.fillStyle(0x547386).fillRect(548, 122, 73, 8);
         for (let y = 142; y < 215; y += 17) bases.fillStyle(0x75d7db).fillRect(562, y, 45, 3);
       }
       this.scenery.push(bases);
-      if (scene.textures.exists('seoultech-symbol')) {
+      if (!useHumanBaseImage && scene.textures.exists('seoultech-symbol')) {
         const logo = scene.add.image(54, 182, 'seoultech-symbol').setDepth(2);
         logo.setScale(Math.min(30 / logo.width, 28 / logo.height)); this.scenery.push(logo);
       }
-    } else drawPlaceholder(scene, true, !useEnemyBaseImage);
+    } else drawPlaceholder(scene, true, !useEnemyBaseImage, !useHumanBaseImage);
+    if (useHumanBaseImage) {
+      const base = scene.add.image(FIELD.humanBaseX, FIELD.groundY, 'human-base').setOrigin(.5, 1).setDepth(1);
+      base.setScale(Math.min(104 / base.width, 112 / base.height));
+      this.humanBaseImage = base;
+      this.scenery.push(base);
+    }
     if (useEnemyBaseImage) {
       const base = scene.add.image(FIELD.aiBaseX, FIELD.groundY, enemyBaseKey).setOrigin(.5, 1).setDepth(1);
       base.setScale(Math.min(112 / base.width, 112 / base.height));
+      this.enemyBaseImage = base;
       this.scenery.push(base);
     }
     this.graphics = scene.add.graphics().setDepth(10);
@@ -52,6 +64,21 @@ export class PhaserBattleRenderer {
   setPreview(skill: SkillKind | null): void { this.previewSkill = skill; }
 
   render(snapshot: BattleSnapshot): void {
+    if (this.humanBaseImage) {
+      const key = snapshot.status === 'lost' ? 'human-base-destroyed' : 'human-base';
+      if (this.humanBaseImage.texture.key !== key && this.scene.textures.exists(key)) {
+        this.humanBaseImage.setTexture(key);
+        this.humanBaseImage.setScale(Math.min(104 / this.humanBaseImage.width, 112 / this.humanBaseImage.height));
+      }
+    }
+    if (this.enemyBaseImage) {
+      const normalKey = snapshot.stageId === '1-5' ? 'enemy-base-3' : 'enemy-base';
+      const key = snapshot.status === 'won' ? `${normalKey}-destroyed` : normalKey;
+      if (this.enemyBaseImage.texture.key !== key && this.scene.textures.exists(key)) {
+        this.enemyBaseImage.setTexture(key);
+        this.enemyBaseImage.setScale(Math.min(112 / this.enemyBaseImage.width, 112 / this.enemyBaseImage.height));
+      }
+    }
     const g = this.graphics;
     g.clear();
     this.groundGraphics.clear();

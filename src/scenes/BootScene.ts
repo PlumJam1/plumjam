@@ -21,8 +21,12 @@ export class BootScene extends Phaser.Scene {
     this.load.on('loaderror', failed);
     this.scope.defer(() => { this.load.off('progress', progress); this.load.off('loaderror', failed); });
     for (const key of GENERATED_ASSETS) if (!this.textures.exists(key)) this.load.image(key, assetUrl(key));
+    if (!this.textures.exists('human-base')) this.load.image('human-base', `${import.meta.env.BASE_URL}assets/bases/human-base.png`);
+    if (!this.textures.exists('human-base-destroyed')) this.load.image('human-base-destroyed', `${import.meta.env.BASE_URL}assets/bases/human-base-destroyed.png`);
     if (!this.textures.exists('enemy-base')) this.load.image('enemy-base', `${import.meta.env.BASE_URL}assets/bases/enemy-base.png`);
+    if (!this.textures.exists('enemy-base-destroyed')) this.load.image('enemy-base-destroyed', `${import.meta.env.BASE_URL}assets/bases/enemy-base-destroyed.png`);
     if (!this.textures.exists('enemy-base-3')) this.load.image('enemy-base-3', `${import.meta.env.BASE_URL}assets/bases/enemy-base-3.png`);
+    if (!this.textures.exists('enemy-base-3-destroyed')) this.load.image('enemy-base-3-destroyed', `${import.meta.env.BASE_URL}assets/bases/enemy-base-3-destroyed.png`);
     if (!this.textures.exists('seoultech-symbol')) this.load.image('seoultech-symbol', `${import.meta.env.BASE_URL}assets/bases/seoultech-symbol.gif`);
   }
 
