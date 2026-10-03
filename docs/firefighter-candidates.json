@@ -1,0 +1,4631 @@
+{
+  "head": "896af660eac6ca6b769afa670ffdb8b2f4dcdc94",
+  "sourceHashes": {
+    "src/game/BattleSession.ts": "d8a74fb0c523cfaa4ab9ead935867e656ebdff41d05eb251b62a877d7b9649c3",
+    "src/game/battle/balance.ts": "d1264020115ba92357378242483af9372db8fa93fb32e0361f50081eca4c5613",
+    "src/game/progression/stages.ts": "340e8c826356fa43bb4c7463c43c90c6bb30f9bd2bf0dc9efe79f87ab1a97142",
+    "src/game/progression/ProfileService.ts": "bdf9737be99fb592c59414d16a4b402dbfd3cba3d1e736ee76a0644a9a722498",
+    "scripts/balanceSimulation.ts": "2772d002b826d423a91e0289cb8030390999cb286c259340f86852864edb3cb4"
+  },
+  "policySourceHash": "2772d002b826d423a91e0289cb8030390999cb286c259340f86852864edb3cb4",
+  "measuredPolicyHash": "1aa995bef7cfacacd8ac4f58ec1117c5c294daa9b115957cf80e0451af8c21aa",
+  "method": "Frozen git896af66 SSR graphs before Athlete pending endpoint preservation fix; scalar candidate changes only. Public Profile earned campaign and same baseline-earned inputs for fixed comparisons. Native geometry and isolated durable cluster are labelled separately.",
+  "baselineInputHashes": [
+    "8f72f4ab90d4cbb4027b2f5fd13e6c9c26abf0813519d6e2aed3944545c00ba6",
+    "209c1c841a374db800f3f279193a99ed3ef43c87a432929a5046ff7a41dbedb1",
+    "fb7ab2d7da481c72070899f8d5aa7632218fba6a8711039b720756e57b610bb0",
+    "c9ba0b2a089aaff2dc2090527a4322bb35c41ab71d79d0e309d92e0813765950",
+    "57b1ff8f5c7d0694a3f1f72b30332c78a0208e7edb5d9307b18a0a533163f456",
+    "7308688bd41479a8b76ee0dacefca6d91a58fe3e3de4d953a62af67c90097226",
+    "ed6e2366bc8a308cef80fd5e1d5a22a3e6aee8913b3354d39a7e89db1a6f0890",
+    "d4c70da6ffcbf49f01b41fa2f029a83de299f1e5b75bbd2075d34255fa002859",
+    "58b1628c2ba7bca01e8a9980180d8010b5853e23c8a42a6d2540e4670ee172ee",
+    "9cd8d12e0ac8486616985fdebd898a0cf107e3abb0a50bddb8619501b079a705"
+  ],
+  "candidates": [
+    {
+      "candidate": {
+        "id": "A_team",
+        "hp": 220,
+        "range": 100,
+        "extra": 60,
+        "damage": 48
+      },
+      "configVerified": {
+        "firefighter": {
+          "label": "소방관",
+          "team": "human",
+          "bodyWidth": 32,
+          "hp": 220,
+          "damage": 48,
+          "speed": 20,
+          "range": 100,
+          "attackInterval": 2.75,
+          "cost": 200,
+          "summonCooldown": 8
+        },
+        "WATER": {
+          "duration": 1,
+          "tickInterval": 0.25,
+          "ticks": 4,
+          "extraReach": 60
+        },
+        "ATHLETE": {
+          "knockback": 20,
+          "knockbackDuration": 0.15
+        },
+        "athleteCost": 180
+      },
+      "fresh": [
+        {
+          "cadence": 0.5,
+          "clears": [
+            "1-1",
+            "1-2",
+            "1-3",
+            "1-4",
+            "1-5",
+            "2-1",
+            "2-2",
+            "2-3",
+            "2-4",
+            "2-5"
+          ],
+          "totalSeconds": 733.2,
+          "finalXp": 690,
+          "purchases": [
+            {
+              "after": "1-1",
+              "type": "level",
+              "key": "hero",
+              "xp": 60
+            },
+            {
+              "after": "1-1",
+              "type": "level",
+              "key": "melee",
+              "xp": 60
+            },
+            {
+              "after": "1-2",
+              "type": "skill",
+              "key": "heal",
+              "xp": 160
+            },
+            {
+              "after": "1-3",
+              "type": "level",
+              "key": "technician",
+              "xp": 60
+            },
+            {
+              "after": "1-3",
+              "type": "level",
+              "key": "ranged",
+              "xp": 60
+            },
+            {
+              "after": "1-4",
+              "type": "skill",
+              "key": "foreach",
+              "xp": 220
+            },
+            {
+              "after": "1-4",
+              "type": "level",
+              "key": "hero",
+              "xp": 90
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "hero",
+              "xp": 120
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "hero",
+              "xp": 150
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "technician",
+              "xp": 90
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "ranged",
+              "xp": 90
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "judge",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "counselor",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "singer",
+              "xp": 60
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "technician",
+              "xp": 120
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "judge",
+              "xp": 90
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "athlete",
+              "xp": 60
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "melee",
+              "xp": 90
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 90
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "hero",
+              "xp": 180
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "technician",
+              "xp": 150
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "judge",
+              "xp": 120
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "athlete",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 120
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "counselor",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "singer",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "hero",
+              "xp": 210
+            }
+          ],
+          "rounds": [
+            {
+              "stage": "1-1",
+              "outcome": "won",
+              "seconds": 47.2,
+              "heroHp": 320,
+              "enemyBaseHp": 0,
+              "goldSpent": 1725,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-2",
+              "outcome": "won",
+              "seconds": 54.5,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 1845,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-3",
+              "outcome": "won",
+              "seconds": 61.2,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 2580,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-4",
+              "outcome": "won",
+              "seconds": 70,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 2960,
+              "fireSummons": 1,
+              "fireSpend": 200,
+              "water": {
+                "channels": 3,
+                "meanEnemyTargets": 0.333,
+                "peakEnemyTargets": 1,
+                "baseChannels": 3,
+                "fireUnitSeconds": 26.6,
+                "maxFire": 1
+              }
+            },
+            {
+              "stage": "1-5",
+              "outcome": "won",
+              "seconds": 107.1,
+              "heroHp": 414,
+              "enemyBaseHp": 0,
+              "goldSpent": 4040,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-1",
+              "outcome": "won",
+              "seconds": 68.3,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 2970,
+              "fireSummons": 2,
+              "fireSpend": 400,
+              "water": {
+                "channels": 3,
+                "meanEnemyTargets": 0.333,
+                "peakEnemyTargets": 1,
+                "baseChannels": 3,
+                "fireUnitSeconds": 30.3,
+                "maxFire": 2
+              }
+            },
+            {
+              "stage": "2-2",
+              "outcome": "won",
+              "seconds": 68.5,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3065,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-3",
+              "outcome": "won",
+              "seconds": 80.5,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3795,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-4",
+              "outcome": "won",
+              "seconds": 75.8,
+              "heroHp": 560,
+              "enemyBaseHp": 0,
+              "goldSpent": 3620,
+              "fireSummons": 3,
+              "fireSpend": 600,
+              "water": {
+                "channels": 10,
+                "meanEnemyTargets": 0.6,
+                "peakEnemyTargets": 2,
+                "baseChannels": 9,
+                "fireUnitSeconds": 55.2,
+                "maxFire": 3
+              }
+            },
+            {
+              "stage": "2-5",
+              "outcome": "won",
+              "seconds": 100.1,
+              "heroHp": 608,
+              "enemyBaseHp": 0,
+              "goldSpent": 4775,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            }
+          ]
+        },
+        {
+          "cadence": 1,
+          "clears": [
+            "1-1",
+            "1-2",
+            "1-3",
+            "1-4",
+            "1-5",
+            "2-1",
+            "2-2",
+            "2-3",
+            "2-4",
+            "2-5"
+          ],
+          "totalSeconds": 736.3,
+          "finalXp": 690,
+          "purchases": [
+            {
+              "after": "1-1",
+              "type": "level",
+              "key": "hero",
+              "xp": 60
+            },
+            {
+              "after": "1-1",
+              "type": "level",
+              "key": "melee",
+              "xp": 60
+            },
+            {
+              "after": "1-2",
+              "type": "skill",
+              "key": "heal",
+              "xp": 160
+            },
+            {
+              "after": "1-3",
+              "type": "level",
+              "key": "technician",
+              "xp": 60
+            },
+            {
+              "after": "1-3",
+              "type": "level",
+              "key": "ranged",
+              "xp": 60
+            },
+            {
+              "after": "1-4",
+              "type": "skill",
+              "key": "foreach",
+              "xp": 220
+            },
+            {
+              "after": "1-4",
+              "type": "level",
+              "key": "hero",
+              "xp": 90
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "hero",
+              "xp": 120
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "hero",
+              "xp": 150
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "technician",
+              "xp": 90
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "ranged",
+              "xp": 90
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "judge",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "counselor",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "singer",
+              "xp": 60
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "technician",
+              "xp": 120
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "judge",
+              "xp": 90
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "athlete",
+              "xp": 60
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "melee",
+              "xp": 90
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 90
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "hero",
+              "xp": 180
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "technician",
+              "xp": 150
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "judge",
+              "xp": 120
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "athlete",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 120
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "counselor",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "singer",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "hero",
+              "xp": 210
+            }
+          ],
+          "rounds": [
+            {
+              "stage": "1-1",
+              "outcome": "won",
+              "seconds": 49.2,
+              "heroHp": 320,
+              "enemyBaseHp": 0,
+              "goldSpent": 1725,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-2",
+              "outcome": "won",
+              "seconds": 51.7,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 1775,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-3",
+              "outcome": "won",
+              "seconds": 62.9,
+              "heroHp": 351,
+              "enemyBaseHp": 0,
+              "goldSpent": 2700,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-4",
+              "outcome": "won",
+              "seconds": 69.5,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 3055,
+              "fireSummons": 2,
+              "fireSpend": 400,
+              "water": {
+                "channels": 3,
+                "meanEnemyTargets": 0.333,
+                "peakEnemyTargets": 1,
+                "baseChannels": 3,
+                "fireUnitSeconds": 29,
+                "maxFire": 2
+              }
+            },
+            {
+              "stage": "1-5",
+              "outcome": "won",
+              "seconds": 102.8,
+              "heroHp": 416,
+              "enemyBaseHp": 0,
+              "goldSpent": 3830,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-1",
+              "outcome": "won",
+              "seconds": 73.2,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3100,
+              "fireSummons": 3,
+              "fireSpend": 600,
+              "water": {
+                "channels": 6,
+                "meanEnemyTargets": 0.333,
+                "peakEnemyTargets": 1,
+                "baseChannels": 6,
+                "fireUnitSeconds": 50.9,
+                "maxFire": 3
+              }
+            },
+            {
+              "stage": "2-2",
+              "outcome": "won",
+              "seconds": 69.1,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 2995,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-3",
+              "outcome": "won",
+              "seconds": 80.1,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3520,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-4",
+              "outcome": "won",
+              "seconds": 77.9,
+              "heroHp": 560,
+              "enemyBaseHp": 0,
+              "goldSpent": 3480.0000000000005,
+              "fireSummons": 3,
+              "fireSpend": 600,
+              "water": {
+                "channels": 12,
+                "meanEnemyTargets": 1.5,
+                "peakEnemyTargets": 4,
+                "baseChannels": 6,
+                "fireUnitSeconds": 72,
+                "maxFire": 3
+              }
+            },
+            {
+              "stage": "2-5",
+              "outcome": "won",
+              "seconds": 99.9,
+              "heroHp": 608,
+              "enemyBaseHp": 0,
+              "goldSpent": 4735,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            }
+          ]
+        }
+      ],
+      "fixed": [
+        {
+          "stage": "1-1",
+          "outcome": "won",
+          "seconds": 47.2,
+          "heroHp": 320,
+          "enemyBaseHp": 0,
+          "goldSpent": 1725,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "1-2",
+          "outcome": "won",
+          "seconds": 54.5,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 1845,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "1-3",
+          "outcome": "won",
+          "seconds": 61.2,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 2580,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "1-4",
+          "outcome": "won",
+          "seconds": 70,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 2960,
+          "fireSummons": 1,
+          "fireSpend": 200,
+          "water": {
+            "channels": 3,
+            "meanEnemyTargets": 0.333,
+            "peakEnemyTargets": 1,
+            "baseChannels": 3,
+            "fireUnitSeconds": 26.6,
+            "maxFire": 1
+          }
+        },
+        {
+          "stage": "1-5",
+          "outcome": "won",
+          "seconds": 107.1,
+          "heroHp": 414,
+          "enemyBaseHp": 0,
+          "goldSpent": 4040,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "2-1",
+          "outcome": "won",
+          "seconds": 68.3,
+          "heroHp": 512,
+          "enemyBaseHp": 0,
+          "goldSpent": 2970,
+          "fireSummons": 2,
+          "fireSpend": 400,
+          "water": {
+            "channels": 3,
+            "meanEnemyTargets": 0.333,
+            "peakEnemyTargets": 1,
+            "baseChannels": 3,
+            "fireUnitSeconds": 30.3,
+            "maxFire": 2
+          }
+        },
+        {
+          "stage": "2-2",
+          "outcome": "won",
+          "seconds": 68.5,
+          "heroHp": 512,
+          "enemyBaseHp": 0,
+          "goldSpent": 3065,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "2-3",
+          "outcome": "won",
+          "seconds": 80.5,
+          "heroHp": 512,
+          "enemyBaseHp": 0,
+          "goldSpent": 3795,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "2-4",
+          "outcome": "won",
+          "seconds": 75.8,
+          "heroHp": 560,
+          "enemyBaseHp": 0,
+          "goldSpent": 3620,
+          "fireSummons": 3,
+          "fireSpend": 600,
+          "water": {
+            "channels": 10,
+            "meanEnemyTargets": 0.6,
+            "peakEnemyTargets": 2,
+            "baseChannels": 9,
+            "fireUnitSeconds": 55.2,
+            "maxFire": 3
+          }
+        },
+        {
+          "stage": "2-5",
+          "outcome": "won",
+          "seconds": 100.1,
+          "heroHp": 608,
+          "enemyBaseHp": 0,
+          "goldSpent": 4775,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        }
+      ],
+      "ablations": [
+        {
+          "stage": "1-4",
+          "noFire": {
+            "stage": "1-4",
+            "outcome": "won",
+            "seconds": 68.9,
+            "heroHp": 368,
+            "enemyBaseHp": 0,
+            "goldSpent": 2760,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          },
+          "rangedReplacement": {
+            "stage": "1-4",
+            "outcome": "won",
+            "seconds": 69.8,
+            "heroHp": 368,
+            "enemyBaseHp": 0,
+            "goldSpent": 2980,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          }
+        },
+        {
+          "stage": "2-1",
+          "noFire": {
+            "stage": "2-1",
+            "outcome": "won",
+            "seconds": 68.6,
+            "heroHp": 512,
+            "enemyBaseHp": 0,
+            "goldSpent": 2570,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          },
+          "rangedReplacement": {
+            "stage": "2-1",
+            "outcome": "won",
+            "seconds": 68.8,
+            "heroHp": 512,
+            "enemyBaseHp": 0,
+            "goldSpent": 2935,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          }
+        },
+        {
+          "stage": "2-4",
+          "noFire": {
+            "stage": "2-4",
+            "outcome": "won",
+            "seconds": 75.8,
+            "heroHp": 560,
+            "enemyBaseHp": 0,
+            "goldSpent": 3055,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          },
+          "rangedReplacement": {
+            "stage": "2-4",
+            "outcome": "won",
+            "seconds": 74.6,
+            "heroHp": 560,
+            "enemyBaseHp": 0,
+            "goldSpent": 3385,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          }
+        }
+      ],
+      "nativeSpace": {
+        "method": "Damage/HP overridden only to isolate water; all travel speeds/ranges native. Public summons and steps.",
+        "at": 19.766666666666826,
+        "sourceX": 258.6666666666695,
+        "frontX": 336.999999999999,
+        "rearX": 411.999999999999,
+        "separation": 75,
+        "endX": 418.6666666666695,
+        "ticks": [
+          {
+            "tick": 1,
+            "frontDamage": 12,
+            "rearDamage": 12
+          },
+          {
+            "tick": 2,
+            "frontDamage": 24,
+            "rearDamage": 24
+          },
+          {
+            "tick": 3,
+            "frontDamage": 36,
+            "rearDamage": 36
+          },
+          {
+            "tick": 4,
+            "frontDamage": 48,
+            "rearDamage": 48
+          }
+        ]
+      },
+      "clusterAndBase": {
+        "method": "Stationary durable co-located targets at real spawnX550; no HP/x/gold state mutation.",
+        "sourceX": 450,
+        "frontX": 550,
+        "baseX": 585,
+        "endX": 610,
+        "ticks": [
+          {
+            "tick": 1,
+            "targetDamages": [
+              12,
+              12,
+              12
+            ],
+            "baseDamage": 12
+          },
+          {
+            "tick": 2,
+            "targetDamages": [
+              24,
+              24,
+              24
+            ],
+            "baseDamage": 24
+          },
+          {
+            "tick": 3,
+            "targetDamages": [
+              36,
+              36,
+              36
+            ],
+            "baseDamage": 36
+          },
+          {
+            "tick": 4,
+            "targetDamages": [
+              48,
+              48,
+              48
+            ],
+            "baseDamage": 48
+          }
+        ]
+      }
+    },
+    {
+      "candidate": {
+        "id": "B_glass120",
+        "hp": 120,
+        "range": 85,
+        "extra": 30,
+        "damage": 48
+      },
+      "configVerified": {
+        "firefighter": {
+          "label": "소방관",
+          "team": "human",
+          "bodyWidth": 32,
+          "hp": 120,
+          "damage": 48,
+          "speed": 20,
+          "range": 85,
+          "attackInterval": 2.75,
+          "cost": 200,
+          "summonCooldown": 8
+        },
+        "WATER": {
+          "duration": 1,
+          "tickInterval": 0.25,
+          "ticks": 4,
+          "extraReach": 30
+        },
+        "ATHLETE": {
+          "knockback": 20,
+          "knockbackDuration": 0.15
+        },
+        "athleteCost": 180
+      },
+      "fresh": [
+        {
+          "cadence": 0.5,
+          "clears": [
+            "1-1",
+            "1-2",
+            "1-3",
+            "1-4",
+            "1-5",
+            "2-1",
+            "2-2",
+            "2-3",
+            "2-4",
+            "2-5"
+          ],
+          "totalSeconds": 736.2,
+          "finalXp": 690,
+          "purchases": [
+            {
+              "after": "1-1",
+              "type": "level",
+              "key": "hero",
+              "xp": 60
+            },
+            {
+              "after": "1-1",
+              "type": "level",
+              "key": "melee",
+              "xp": 60
+            },
+            {
+              "after": "1-2",
+              "type": "skill",
+              "key": "heal",
+              "xp": 160
+            },
+            {
+              "after": "1-3",
+              "type": "level",
+              "key": "technician",
+              "xp": 60
+            },
+            {
+              "after": "1-3",
+              "type": "level",
+              "key": "ranged",
+              "xp": 60
+            },
+            {
+              "after": "1-4",
+              "type": "skill",
+              "key": "foreach",
+              "xp": 220
+            },
+            {
+              "after": "1-4",
+              "type": "level",
+              "key": "hero",
+              "xp": 90
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "hero",
+              "xp": 120
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "hero",
+              "xp": 150
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "technician",
+              "xp": 90
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "ranged",
+              "xp": 90
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "judge",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "counselor",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "singer",
+              "xp": 60
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "technician",
+              "xp": 120
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "judge",
+              "xp": 90
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "athlete",
+              "xp": 60
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "melee",
+              "xp": 90
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 90
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "hero",
+              "xp": 180
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "technician",
+              "xp": 150
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "judge",
+              "xp": 120
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "athlete",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 120
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "counselor",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "singer",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "hero",
+              "xp": 210
+            }
+          ],
+          "rounds": [
+            {
+              "stage": "1-1",
+              "outcome": "won",
+              "seconds": 47.2,
+              "heroHp": 320,
+              "enemyBaseHp": 0,
+              "goldSpent": 1725,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-2",
+              "outcome": "won",
+              "seconds": 54.5,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 1845,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-3",
+              "outcome": "won",
+              "seconds": 61.2,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 2580,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-4",
+              "outcome": "won",
+              "seconds": 71,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 3160,
+              "fireSummons": 2,
+              "fireSpend": 400,
+              "water": {
+                "channels": 3,
+                "meanEnemyTargets": 0.333,
+                "peakEnemyTargets": 1,
+                "baseChannels": 2,
+                "fireUnitSeconds": 27.7,
+                "maxFire": 2
+              }
+            },
+            {
+              "stage": "1-5",
+              "outcome": "won",
+              "seconds": 107.1,
+              "heroHp": 414,
+              "enemyBaseHp": 0,
+              "goldSpent": 4040,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-1",
+              "outcome": "won",
+              "seconds": 68.6,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3005,
+              "fireSummons": 2,
+              "fireSpend": 400,
+              "water": {
+                "channels": 3,
+                "meanEnemyTargets": 0.667,
+                "peakEnemyTargets": 1,
+                "baseChannels": 3,
+                "fireUnitSeconds": 30.7,
+                "maxFire": 2
+              }
+            },
+            {
+              "stage": "2-2",
+              "outcome": "won",
+              "seconds": 68.5,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3065,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-3",
+              "outcome": "won",
+              "seconds": 80.5,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3795,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-4",
+              "outcome": "won",
+              "seconds": 77.5,
+              "heroHp": 560,
+              "enemyBaseHp": 0,
+              "goldSpent": 3655,
+              "fireSummons": 3,
+              "fireSpend": 600,
+              "water": {
+                "channels": 10,
+                "meanEnemyTargets": 0.5,
+                "peakEnemyTargets": 1,
+                "baseChannels": 8,
+                "fireUnitSeconds": 60.3,
+                "maxFire": 3
+              }
+            },
+            {
+              "stage": "2-5",
+              "outcome": "won",
+              "seconds": 100.1,
+              "heroHp": 608,
+              "enemyBaseHp": 0,
+              "goldSpent": 4775,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            }
+          ]
+        },
+        {
+          "cadence": 1,
+          "clears": [
+            "1-1",
+            "1-2",
+            "1-3",
+            "1-4",
+            "1-5",
+            "2-1",
+            "2-2",
+            "2-3",
+            "2-4",
+            "2-5"
+          ],
+          "totalSeconds": 737.4,
+          "finalXp": 690,
+          "purchases": [
+            {
+              "after": "1-1",
+              "type": "level",
+              "key": "hero",
+              "xp": 60
+            },
+            {
+              "after": "1-1",
+              "type": "level",
+              "key": "melee",
+              "xp": 60
+            },
+            {
+              "after": "1-2",
+              "type": "skill",
+              "key": "heal",
+              "xp": 160
+            },
+            {
+              "after": "1-3",
+              "type": "level",
+              "key": "technician",
+              "xp": 60
+            },
+            {
+              "after": "1-3",
+              "type": "level",
+              "key": "ranged",
+              "xp": 60
+            },
+            {
+              "after": "1-4",
+              "type": "skill",
+              "key": "foreach",
+              "xp": 220
+            },
+            {
+              "after": "1-4",
+              "type": "level",
+              "key": "hero",
+              "xp": 90
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "hero",
+              "xp": 120
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "hero",
+              "xp": 150
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "technician",
+              "xp": 90
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "ranged",
+              "xp": 90
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "judge",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "counselor",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "singer",
+              "xp": 60
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "technician",
+              "xp": 120
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "judge",
+              "xp": 90
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "athlete",
+              "xp": 60
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "melee",
+              "xp": 90
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 90
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "hero",
+              "xp": 180
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "technician",
+              "xp": 150
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "judge",
+              "xp": 120
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "athlete",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 120
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "counselor",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "singer",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "hero",
+              "xp": 210
+            }
+          ],
+          "rounds": [
+            {
+              "stage": "1-1",
+              "outcome": "won",
+              "seconds": 49.2,
+              "heroHp": 320,
+              "enemyBaseHp": 0,
+              "goldSpent": 1725,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-2",
+              "outcome": "won",
+              "seconds": 51.7,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 1775,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-3",
+              "outcome": "won",
+              "seconds": 62.9,
+              "heroHp": 351,
+              "enemyBaseHp": 0,
+              "goldSpent": 2700,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-4",
+              "outcome": "won",
+              "seconds": 69.5,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 3055,
+              "fireSummons": 2,
+              "fireSpend": 400,
+              "water": {
+                "channels": 3,
+                "meanEnemyTargets": 0.333,
+                "peakEnemyTargets": 1,
+                "baseChannels": 3,
+                "fireUnitSeconds": 29,
+                "maxFire": 2
+              }
+            },
+            {
+              "stage": "1-5",
+              "outcome": "won",
+              "seconds": 102.8,
+              "heroHp": 416,
+              "enemyBaseHp": 0,
+              "goldSpent": 3830,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-1",
+              "outcome": "won",
+              "seconds": 73.8,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3100,
+              "fireSummons": 3,
+              "fireSpend": 600,
+              "water": {
+                "channels": 6,
+                "meanEnemyTargets": 0.333,
+                "peakEnemyTargets": 1,
+                "baseChannels": 5,
+                "fireUnitSeconds": 52.7,
+                "maxFire": 3
+              }
+            },
+            {
+              "stage": "2-2",
+              "outcome": "won",
+              "seconds": 69.1,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 2995,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-3",
+              "outcome": "won",
+              "seconds": 80.1,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3520,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-4",
+              "outcome": "won",
+              "seconds": 78.4,
+              "heroHp": 560,
+              "enemyBaseHp": 0,
+              "goldSpent": 3580,
+              "fireSummons": 3,
+              "fireSpend": 600,
+              "water": {
+                "channels": 12,
+                "meanEnemyTargets": 1.167,
+                "peakEnemyTargets": 4,
+                "baseChannels": 6,
+                "fireUnitSeconds": 67.2,
+                "maxFire": 3
+              }
+            },
+            {
+              "stage": "2-5",
+              "outcome": "won",
+              "seconds": 99.9,
+              "heroHp": 608,
+              "enemyBaseHp": 0,
+              "goldSpent": 4735,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            }
+          ]
+        }
+      ],
+      "fixed": [
+        {
+          "stage": "1-1",
+          "outcome": "won",
+          "seconds": 47.2,
+          "heroHp": 320,
+          "enemyBaseHp": 0,
+          "goldSpent": 1725,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "1-2",
+          "outcome": "won",
+          "seconds": 54.5,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 1845,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "1-3",
+          "outcome": "won",
+          "seconds": 61.2,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 2580,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "1-4",
+          "outcome": "won",
+          "seconds": 71,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 3160,
+          "fireSummons": 2,
+          "fireSpend": 400,
+          "water": {
+            "channels": 3,
+            "meanEnemyTargets": 0.333,
+            "peakEnemyTargets": 1,
+            "baseChannels": 2,
+            "fireUnitSeconds": 27.7,
+            "maxFire": 2
+          }
+        },
+        {
+          "stage": "1-5",
+          "outcome": "won",
+          "seconds": 107.1,
+          "heroHp": 414,
+          "enemyBaseHp": 0,
+          "goldSpent": 4040,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "2-1",
+          "outcome": "won",
+          "seconds": 68.6,
+          "heroHp": 512,
+          "enemyBaseHp": 0,
+          "goldSpent": 3005,
+          "fireSummons": 2,
+          "fireSpend": 400,
+          "water": {
+            "channels": 3,
+            "meanEnemyTargets": 0.667,
+            "peakEnemyTargets": 1,
+            "baseChannels": 3,
+            "fireUnitSeconds": 30.7,
+            "maxFire": 2
+          }
+        },
+        {
+          "stage": "2-2",
+          "outcome": "won",
+          "seconds": 68.5,
+          "heroHp": 512,
+          "enemyBaseHp": 0,
+          "goldSpent": 3065,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "2-3",
+          "outcome": "won",
+          "seconds": 80.5,
+          "heroHp": 512,
+          "enemyBaseHp": 0,
+          "goldSpent": 3795,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "2-4",
+          "outcome": "won",
+          "seconds": 77.5,
+          "heroHp": 560,
+          "enemyBaseHp": 0,
+          "goldSpent": 3655,
+          "fireSummons": 3,
+          "fireSpend": 600,
+          "water": {
+            "channels": 10,
+            "meanEnemyTargets": 0.5,
+            "peakEnemyTargets": 1,
+            "baseChannels": 8,
+            "fireUnitSeconds": 60.3,
+            "maxFire": 3
+          }
+        },
+        {
+          "stage": "2-5",
+          "outcome": "won",
+          "seconds": 100.1,
+          "heroHp": 608,
+          "enemyBaseHp": 0,
+          "goldSpent": 4775,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        }
+      ],
+      "ablations": [
+        {
+          "stage": "1-4",
+          "noFire": {
+            "stage": "1-4",
+            "outcome": "won",
+            "seconds": 68.9,
+            "heroHp": 368,
+            "enemyBaseHp": 0,
+            "goldSpent": 2760,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          },
+          "rangedReplacement": {
+            "stage": "1-4",
+            "outcome": "won",
+            "seconds": 69.8,
+            "heroHp": 368,
+            "enemyBaseHp": 0,
+            "goldSpent": 2980,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          }
+        },
+        {
+          "stage": "2-1",
+          "noFire": {
+            "stage": "2-1",
+            "outcome": "won",
+            "seconds": 68.6,
+            "heroHp": 512,
+            "enemyBaseHp": 0,
+            "goldSpent": 2570,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          },
+          "rangedReplacement": {
+            "stage": "2-1",
+            "outcome": "won",
+            "seconds": 68.8,
+            "heroHp": 512,
+            "enemyBaseHp": 0,
+            "goldSpent": 2935,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          }
+        },
+        {
+          "stage": "2-4",
+          "noFire": {
+            "stage": "2-4",
+            "outcome": "won",
+            "seconds": 75.8,
+            "heroHp": 560,
+            "enemyBaseHp": 0,
+            "goldSpent": 3055,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          },
+          "rangedReplacement": {
+            "stage": "2-4",
+            "outcome": "won",
+            "seconds": 74.6,
+            "heroHp": 560,
+            "enemyBaseHp": 0,
+            "goldSpent": 3385,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          }
+        }
+      ],
+      "nativeSpace": {
+        "method": "Damage/HP overridden only to isolate water; all travel speeds/ranges native. Public summons and steps.",
+        "at": 20.13333333333347,
+        "sourceX": 265.8999999999959,
+        "frontX": 336.999999999999,
+        "rearX": 411.999999999999,
+        "separation": 75,
+        "endX": 380.8999999999959,
+        "ticks": [
+          {
+            "tick": 1,
+            "frontDamage": 12,
+            "rearDamage": 0
+          },
+          {
+            "tick": 2,
+            "frontDamage": 24,
+            "rearDamage": 0
+          },
+          {
+            "tick": 3,
+            "frontDamage": 36,
+            "rearDamage": 0
+          },
+          {
+            "tick": 4,
+            "frontDamage": 48,
+            "rearDamage": 0
+          }
+        ]
+      },
+      "clusterAndBase": {
+        "method": "Stationary durable co-located targets at real spawnX550; no HP/x/gold state mutation.",
+        "sourceX": 465,
+        "frontX": 550,
+        "baseX": 585,
+        "endX": 580,
+        "ticks": [
+          {
+            "tick": 1,
+            "targetDamages": [
+              12,
+              12,
+              12
+            ],
+            "baseDamage": 0
+          },
+          {
+            "tick": 2,
+            "targetDamages": [
+              24,
+              24,
+              24
+            ],
+            "baseDamage": 0
+          },
+          {
+            "tick": 3,
+            "targetDamages": [
+              36,
+              36,
+              36
+            ],
+            "baseDamage": 0
+          },
+          {
+            "tick": 4,
+            "targetDamages": [
+              48,
+              48,
+              48
+            ],
+            "baseDamage": 0
+          }
+        ]
+      }
+    },
+    {
+      "candidate": {
+        "id": "C_glass110",
+        "hp": 110,
+        "range": 85,
+        "extra": 30,
+        "damage": 48
+      },
+      "configVerified": {
+        "firefighter": {
+          "label": "소방관",
+          "team": "human",
+          "bodyWidth": 32,
+          "hp": 110,
+          "damage": 48,
+          "speed": 20,
+          "range": 85,
+          "attackInterval": 2.75,
+          "cost": 200,
+          "summonCooldown": 8
+        },
+        "WATER": {
+          "duration": 1,
+          "tickInterval": 0.25,
+          "ticks": 4,
+          "extraReach": 30
+        },
+        "ATHLETE": {
+          "knockback": 20,
+          "knockbackDuration": 0.15
+        },
+        "athleteCost": 180
+      },
+      "fresh": [
+        {
+          "cadence": 0.5,
+          "clears": [
+            "1-1",
+            "1-2",
+            "1-3",
+            "1-4",
+            "1-5",
+            "2-1",
+            "2-2",
+            "2-3",
+            "2-4",
+            "2-5"
+          ],
+          "totalSeconds": 736.2,
+          "finalXp": 690,
+          "purchases": [
+            {
+              "after": "1-1",
+              "type": "level",
+              "key": "hero",
+              "xp": 60
+            },
+            {
+              "after": "1-1",
+              "type": "level",
+              "key": "melee",
+              "xp": 60
+            },
+            {
+              "after": "1-2",
+              "type": "skill",
+              "key": "heal",
+              "xp": 160
+            },
+            {
+              "after": "1-3",
+              "type": "level",
+              "key": "technician",
+              "xp": 60
+            },
+            {
+              "after": "1-3",
+              "type": "level",
+              "key": "ranged",
+              "xp": 60
+            },
+            {
+              "after": "1-4",
+              "type": "skill",
+              "key": "foreach",
+              "xp": 220
+            },
+            {
+              "after": "1-4",
+              "type": "level",
+              "key": "hero",
+              "xp": 90
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "hero",
+              "xp": 120
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "hero",
+              "xp": 150
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "technician",
+              "xp": 90
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "ranged",
+              "xp": 90
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "judge",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "counselor",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "singer",
+              "xp": 60
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "technician",
+              "xp": 120
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "judge",
+              "xp": 90
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "athlete",
+              "xp": 60
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "melee",
+              "xp": 90
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 90
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "hero",
+              "xp": 180
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "technician",
+              "xp": 150
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "judge",
+              "xp": 120
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "athlete",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 120
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "counselor",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "singer",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "hero",
+              "xp": 210
+            }
+          ],
+          "rounds": [
+            {
+              "stage": "1-1",
+              "outcome": "won",
+              "seconds": 47.2,
+              "heroHp": 320,
+              "enemyBaseHp": 0,
+              "goldSpent": 1725,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-2",
+              "outcome": "won",
+              "seconds": 54.5,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 1845,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-3",
+              "outcome": "won",
+              "seconds": 61.2,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 2580,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-4",
+              "outcome": "won",
+              "seconds": 71,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 3160,
+              "fireSummons": 2,
+              "fireSpend": 400,
+              "water": {
+                "channels": 3,
+                "meanEnemyTargets": 0.333,
+                "peakEnemyTargets": 1,
+                "baseChannels": 2,
+                "fireUnitSeconds": 27.7,
+                "maxFire": 2
+              }
+            },
+            {
+              "stage": "1-5",
+              "outcome": "won",
+              "seconds": 107.1,
+              "heroHp": 414,
+              "enemyBaseHp": 0,
+              "goldSpent": 4040,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-1",
+              "outcome": "won",
+              "seconds": 68.6,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3005,
+              "fireSummons": 2,
+              "fireSpend": 400,
+              "water": {
+                "channels": 3,
+                "meanEnemyTargets": 0.667,
+                "peakEnemyTargets": 1,
+                "baseChannels": 3,
+                "fireUnitSeconds": 30.7,
+                "maxFire": 2
+              }
+            },
+            {
+              "stage": "2-2",
+              "outcome": "won",
+              "seconds": 68.5,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3065,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-3",
+              "outcome": "won",
+              "seconds": 80.5,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3795,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-4",
+              "outcome": "won",
+              "seconds": 77.5,
+              "heroHp": 560,
+              "enemyBaseHp": 0,
+              "goldSpent": 3655,
+              "fireSummons": 3,
+              "fireSpend": 600,
+              "water": {
+                "channels": 10,
+                "meanEnemyTargets": 0.5,
+                "peakEnemyTargets": 1,
+                "baseChannels": 8,
+                "fireUnitSeconds": 60.3,
+                "maxFire": 3
+              }
+            },
+            {
+              "stage": "2-5",
+              "outcome": "won",
+              "seconds": 100.1,
+              "heroHp": 608,
+              "enemyBaseHp": 0,
+              "goldSpent": 4775,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            }
+          ]
+        },
+        {
+          "cadence": 1,
+          "clears": [
+            "1-1",
+            "1-2",
+            "1-3",
+            "1-4",
+            "1-5",
+            "2-1",
+            "2-2",
+            "2-3",
+            "2-4",
+            "2-5"
+          ],
+          "totalSeconds": 737.4,
+          "finalXp": 690,
+          "purchases": [
+            {
+              "after": "1-1",
+              "type": "level",
+              "key": "hero",
+              "xp": 60
+            },
+            {
+              "after": "1-1",
+              "type": "level",
+              "key": "melee",
+              "xp": 60
+            },
+            {
+              "after": "1-2",
+              "type": "skill",
+              "key": "heal",
+              "xp": 160
+            },
+            {
+              "after": "1-3",
+              "type": "level",
+              "key": "technician",
+              "xp": 60
+            },
+            {
+              "after": "1-3",
+              "type": "level",
+              "key": "ranged",
+              "xp": 60
+            },
+            {
+              "after": "1-4",
+              "type": "skill",
+              "key": "foreach",
+              "xp": 220
+            },
+            {
+              "after": "1-4",
+              "type": "level",
+              "key": "hero",
+              "xp": 90
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "hero",
+              "xp": 120
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "hero",
+              "xp": 150
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "technician",
+              "xp": 90
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "ranged",
+              "xp": 90
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "judge",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "counselor",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "singer",
+              "xp": 60
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "technician",
+              "xp": 120
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "judge",
+              "xp": 90
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "athlete",
+              "xp": 60
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "melee",
+              "xp": 90
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 90
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "hero",
+              "xp": 180
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "technician",
+              "xp": 150
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "judge",
+              "xp": 120
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "athlete",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 120
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "counselor",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "singer",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "hero",
+              "xp": 210
+            }
+          ],
+          "rounds": [
+            {
+              "stage": "1-1",
+              "outcome": "won",
+              "seconds": 49.2,
+              "heroHp": 320,
+              "enemyBaseHp": 0,
+              "goldSpent": 1725,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-2",
+              "outcome": "won",
+              "seconds": 51.7,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 1775,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-3",
+              "outcome": "won",
+              "seconds": 62.9,
+              "heroHp": 351,
+              "enemyBaseHp": 0,
+              "goldSpent": 2700,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-4",
+              "outcome": "won",
+              "seconds": 69.5,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 3055,
+              "fireSummons": 2,
+              "fireSpend": 400,
+              "water": {
+                "channels": 3,
+                "meanEnemyTargets": 0.333,
+                "peakEnemyTargets": 1,
+                "baseChannels": 3,
+                "fireUnitSeconds": 29,
+                "maxFire": 2
+              }
+            },
+            {
+              "stage": "1-5",
+              "outcome": "won",
+              "seconds": 102.8,
+              "heroHp": 416,
+              "enemyBaseHp": 0,
+              "goldSpent": 3830,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-1",
+              "outcome": "won",
+              "seconds": 73.8,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3100,
+              "fireSummons": 3,
+              "fireSpend": 600,
+              "water": {
+                "channels": 6,
+                "meanEnemyTargets": 0.333,
+                "peakEnemyTargets": 1,
+                "baseChannels": 5,
+                "fireUnitSeconds": 52.7,
+                "maxFire": 3
+              }
+            },
+            {
+              "stage": "2-2",
+              "outcome": "won",
+              "seconds": 69.1,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 2995,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-3",
+              "outcome": "won",
+              "seconds": 80.1,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3520,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-4",
+              "outcome": "won",
+              "seconds": 78.4,
+              "heroHp": 560,
+              "enemyBaseHp": 0,
+              "goldSpent": 3580,
+              "fireSummons": 3,
+              "fireSpend": 600,
+              "water": {
+                "channels": 12,
+                "meanEnemyTargets": 1.167,
+                "peakEnemyTargets": 4,
+                "baseChannels": 6,
+                "fireUnitSeconds": 67.2,
+                "maxFire": 3
+              }
+            },
+            {
+              "stage": "2-5",
+              "outcome": "won",
+              "seconds": 99.9,
+              "heroHp": 608,
+              "enemyBaseHp": 0,
+              "goldSpent": 4735,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            }
+          ]
+        }
+      ],
+      "fixed": [
+        {
+          "stage": "1-1",
+          "outcome": "won",
+          "seconds": 47.2,
+          "heroHp": 320,
+          "enemyBaseHp": 0,
+          "goldSpent": 1725,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "1-2",
+          "outcome": "won",
+          "seconds": 54.5,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 1845,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "1-3",
+          "outcome": "won",
+          "seconds": 61.2,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 2580,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "1-4",
+          "outcome": "won",
+          "seconds": 71,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 3160,
+          "fireSummons": 2,
+          "fireSpend": 400,
+          "water": {
+            "channels": 3,
+            "meanEnemyTargets": 0.333,
+            "peakEnemyTargets": 1,
+            "baseChannels": 2,
+            "fireUnitSeconds": 27.7,
+            "maxFire": 2
+          }
+        },
+        {
+          "stage": "1-5",
+          "outcome": "won",
+          "seconds": 107.1,
+          "heroHp": 414,
+          "enemyBaseHp": 0,
+          "goldSpent": 4040,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "2-1",
+          "outcome": "won",
+          "seconds": 68.6,
+          "heroHp": 512,
+          "enemyBaseHp": 0,
+          "goldSpent": 3005,
+          "fireSummons": 2,
+          "fireSpend": 400,
+          "water": {
+            "channels": 3,
+            "meanEnemyTargets": 0.667,
+            "peakEnemyTargets": 1,
+            "baseChannels": 3,
+            "fireUnitSeconds": 30.7,
+            "maxFire": 2
+          }
+        },
+        {
+          "stage": "2-2",
+          "outcome": "won",
+          "seconds": 68.5,
+          "heroHp": 512,
+          "enemyBaseHp": 0,
+          "goldSpent": 3065,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "2-3",
+          "outcome": "won",
+          "seconds": 80.5,
+          "heroHp": 512,
+          "enemyBaseHp": 0,
+          "goldSpent": 3795,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "2-4",
+          "outcome": "won",
+          "seconds": 77.5,
+          "heroHp": 560,
+          "enemyBaseHp": 0,
+          "goldSpent": 3655,
+          "fireSummons": 3,
+          "fireSpend": 600,
+          "water": {
+            "channels": 10,
+            "meanEnemyTargets": 0.5,
+            "peakEnemyTargets": 1,
+            "baseChannels": 8,
+            "fireUnitSeconds": 60.3,
+            "maxFire": 3
+          }
+        },
+        {
+          "stage": "2-5",
+          "outcome": "won",
+          "seconds": 100.1,
+          "heroHp": 608,
+          "enemyBaseHp": 0,
+          "goldSpent": 4775,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        }
+      ],
+      "ablations": [
+        {
+          "stage": "1-4",
+          "noFire": {
+            "stage": "1-4",
+            "outcome": "won",
+            "seconds": 68.9,
+            "heroHp": 368,
+            "enemyBaseHp": 0,
+            "goldSpent": 2760,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          },
+          "rangedReplacement": {
+            "stage": "1-4",
+            "outcome": "won",
+            "seconds": 69.8,
+            "heroHp": 368,
+            "enemyBaseHp": 0,
+            "goldSpent": 2980,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          }
+        },
+        {
+          "stage": "2-1",
+          "noFire": {
+            "stage": "2-1",
+            "outcome": "won",
+            "seconds": 68.6,
+            "heroHp": 512,
+            "enemyBaseHp": 0,
+            "goldSpent": 2570,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          },
+          "rangedReplacement": {
+            "stage": "2-1",
+            "outcome": "won",
+            "seconds": 68.8,
+            "heroHp": 512,
+            "enemyBaseHp": 0,
+            "goldSpent": 2935,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          }
+        },
+        {
+          "stage": "2-4",
+          "noFire": {
+            "stage": "2-4",
+            "outcome": "won",
+            "seconds": 75.8,
+            "heroHp": 560,
+            "enemyBaseHp": 0,
+            "goldSpent": 3055,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          },
+          "rangedReplacement": {
+            "stage": "2-4",
+            "outcome": "won",
+            "seconds": 74.6,
+            "heroHp": 560,
+            "enemyBaseHp": 0,
+            "goldSpent": 3385,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          }
+        }
+      ],
+      "nativeSpace": {
+        "method": "Damage/HP overridden only to isolate water; all travel speeds/ranges native. Public summons and steps.",
+        "at": 20.13333333333347,
+        "sourceX": 265.8999999999959,
+        "frontX": 336.999999999999,
+        "rearX": 411.999999999999,
+        "separation": 75,
+        "endX": 380.8999999999959,
+        "ticks": [
+          {
+            "tick": 1,
+            "frontDamage": 12,
+            "rearDamage": 0
+          },
+          {
+            "tick": 2,
+            "frontDamage": 24,
+            "rearDamage": 0
+          },
+          {
+            "tick": 3,
+            "frontDamage": 36,
+            "rearDamage": 0
+          },
+          {
+            "tick": 4,
+            "frontDamage": 48,
+            "rearDamage": 0
+          }
+        ]
+      },
+      "clusterAndBase": {
+        "method": "Stationary durable co-located targets at real spawnX550; no HP/x/gold state mutation.",
+        "sourceX": 465,
+        "frontX": 550,
+        "baseX": 585,
+        "endX": 580,
+        "ticks": [
+          {
+            "tick": 1,
+            "targetDamages": [
+              12,
+              12,
+              12
+            ],
+            "baseDamage": 0
+          },
+          {
+            "tick": 2,
+            "targetDamages": [
+              24,
+              24,
+              24
+            ],
+            "baseDamage": 0
+          },
+          {
+            "tick": 3,
+            "targetDamages": [
+              36,
+              36,
+              36
+            ],
+            "baseDamage": 0
+          },
+          {
+            "tick": 4,
+            "targetDamages": [
+              48,
+              48,
+              48
+            ],
+            "baseDamage": 0
+          }
+        ]
+      }
+    },
+    {
+      "candidate": {
+        "id": "D_quarter12",
+        "hp": 120,
+        "range": 85,
+        "extra": 30,
+        "damage": 12
+      },
+      "configVerified": {
+        "firefighter": {
+          "label": "소방관",
+          "team": "human",
+          "bodyWidth": 32,
+          "hp": 120,
+          "damage": 12,
+          "speed": 20,
+          "range": 85,
+          "attackInterval": 2.75,
+          "cost": 200,
+          "summonCooldown": 8
+        },
+        "WATER": {
+          "duration": 1,
+          "tickInterval": 0.25,
+          "ticks": 4,
+          "extraReach": 30
+        },
+        "ATHLETE": {
+          "knockback": 20,
+          "knockbackDuration": 0.15
+        },
+        "athleteCost": 180
+      },
+      "fresh": [
+        {
+          "cadence": 0.5,
+          "clears": [
+            "1-1",
+            "1-2",
+            "1-3",
+            "1-4",
+            "1-5",
+            "2-1",
+            "2-2",
+            "2-3",
+            "2-4",
+            "2-5"
+          ],
+          "totalSeconds": 738.7,
+          "finalXp": 690,
+          "purchases": [
+            {
+              "after": "1-1",
+              "type": "level",
+              "key": "hero",
+              "xp": 60
+            },
+            {
+              "after": "1-1",
+              "type": "level",
+              "key": "melee",
+              "xp": 60
+            },
+            {
+              "after": "1-2",
+              "type": "skill",
+              "key": "heal",
+              "xp": 160
+            },
+            {
+              "after": "1-3",
+              "type": "level",
+              "key": "technician",
+              "xp": 60
+            },
+            {
+              "after": "1-3",
+              "type": "level",
+              "key": "ranged",
+              "xp": 60
+            },
+            {
+              "after": "1-4",
+              "type": "skill",
+              "key": "foreach",
+              "xp": 220
+            },
+            {
+              "after": "1-4",
+              "type": "level",
+              "key": "hero",
+              "xp": 90
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "hero",
+              "xp": 120
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "hero",
+              "xp": 150
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "technician",
+              "xp": 90
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "ranged",
+              "xp": 90
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "judge",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "counselor",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "singer",
+              "xp": 60
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "technician",
+              "xp": 120
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "judge",
+              "xp": 90
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "athlete",
+              "xp": 60
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "melee",
+              "xp": 90
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 90
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "hero",
+              "xp": 180
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "technician",
+              "xp": 150
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "judge",
+              "xp": 120
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "athlete",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 120
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "counselor",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "singer",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "hero",
+              "xp": 210
+            }
+          ],
+          "rounds": [
+            {
+              "stage": "1-1",
+              "outcome": "won",
+              "seconds": 47.2,
+              "heroHp": 320,
+              "enemyBaseHp": 0,
+              "goldSpent": 1725,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-2",
+              "outcome": "won",
+              "seconds": 54.5,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 1845,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-3",
+              "outcome": "won",
+              "seconds": 61.2,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 2580,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-4",
+              "outcome": "won",
+              "seconds": 71.2,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 3160,
+              "fireSummons": 2,
+              "fireSpend": 400,
+              "water": {
+                "channels": 3,
+                "meanEnemyTargets": 0.333,
+                "peakEnemyTargets": 1,
+                "baseChannels": 2,
+                "fireUnitSeconds": 27.9,
+                "maxFire": 2
+              }
+            },
+            {
+              "stage": "1-5",
+              "outcome": "won",
+              "seconds": 107.1,
+              "heroHp": 414,
+              "enemyBaseHp": 0,
+              "goldSpent": 4040,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-1",
+              "outcome": "won",
+              "seconds": 69.1,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3005,
+              "fireSummons": 2,
+              "fireSpend": 400,
+              "water": {
+                "channels": 3,
+                "meanEnemyTargets": 0.667,
+                "peakEnemyTargets": 1,
+                "baseChannels": 3,
+                "fireUnitSeconds": 31.9,
+                "maxFire": 2
+              }
+            },
+            {
+              "stage": "2-2",
+              "outcome": "won",
+              "seconds": 68.5,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3065,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-3",
+              "outcome": "won",
+              "seconds": 80.5,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3795,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-4",
+              "outcome": "won",
+              "seconds": 79.3,
+              "heroHp": 560,
+              "enemyBaseHp": 0,
+              "goldSpent": 3690,
+              "fireSummons": 3,
+              "fireSpend": 600,
+              "water": {
+                "channels": 11,
+                "meanEnemyTargets": 0.455,
+                "peakEnemyTargets": 1,
+                "baseChannels": 9,
+                "fireUnitSeconds": 65.7,
+                "maxFire": 3
+              }
+            },
+            {
+              "stage": "2-5",
+              "outcome": "won",
+              "seconds": 100.1,
+              "heroHp": 608,
+              "enemyBaseHp": 0,
+              "goldSpent": 4775,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            }
+          ]
+        },
+        {
+          "cadence": 1,
+          "clears": [
+            "1-1",
+            "1-2",
+            "1-3",
+            "1-4",
+            "1-5",
+            "2-1",
+            "2-2",
+            "2-3",
+            "2-4",
+            "2-5"
+          ],
+          "totalSeconds": 741.1,
+          "finalXp": 690,
+          "purchases": [
+            {
+              "after": "1-1",
+              "type": "level",
+              "key": "hero",
+              "xp": 60
+            },
+            {
+              "after": "1-1",
+              "type": "level",
+              "key": "melee",
+              "xp": 60
+            },
+            {
+              "after": "1-2",
+              "type": "skill",
+              "key": "heal",
+              "xp": 160
+            },
+            {
+              "after": "1-3",
+              "type": "level",
+              "key": "technician",
+              "xp": 60
+            },
+            {
+              "after": "1-3",
+              "type": "level",
+              "key": "ranged",
+              "xp": 60
+            },
+            {
+              "after": "1-4",
+              "type": "skill",
+              "key": "foreach",
+              "xp": 220
+            },
+            {
+              "after": "1-4",
+              "type": "level",
+              "key": "hero",
+              "xp": 90
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "hero",
+              "xp": 120
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "hero",
+              "xp": 150
+            },
+            {
+              "after": "1-5",
+              "type": "level",
+              "key": "technician",
+              "xp": 90
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "ranged",
+              "xp": 90
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "judge",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "counselor",
+              "xp": 60
+            },
+            {
+              "after": "2-1",
+              "type": "level",
+              "key": "singer",
+              "xp": 60
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "technician",
+              "xp": 120
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "judge",
+              "xp": 90
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "athlete",
+              "xp": 60
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "melee",
+              "xp": 90
+            },
+            {
+              "after": "2-2",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 90
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "hero",
+              "xp": 180
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "technician",
+              "xp": 150
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "judge",
+              "xp": 120
+            },
+            {
+              "after": "2-3",
+              "type": "level",
+              "key": "athlete",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "firefighter",
+              "xp": 120
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "counselor",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "singer",
+              "xp": 90
+            },
+            {
+              "after": "2-4",
+              "type": "level",
+              "key": "hero",
+              "xp": 210
+            }
+          ],
+          "rounds": [
+            {
+              "stage": "1-1",
+              "outcome": "won",
+              "seconds": 49.2,
+              "heroHp": 320,
+              "enemyBaseHp": 0,
+              "goldSpent": 1725,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-2",
+              "outcome": "won",
+              "seconds": 51.7,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 1775,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-3",
+              "outcome": "won",
+              "seconds": 62.9,
+              "heroHp": 351,
+              "enemyBaseHp": 0,
+              "goldSpent": 2700,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "1-4",
+              "outcome": "won",
+              "seconds": 70.2,
+              "heroHp": 368,
+              "enemyBaseHp": 0,
+              "goldSpent": 3055,
+              "fireSummons": 2,
+              "fireSpend": 400,
+              "water": {
+                "channels": 3,
+                "meanEnemyTargets": 0.333,
+                "peakEnemyTargets": 1,
+                "baseChannels": 3,
+                "fireUnitSeconds": 30.4,
+                "maxFire": 2
+              }
+            },
+            {
+              "stage": "1-5",
+              "outcome": "won",
+              "seconds": 102.8,
+              "heroHp": 416,
+              "enemyBaseHp": 0,
+              "goldSpent": 3830,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-1",
+              "outcome": "won",
+              "seconds": 74.6,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3135,
+              "fireSummons": 3,
+              "fireSpend": 600,
+              "water": {
+                "channels": 6,
+                "meanEnemyTargets": 0.333,
+                "peakEnemyTargets": 1,
+                "baseChannels": 5,
+                "fireUnitSeconds": 55.1,
+                "maxFire": 3
+              }
+            },
+            {
+              "stage": "2-2",
+              "outcome": "won",
+              "seconds": 69.1,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 2995,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-3",
+              "outcome": "won",
+              "seconds": 80.1,
+              "heroHp": 512,
+              "enemyBaseHp": 0,
+              "goldSpent": 3520,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            },
+            {
+              "stage": "2-4",
+              "outcome": "won",
+              "seconds": 80.6,
+              "heroHp": 560,
+              "enemyBaseHp": 0,
+              "goldSpent": 3615,
+              "fireSummons": 3,
+              "fireSpend": 600,
+              "water": {
+                "channels": 12,
+                "meanEnemyTargets": 1.417,
+                "peakEnemyTargets": 4,
+                "baseChannels": 7,
+                "fireUnitSeconds": 74.1,
+                "maxFire": 3
+              }
+            },
+            {
+              "stage": "2-5",
+              "outcome": "won",
+              "seconds": 99.9,
+              "heroHp": 608,
+              "enemyBaseHp": 0,
+              "goldSpent": 4735,
+              "fireSummons": 0,
+              "fireSpend": 0,
+              "water": {
+                "channels": 0,
+                "meanEnemyTargets": 0,
+                "peakEnemyTargets": 0,
+                "baseChannels": 0,
+                "fireUnitSeconds": 0,
+                "maxFire": 0
+              }
+            }
+          ]
+        }
+      ],
+      "fixed": [
+        {
+          "stage": "1-1",
+          "outcome": "won",
+          "seconds": 47.2,
+          "heroHp": 320,
+          "enemyBaseHp": 0,
+          "goldSpent": 1725,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "1-2",
+          "outcome": "won",
+          "seconds": 54.5,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 1845,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "1-3",
+          "outcome": "won",
+          "seconds": 61.2,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 2580,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "1-4",
+          "outcome": "won",
+          "seconds": 71.2,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 3160,
+          "fireSummons": 2,
+          "fireSpend": 400,
+          "water": {
+            "channels": 3,
+            "meanEnemyTargets": 0.333,
+            "peakEnemyTargets": 1,
+            "baseChannels": 2,
+            "fireUnitSeconds": 27.9,
+            "maxFire": 2
+          }
+        },
+        {
+          "stage": "1-5",
+          "outcome": "won",
+          "seconds": 107.1,
+          "heroHp": 414,
+          "enemyBaseHp": 0,
+          "goldSpent": 4040,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "2-1",
+          "outcome": "won",
+          "seconds": 69.1,
+          "heroHp": 512,
+          "enemyBaseHp": 0,
+          "goldSpent": 3005,
+          "fireSummons": 2,
+          "fireSpend": 400,
+          "water": {
+            "channels": 3,
+            "meanEnemyTargets": 0.667,
+            "peakEnemyTargets": 1,
+            "baseChannels": 3,
+            "fireUnitSeconds": 31.9,
+            "maxFire": 2
+          }
+        },
+        {
+          "stage": "2-2",
+          "outcome": "won",
+          "seconds": 68.5,
+          "heroHp": 512,
+          "enemyBaseHp": 0,
+          "goldSpent": 3065,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "2-3",
+          "outcome": "won",
+          "seconds": 80.5,
+          "heroHp": 512,
+          "enemyBaseHp": 0,
+          "goldSpent": 3795,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        },
+        {
+          "stage": "2-4",
+          "outcome": "won",
+          "seconds": 79.3,
+          "heroHp": 560,
+          "enemyBaseHp": 0,
+          "goldSpent": 3690,
+          "fireSummons": 3,
+          "fireSpend": 600,
+          "water": {
+            "channels": 11,
+            "meanEnemyTargets": 0.455,
+            "peakEnemyTargets": 1,
+            "baseChannels": 9,
+            "fireUnitSeconds": 65.7,
+            "maxFire": 3
+          }
+        },
+        {
+          "stage": "2-5",
+          "outcome": "won",
+          "seconds": 100.1,
+          "heroHp": 608,
+          "enemyBaseHp": 0,
+          "goldSpent": 4775,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          }
+        }
+      ],
+      "ablations": [
+        {
+          "stage": "1-4",
+          "noFire": {
+            "stage": "1-4",
+            "outcome": "won",
+            "seconds": 68.9,
+            "heroHp": 368,
+            "enemyBaseHp": 0,
+            "goldSpent": 2760,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          },
+          "rangedReplacement": {
+            "stage": "1-4",
+            "outcome": "won",
+            "seconds": 69.8,
+            "heroHp": 368,
+            "enemyBaseHp": 0,
+            "goldSpent": 2980,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          }
+        },
+        {
+          "stage": "2-1",
+          "noFire": {
+            "stage": "2-1",
+            "outcome": "won",
+            "seconds": 68.6,
+            "heroHp": 512,
+            "enemyBaseHp": 0,
+            "goldSpent": 2570,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          },
+          "rangedReplacement": {
+            "stage": "2-1",
+            "outcome": "won",
+            "seconds": 68.8,
+            "heroHp": 512,
+            "enemyBaseHp": 0,
+            "goldSpent": 2935,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          }
+        },
+        {
+          "stage": "2-4",
+          "noFire": {
+            "stage": "2-4",
+            "outcome": "won",
+            "seconds": 75.8,
+            "heroHp": 560,
+            "enemyBaseHp": 0,
+            "goldSpent": 3055,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          },
+          "rangedReplacement": {
+            "stage": "2-4",
+            "outcome": "won",
+            "seconds": 74.6,
+            "heroHp": 560,
+            "enemyBaseHp": 0,
+            "goldSpent": 3385,
+            "fireSummons": 0,
+            "fireSpend": 0,
+            "water": {
+              "channels": 0,
+              "meanEnemyTargets": 0,
+              "peakEnemyTargets": 0,
+              "baseChannels": 0,
+              "fireUnitSeconds": 0,
+              "maxFire": 0
+            }
+          }
+        }
+      ],
+      "nativeSpace": {
+        "method": "Damage/HP overridden only to isolate water; all travel speeds/ranges native. Public summons and steps.",
+        "at": 20.13333333333347,
+        "sourceX": 265.8999999999959,
+        "frontX": 336.999999999999,
+        "rearX": 411.999999999999,
+        "separation": 75,
+        "endX": 380.8999999999959,
+        "ticks": [
+          {
+            "tick": 1,
+            "frontDamage": 3,
+            "rearDamage": 0
+          },
+          {
+            "tick": 2,
+            "frontDamage": 6,
+            "rearDamage": 0
+          },
+          {
+            "tick": 3,
+            "frontDamage": 9,
+            "rearDamage": 0
+          },
+          {
+            "tick": 4,
+            "frontDamage": 12,
+            "rearDamage": 0
+          }
+        ]
+      },
+      "clusterAndBase": {
+        "method": "Stationary durable co-located targets at real spawnX550; no HP/x/gold state mutation.",
+        "sourceX": 465,
+        "frontX": 550,
+        "baseX": 585,
+        "endX": 580,
+        "ticks": [
+          {
+            "tick": 1,
+            "targetDamages": [
+              3,
+              3,
+              3
+            ],
+            "baseDamage": 0
+          },
+          {
+            "tick": 2,
+            "targetDamages": [
+              6,
+              6,
+              6
+            ],
+            "baseDamage": 0
+          },
+          {
+            "tick": 3,
+            "targetDamages": [
+              9,
+              9,
+              9
+            ],
+            "baseDamage": 0
+          },
+          {
+            "tick": 4,
+            "targetDamages": [
+              12,
+              12,
+              12
+            ],
+            "baseDamage": 0
+          }
+        ]
+      }
+    }
+  ]
+}

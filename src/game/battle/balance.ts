@@ -13,7 +13,7 @@ export const ALLY_ROLES: Record<AllyKind, { role: string; description: string; e
   judge: { role: '단일 딜러', description: '느리지만 강한 원거리 판결', evolution: '대법원장' },
   counselor: { role: '회복 지원', description: '주변 동료와 주인공의 체력 회복', evolution: '시니어 심리상담사' },
   athlete: { role: '근접 딜러', description: '빠른 발차기로 전선을 돌파', evolution: '태권도 선수' },
-  firefighter: { role: '범위 딜러', description: '1초 동안 물분사 4틱 · 전방 적 모두 공격', evolution: '특수진화대원' },
+  firefighter: { role: '범위 딜러', description: '가까운 적 무리에 물분사 4틱 · 낮은 체력, 전열 보호 필요', evolution: '특수진화대원' },
   singer: { role: '공격·방어 지원', description: '아군 공격·방어 강화 · 적 공격력 약화', evolution: '월드스타' },
 };
 export const FIELD = { width: 640, height: 340, cameraY: -100, groundY: 230, humanBaseX: 55, aiBaseX: 585, humanSpawnX: 85, aiSpawnX: 550, heroStartX: 110, heroMinX: 80, heroMaxX: 560 } as const;
@@ -26,7 +26,7 @@ export const UNIT_DEFINITIONS: Record<UnitKind, UnitDefinition> = {
   judge: { label: '판사', team: 'human', bodyWidth: 32, hp: 95, damage: 120, speed: 18, range: 130, attackInterval: 3.2, cost: 190, summonCooldown: 9 },
   counselor: { label: '심리상담사', team: 'human', bodyWidth: 32, hp: 120, damage: 0, speed: 20, range: 85, attackInterval: 5, cost: 125, summonCooldown: 8 },
   athlete: { label: '운동선수', team: 'human', bodyWidth: 32, hp: 260, damage: 32, speed: 34, range: 24, attackInterval: .7, cost: 180, summonCooldown: 5 },
-  firefighter: { label: '소방관', team: 'human', bodyWidth: 32, hp: 220, damage: 48, speed: 20, range: 100, attackInterval: 2.75, cost: 200, summonCooldown: 8 },
+  firefighter: { label: '소방관', team: 'human', bodyWidth: 32, hp: 110, damage: 48, speed: 20, range: 85, attackInterval: 2.75, cost: 200, summonCooldown: 8 },
   singer: { label: '가수', team: 'human', bodyWidth: 32, hp: 110, damage: 0, speed: 20, range: 85, attackInterval: 5, cost: 175, summonCooldown: 10 },
   'robot-heavy': { label: '중장갑 로봇', team: 'ai', bodyWidth: 42, hp: 340, damage: 28, speed: 12, range: 24, attackInterval: 2.1 },
   'robot-melee': { label: '생산성 로봇', team: 'ai', bodyWidth: 32, hp: 110, damage: 16, speed: 22, range: 20, attackInterval: 1.25 },
@@ -69,6 +69,6 @@ export const SUPPORT = {
 } as const;
 export const BOSS = { firstCastDelay: 6, cooldown: 9, windup: 1.4, forwardOffset: 100, radius: 80, damage: 80 } as const;
 export const JUDGE = { windup: .25, fall: .35 } as const;
-export const WATER = { duration: 1, tickInterval: .25, ticks: 4, extraReach: 60 } as const;
+export const WATER = { duration: 1, tickInterval: .25, ticks: 4, extraReach: 30 } as const;
 export const SONG = { period: 5, radius: 100, duration: 7, enemyDamageMultiplier: .85 } as const;
 export const ATHLETE = { knockback: 20, knockbackDuration: 0.15 } as const;

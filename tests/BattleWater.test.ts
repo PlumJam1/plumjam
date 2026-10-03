@@ -81,18 +81,19 @@ describe('firefighter back-line coverage at native engagement ranges', () => {
     expect(battle.snapshot().waterChannels).toHaveLength(0);
   });
 
-  it.each([1, 2, 3] as BattleSpeed[])('reaches a real ranged enemy 75 behind the front for four ticks at %sx', speed => {
+  it.each([1, 2, 3] as BattleSpeed[])('hits the front but excludes its natural ranged rear 75 behind for four ticks at %sx', speed => {
     const battle = spacedBattle(); const state = battle.snapshot();
     const front = state.units.find(unit => unit.kind === 'robot-melee')!;
     const back = state.units.find(unit => unit.kind === 'robot-ranged')!;
     const source = state.units.find(unit => unit.kind === 'firefighter')!;
     const channel = state.waterChannels[0]!;
-    expect(front.x).toBeCloseTo(337); expect(back.x).toBeCloseTo(412); expect(source.x).toBeCloseTo(258.666667);
+    expect(front.x).toBeCloseTo(337); expect(back.x).toBeCloseTo(412);
     expect(back.x - front.x).toBeCloseTo(75);
-    // At the old engagement-range endpoint this live back-line target was unreachable.
+    // A close hose still reaches the engaged front, but does not sweep its natural ranged rear.
     expect(back.x).toBeGreaterThan(source.x + UNIT_DEFINITIONS.firefighter.range);
     expect(channel.endX).toBeCloseTo(source.x + UNIT_DEFINITIONS.firefighter.range + WATER.extraReach);
-    expect(back.x).toBeLessThan(channel.endX);
+    expect(front.x).toBeLessThan(channel.endX);
+    expect(back.x).toBeGreaterThan(channel.endX);
     battle.dispatch({ type: 'set-speed', speed });
     battle.step(.249 / speed);
     expect(battle.snapshot().units.find(unit => unit.id === front.id)!.hp).toBe(front.hp);
@@ -101,7 +102,7 @@ describe('firefighter back-line coverage at native engagement ranges', () => {
     for (let tick = 1; tick <= 4; tick++) {
       const current = battle.snapshot();
       expect(front.hp - current.units.find(unit => unit.id === front.id)!.hp).toBeCloseTo(UNIT_DEFINITIONS.firefighter.damage / WATER.ticks * tick);
-      expect(back.hp - current.units.find(unit => unit.id === back.id)!.hp).toBeCloseTo(UNIT_DEFINITIONS.firefighter.damage / WATER.ticks * tick);
+      expect(current.units.find(unit => unit.id === back.id)!.hp).toBe(back.hp);
       expect(current.units.find(unit => unit.id === source.id)!.x).toBe(source.x);
       if (tick === 1) {
         battle.setPaused(true); const paused = battle.snapshot(); battle.step(1); expect(battle.snapshot()).toEqual(paused); battle.setPaused(false);
@@ -109,5 +110,32 @@ describe('firefighter back-line coverage at native engagement ranges', () => {
       if (tick < 4) battle.step(.25 / speed);
     }
     expect(battle.snapshot().waterChannels).toHaveLength(0);
+  });
+  it('still damages two enemies inside its short hose while excluding the nearby base beyond its endpoint', () => {
+    const definitions = structuredClone(UNIT_DEFINITIONS);
+    definitions['robot-melee'] = { ...definitions['robot-melee'], hp: 1000, damage: 0, speed: 0 };
+    const battle = new BattleSession({ runId: 1, unitDefinitions: definitions,
+      stage: { id: 'short-water-cluster', label: 'Short hose cluster', initialGold: 200, humanBaseHp: 900, aiBaseHp: 900,
+        spawns: [{ at: 0, kind: 'robot-melee' }, { at: 0, kind: 'robot-melee' }] },
+      unlockedAllies: ['firefighter'], equippedAllies: ['firefighter'] });
+    expect(battle.dispatch({ type: 'summon', kind: 'firefighter' }).accepted).toBe(true);
+    for (let tick = 0; tick < 30 * 60 && !battle.snapshot().waterChannels.length; tick++) battle.step(1 / 60);
+    const initial = battle.snapshot(); const channel = initial.waterChannels[0]!;
+    expect(channel.x).toBeCloseTo(465); expect(channel.endX).toBeCloseTo(580);
+    expect(initial.units.filter(unit => unit.team === 'ai').map(unit => unit.x)).toEqual([550, 550]);
+    expect(initial.aiBase.x - channel.endX).toBeCloseTo(5);
+    for (let tick = 1; tick <= WATER.ticks; tick++) {
+      battle.step(WATER.tickInterval);
+      expect(battle.snapshot().units.filter(unit => unit.team === 'ai').map(unit => unit.hp))
+        .toEqual([1000 - definitions.firefighter.damage / WATER.ticks * tick, 1000 - definitions.firefighter.damage / WATER.ticks * tick]);
+      expect(battle.snapshot().aiBase.hp).toBe(initial.aiBase.hp);
+    }
+    expect(battle.snapshot().waterChannels).toHaveLength(0);
+    // Disposing a later live channel removes pending ticks, rather than only an already completed channel.
+    for (let tick = 0; tick < 3 * 60 && !battle.snapshot().waterChannels.length; tick++) battle.step(1 / 60);
+    expect(battle.snapshot().waterChannels).toHaveLength(1);
+    battle.dispose(); const disposed = battle.snapshot(); battle.step(2);
+    expect(battle.snapshot()).toEqual(disposed);
+    expect(disposed.waterChannels).toHaveLength(0);
   });
 });

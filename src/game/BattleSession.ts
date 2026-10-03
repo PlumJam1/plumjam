@@ -317,7 +317,9 @@ export class BattleSession {
             if (unit.kind === 'athlete' && 'kind' in target) {
               // Always shoves toward the AI base, mirroring git-push's one-way displacement.
               const destination = Math.min(this.aiBase.x - target.bodyWidth / 2, target.x + ATHLETE.knockback);
-              if (destination > target.x) this.pushes.set(target.id, { destination, speed: (destination - target.x) / ATHLETE.knockbackDuration });
+              const pending = this.pushes.get(target.id);
+              // A short melee shove must not shorten an already stronger git-push.
+              if (destination > target.x && (!pending || destination > pending.destination)) this.pushes.set(target.id, { destination, speed: (destination - target.x) / ATHLETE.knockbackDuration });
             }
           }
         }

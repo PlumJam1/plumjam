@@ -1,0 +1,2163 @@
+{
+  "head": "896af660eac6ca6b769afa670ffdb8b2f4dcdc94",
+  "sourceHashes": {
+    "src/game/BattleSession.ts": "d8a74fb0c523cfaa4ab9ead935867e656ebdff41d05eb251b62a877d7b9649c3",
+    "src/game/battle/balance.ts": "d1264020115ba92357378242483af9372db8fa93fb32e0361f50081eca4c5613",
+    "src/game/progression/stages.ts": "340e8c826356fa43bb4c7463c43c90c6bb30f9bd2bf0dc9efe79f87ab1a97142",
+    "src/game/progression/ProfileService.ts": "bdf9737be99fb592c59414d16a4b402dbfd3cba3d1e736ee76a0644a9a722498",
+    "scripts/balanceSimulation.ts": "2772d002b826d423a91e0289cb8030390999cb286c259340f86852864edb3cb4"
+  },
+  "method": "Frozen git896af66 modules before Athlete pending endpoint preservation fix. Public Profile earned roles/focus and native unprotected cohort; fixed damage-role policy documented per result.",
+  "candidates": [
+    {
+      "candidate": {
+        "id": "A_team",
+        "hp": 220,
+        "range": 100,
+        "extra": 60,
+        "damage": 48
+      },
+      "configVerified": {
+        "firefighter": {
+          "label": "소방관",
+          "team": "human",
+          "bodyWidth": 32,
+          "hp": 220,
+          "damage": 48,
+          "speed": 20,
+          "range": 100,
+          "attackInterval": 2.75,
+          "cost": 200,
+          "summonCooldown": 8
+        },
+        "WATER": {
+          "duration": 1,
+          "tickInterval": 0.25,
+          "ticks": 4,
+          "extraReach": 60
+        },
+        "ATHLETE": {
+          "knockback": 20,
+          "knockbackDuration": 0.15
+        }
+      },
+      "roles": [
+        {
+          "role": "melee",
+          "profileHash": "c61709286bacf853e854074a2e32a7399c14c0df9b45f8e3cde27c1c7b9601a2",
+          "method": "Native 2-1 waves. All allies Lv1/Hero2, no hero spells. Identical finite quota: tech1/2, role1/3, support1, counselor1. Same movement/invest/reaction policy; real earned Profile APIs.",
+          "stage": "2-1",
+          "outcome": "won",
+          "seconds": 80.3,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 1245,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          },
+          "roleSummons": 6,
+          "roleSpend": 360.00000000000006,
+          "maxArmy": 7
+        },
+        {
+          "role": "ranged",
+          "profileHash": "d274dfebd2b5c6cec36c5c673c14eebc2822f8219dddeb8f4f76add98fba1c83",
+          "method": "Native 2-1 waves. All allies Lv1/Hero2, no hero spells. Identical finite quota: tech1/2, role1/3, support1, counselor1. Same movement/invest/reaction policy; real earned Profile APIs.",
+          "stage": "2-1",
+          "outcome": "won",
+          "seconds": 80.6,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 1365,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          },
+          "roleSummons": 3,
+          "roleSpend": 330,
+          "maxArmy": 7
+        },
+        {
+          "role": "judge",
+          "profileHash": "fc42d57c135da240f0d7c9311adb67ba1c4397dee78c3dc2f8b1e9c5d1294201",
+          "method": "Native 2-1 waves. All allies Lv1/Hero2, no hero spells. Identical finite quota: tech1/2, role1/3, support1, counselor1. Same movement/invest/reaction policy; real earned Profile APIs.",
+          "stage": "2-1",
+          "outcome": "won",
+          "seconds": 85.1,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 1755,
+          "fireSummons": 0,
+          "fireSpend": 0,
+          "water": {
+            "channels": 0,
+            "meanEnemyTargets": 0,
+            "peakEnemyTargets": 0,
+            "baseChannels": 0,
+            "fireUnitSeconds": 0,
+            "maxFire": 0
+          },
+          "roleSummons": 3,
+          "roleSpend": 570,
+          "maxArmy": 7
+        },
+        {
+          "role": "firefighter",
+          "profileHash": "bf74b79f996d50751ed6097bd8530bf6b1edebc4adc9a13f20be36f9b4a60305",
+          "method": "Native 2-1 waves. All allies Lv1/Hero2, no hero spells. Identical finite quota: tech1/2, role1/3, support1, counselor1. Same movement/invest/reaction policy; real earned Profile APIs.",
+          "stage": "2-1",
+          "outcome": "won",
+          "seconds": 75.3,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 1485,
+          "fireSummons": 3,
+          "fireSpend": 600,
+          "water": {
+            "channels": 47,
+            "meanEnemyTargets": 1.021,
+            "peakEnemyTargets": 6,
+            "baseChannels": 29,
+            "fireUnitSeconds": 144.2,
+            "maxFire": 3
+          },
+          "roleSummons": 3,
+          "roleSpend": 600,
+          "maxArmy": 7
+        }
+      ],
+      "focused": {
+        "method": "First three stages give480XP; fire Lv5 costs420 and Hero2 costs60. Other allies Lv1, Hello only. Same five-role army/policy; no-fire ablation removes only fire.",
+        "profileHash": "6e1c181543d54032cca67a220e9278161abd98ac56cf55d2219281970e55e989",
+        "xp": 0,
+        "levels": {
+          "hero": 2,
+          "melee": 1,
+          "ranged": 1,
+          "support": 1,
+          "technician": 1,
+          "judge": 1,
+          "counselor": 1,
+          "athlete": 1,
+          "firefighter": 5,
+          "singer": 1
+        },
+        "stage": "1-4",
+        "outcome": "won",
+        "seconds": 69.1,
+        "heroHp": 368,
+        "enemyBaseHp": 0,
+        "goldSpent": 3010,
+        "fireSummons": 3,
+        "fireSpend": 600,
+        "water": {
+          "channels": 13,
+          "meanEnemyTargets": 1,
+          "peakEnemyTargets": 3,
+          "baseChannels": 6,
+          "fireUnitSeconds": 61.1,
+          "maxFire": 3
+        },
+        "maxArmy": 12
+      },
+      "focusedNoFire": {
+        "method": "First three stages give480XP; fire Lv5 costs420 and Hero2 costs60. Other allies Lv1, Hello only. Same five-role army/policy; no-fire ablation removes only fire.",
+        "profileHash": "d6fd91d60f273b1acff1509fef6e537e24e0ef2bf57fde0f8c279f1a0a654f8d",
+        "xp": 0,
+        "levels": {
+          "hero": 2,
+          "melee": 1,
+          "ranged": 1,
+          "support": 1,
+          "technician": 1,
+          "judge": 1,
+          "counselor": 1,
+          "athlete": 1,
+          "firefighter": 5,
+          "singer": 1
+        },
+        "stage": "1-4",
+        "outcome": "won",
+        "seconds": 75.1,
+        "heroHp": 368,
+        "enemyBaseHp": 0,
+        "goldSpent": 2650,
+        "fireSummons": 0,
+        "fireSpend": 0,
+        "water": {
+          "channels": 0,
+          "meanEnemyTargets": 0,
+          "peakEnemyTargets": 0,
+          "baseChannels": 0,
+          "fireUnitSeconds": 0,
+          "maxFire": 0
+        },
+        "maxArmy": 10
+      },
+      "solo": {
+        "method": "Public move to hero80, summon one Lv1 fire for200 gold, no spells/invest/other allies. Four unchanged native ranged enemies (HP75/D17/range95/speed18) at0/.5/1/1.5s. No HP/x/gold state writes.",
+        "spawnCadence": 0.5,
+        "sourceDeath": null,
+        "channelCount": 16,
+        "canceledTicks": 0,
+        "enemyAlive": 0,
+        "sumEnemyDamage": 300,
+        "heroHp": 320,
+        "sourceHp": 101,
+        "elapsed": 60.4,
+        "config": {
+          "firefighter": {
+            "label": "소방관",
+            "team": "human",
+            "bodyWidth": 32,
+            "hp": 220,
+            "damage": 48,
+            "speed": 20,
+            "range": 100,
+            "attackInterval": 2.75,
+            "cost": 200,
+            "summonCooldown": 8
+          },
+          "WATER": {
+            "duration": 1,
+            "tickInterval": 0.25,
+            "ticks": 4,
+            "extraReach": 60
+          },
+          "opponent": {
+            "label": "자동화 로봇",
+            "team": "ai",
+            "bodyWidth": 32,
+            "hp": 75,
+            "damage": 17,
+            "speed": 18,
+            "range": 95,
+            "attackInterval": 1.9,
+            "projectileSpeed": 145
+          }
+        }
+      }
+    },
+    {
+      "candidate": {
+        "id": "B_glass120",
+        "hp": 120,
+        "range": 85,
+        "extra": 30,
+        "damage": 48
+      },
+      "configVerified": {
+        "firefighter": {
+          "label": "소방관",
+          "team": "human",
+          "bodyWidth": 32,
+          "hp": 120,
+          "damage": 48,
+          "speed": 20,
+          "range": 85,
+          "attackInterval": 2.75,
+          "cost": 200,
+          "summonCooldown": 8
+        },
+        "WATER": {
+          "duration": 1,
+          "tickInterval": 0.25,
+          "ticks": 4,
+          "extraReach": 30
+        },
+        "ATHLETE": {
+          "knockback": 20,
+          "knockbackDuration": 0.15
+        }
+      },
+      "roles": [
+        {
+          "role": "firefighter",
+          "profileHash": "bf74b79f996d50751ed6097bd8530bf6b1edebc4adc9a13f20be36f9b4a60305",
+          "method": "Native 2-1 waves. All allies Lv1/Hero2, no hero spells. Identical finite quota: tech1/2, role1/3, support1, counselor1. Same movement/invest/reaction policy; real earned Profile APIs.",
+          "stage": "2-1",
+          "outcome": "won",
+          "seconds": 75,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 1485,
+          "fireSummons": 3,
+          "fireSpend": 600,
+          "water": {
+            "channels": 45,
+            "meanEnemyTargets": 0.844,
+            "peakEnemyTargets": 5,
+            "baseChannels": 27,
+            "fireUnitSeconds": 143,
+            "maxFire": 3
+          },
+          "roleSummons": 3,
+          "roleSpend": 600,
+          "maxArmy": 7
+        }
+      ],
+      "focused": {
+        "method": "First three stages give480XP; fire Lv5 costs420 and Hero2 costs60. Other allies Lv1, Hello only. Same five-role army/policy; no-fire ablation removes only fire.",
+        "profileHash": "6e1c181543d54032cca67a220e9278161abd98ac56cf55d2219281970e55e989",
+        "xp": 0,
+        "levels": {
+          "hero": 2,
+          "melee": 1,
+          "ranged": 1,
+          "support": 1,
+          "technician": 1,
+          "judge": 1,
+          "counselor": 1,
+          "athlete": 1,
+          "firefighter": 5,
+          "singer": 1
+        },
+        "stage": "1-4",
+        "outcome": "won",
+        "seconds": 69.9,
+        "heroHp": 368,
+        "enemyBaseHp": 0,
+        "goldSpent": 3010,
+        "fireSummons": 3,
+        "fireSpend": 600,
+        "water": {
+          "channels": 13,
+          "meanEnemyTargets": 1,
+          "peakEnemyTargets": 2,
+          "baseChannels": 4,
+          "fireUnitSeconds": 63.2,
+          "maxFire": 3
+        },
+        "maxArmy": 12
+      },
+      "focusedNoFire": {
+        "method": "First three stages give480XP; fire Lv5 costs420 and Hero2 costs60. Other allies Lv1, Hello only. Same five-role army/policy; no-fire ablation removes only fire.",
+        "profileHash": "d6fd91d60f273b1acff1509fef6e537e24e0ef2bf57fde0f8c279f1a0a654f8d",
+        "xp": 0,
+        "levels": {
+          "hero": 2,
+          "melee": 1,
+          "ranged": 1,
+          "support": 1,
+          "technician": 1,
+          "judge": 1,
+          "counselor": 1,
+          "athlete": 1,
+          "firefighter": 5,
+          "singer": 1
+        },
+        "stage": "1-4",
+        "outcome": "won",
+        "seconds": 75.1,
+        "heroHp": 368,
+        "enemyBaseHp": 0,
+        "goldSpent": 2650,
+        "fireSummons": 0,
+        "fireSpend": 0,
+        "water": {
+          "channels": 0,
+          "meanEnemyTargets": 0,
+          "peakEnemyTargets": 0,
+          "baseChannels": 0,
+          "fireUnitSeconds": 0,
+          "maxFire": 0
+        },
+        "maxArmy": 10
+      }
+    },
+    {
+      "candidate": {
+        "id": "C_glass110",
+        "hp": 110,
+        "range": 85,
+        "extra": 30,
+        "damage": 48
+      },
+      "configVerified": {
+        "firefighter": {
+          "label": "소방관",
+          "team": "human",
+          "bodyWidth": 32,
+          "hp": 110,
+          "damage": 48,
+          "speed": 20,
+          "range": 85,
+          "attackInterval": 2.75,
+          "cost": 200,
+          "summonCooldown": 8
+        },
+        "WATER": {
+          "duration": 1,
+          "tickInterval": 0.25,
+          "ticks": 4,
+          "extraReach": 30
+        },
+        "ATHLETE": {
+          "knockback": 20,
+          "knockbackDuration": 0.15
+        }
+      },
+      "roles": [
+        {
+          "role": "firefighter",
+          "profileHash": "bf74b79f996d50751ed6097bd8530bf6b1edebc4adc9a13f20be36f9b4a60305",
+          "method": "Native 2-1 waves. All allies Lv1/Hero2, no hero spells. Identical finite quota: tech1/2, role1/3, support1, counselor1. Same movement/invest/reaction policy; real earned Profile APIs.",
+          "stage": "2-1",
+          "outcome": "won",
+          "seconds": 75,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 1485,
+          "fireSummons": 3,
+          "fireSpend": 600,
+          "water": {
+            "channels": 45,
+            "meanEnemyTargets": 0.844,
+            "peakEnemyTargets": 5,
+            "baseChannels": 27,
+            "fireUnitSeconds": 143,
+            "maxFire": 3
+          },
+          "roleSummons": 3,
+          "roleSpend": 600,
+          "maxArmy": 7
+        }
+      ],
+      "focused": {
+        "method": "First three stages give480XP; fire Lv5 costs420 and Hero2 costs60. Other allies Lv1, Hello only. Same five-role army/policy; no-fire ablation removes only fire.",
+        "profileHash": "6e1c181543d54032cca67a220e9278161abd98ac56cf55d2219281970e55e989",
+        "xp": 0,
+        "levels": {
+          "hero": 2,
+          "melee": 1,
+          "ranged": 1,
+          "support": 1,
+          "technician": 1,
+          "judge": 1,
+          "counselor": 1,
+          "athlete": 1,
+          "firefighter": 5,
+          "singer": 1
+        },
+        "stage": "1-4",
+        "outcome": "won",
+        "seconds": 69.9,
+        "heroHp": 368,
+        "enemyBaseHp": 0,
+        "goldSpent": 3010,
+        "fireSummons": 3,
+        "fireSpend": 600,
+        "water": {
+          "channels": 13,
+          "meanEnemyTargets": 1,
+          "peakEnemyTargets": 2,
+          "baseChannels": 4,
+          "fireUnitSeconds": 63.2,
+          "maxFire": 3
+        },
+        "maxArmy": 12
+      },
+      "focusedNoFire": {
+        "method": "First three stages give480XP; fire Lv5 costs420 and Hero2 costs60. Other allies Lv1, Hello only. Same five-role army/policy; no-fire ablation removes only fire.",
+        "profileHash": "d6fd91d60f273b1acff1509fef6e537e24e0ef2bf57fde0f8c279f1a0a654f8d",
+        "xp": 0,
+        "levels": {
+          "hero": 2,
+          "melee": 1,
+          "ranged": 1,
+          "support": 1,
+          "technician": 1,
+          "judge": 1,
+          "counselor": 1,
+          "athlete": 1,
+          "firefighter": 5,
+          "singer": 1
+        },
+        "stage": "1-4",
+        "outcome": "won",
+        "seconds": 75.1,
+        "heroHp": 368,
+        "enemyBaseHp": 0,
+        "goldSpent": 2650,
+        "fireSummons": 0,
+        "fireSpend": 0,
+        "water": {
+          "channels": 0,
+          "meanEnemyTargets": 0,
+          "peakEnemyTargets": 0,
+          "baseChannels": 0,
+          "fireUnitSeconds": 0,
+          "maxFire": 0
+        },
+        "maxArmy": 10
+      },
+      "solo": {
+        "method": "Public move to hero80, summon one Lv1 fire for200 gold, no spells/invest/other allies. Four unchanged native ranged enemies (HP75/D17/range95/speed18) at0/.5/1/1.5s. No HP/x/gold state writes.",
+        "spawnCadence": 0.5,
+        "sourceDeath": 12.983,
+        "channelCount": 1,
+        "canceledTicks": 0,
+        "enemyAlive": 4,
+        "sumEnemyDamage": 192,
+        "heroHp": 320,
+        "sourceHp": 0,
+        "elapsed": 12.983,
+        "config": {
+          "firefighter": {
+            "label": "소방관",
+            "team": "human",
+            "bodyWidth": 32,
+            "hp": 110,
+            "damage": 48,
+            "speed": 20,
+            "range": 85,
+            "attackInterval": 2.75,
+            "cost": 200,
+            "summonCooldown": 8
+          },
+          "WATER": {
+            "duration": 1,
+            "tickInterval": 0.25,
+            "ticks": 4,
+            "extraReach": 30
+          },
+          "opponent": {
+            "label": "자동화 로봇",
+            "team": "ai",
+            "bodyWidth": 32,
+            "hp": 75,
+            "damage": 17,
+            "speed": 18,
+            "range": 95,
+            "attackInterval": 1.9,
+            "projectileSpeed": 145
+          }
+        }
+      }
+    },
+    {
+      "candidate": {
+        "id": "D_quarter12",
+        "hp": 120,
+        "range": 85,
+        "extra": 30,
+        "damage": 12
+      },
+      "configVerified": {
+        "firefighter": {
+          "label": "소방관",
+          "team": "human",
+          "bodyWidth": 32,
+          "hp": 120,
+          "damage": 12,
+          "speed": 20,
+          "range": 85,
+          "attackInterval": 2.75,
+          "cost": 200,
+          "summonCooldown": 8
+        },
+        "WATER": {
+          "duration": 1,
+          "tickInterval": 0.25,
+          "ticks": 4,
+          "extraReach": 30
+        },
+        "ATHLETE": {
+          "knockback": 20,
+          "knockbackDuration": 0.15
+        }
+      },
+      "roles": [
+        {
+          "role": "firefighter",
+          "profileHash": "bf74b79f996d50751ed6097bd8530bf6b1edebc4adc9a13f20be36f9b4a60305",
+          "method": "Native 2-1 waves. All allies Lv1/Hero2, no hero spells. Identical finite quota: tech1/2, role1/3, support1, counselor1. Same movement/invest/reaction policy; real earned Profile APIs.",
+          "stage": "2-1",
+          "outcome": "won",
+          "seconds": 119.5,
+          "heroHp": 368,
+          "enemyBaseHp": 0,
+          "goldSpent": 1785,
+          "fireSummons": 3,
+          "fireSpend": 600,
+          "water": {
+            "channels": 110,
+            "meanEnemyTargets": 0.936,
+            "peakEnemyTargets": 7,
+            "baseChannels": 63,
+            "fireUnitSeconds": 268.8,
+            "maxFire": 3
+          },
+          "roleSummons": 3,
+          "roleSpend": 600,
+          "maxArmy": 7
+        }
+      ],
+      "focused": {
+        "method": "First three stages give480XP; fire Lv5 costs420 and Hero2 costs60. Other allies Lv1, Hello only. Same five-role army/policy; no-fire ablation removes only fire.",
+        "profileHash": "6e1c181543d54032cca67a220e9278161abd98ac56cf55d2219281970e55e989",
+        "xp": 0,
+        "levels": {
+          "hero": 2,
+          "melee": 1,
+          "ranged": 1,
+          "support": 1,
+          "technician": 1,
+          "judge": 1,
+          "counselor": 1,
+          "athlete": 1,
+          "firefighter": 5,
+          "singer": 1
+        },
+        "stage": "1-4",
+        "outcome": "won",
+        "seconds": 77.2,
+        "heroHp": 368,
+        "enemyBaseHp": 0,
+        "goldSpent": 3285,
+        "fireSummons": 3,
+        "fireSpend": 600,
+        "water": {
+          "channels": 16,
+          "meanEnemyTargets": 1.063,
+          "peakEnemyTargets": 2,
+          "baseChannels": 4,
+          "fireUnitSeconds": 81.1,
+          "maxFire": 3
+        },
+        "maxArmy": 13
+      },
+      "focusedNoFire": {
+        "method": "First three stages give480XP; fire Lv5 costs420 and Hero2 costs60. Other allies Lv1, Hello only. Same five-role army/policy; no-fire ablation removes only fire.",
+        "profileHash": "d6fd91d60f273b1acff1509fef6e537e24e0ef2bf57fde0f8c279f1a0a654f8d",
+        "xp": 0,
+        "levels": {
+          "hero": 2,
+          "melee": 1,
+          "ranged": 1,
+          "support": 1,
+          "technician": 1,
+          "judge": 1,
+          "counselor": 1,
+          "athlete": 1,
+          "firefighter": 5,
+          "singer": 1
+        },
+        "stage": "1-4",
+        "outcome": "won",
+        "seconds": 75.1,
+        "heroHp": 368,
+        "enemyBaseHp": 0,
+        "goldSpent": 2650,
+        "fireSummons": 0,
+        "fireSpend": 0,
+        "water": {
+          "channels": 0,
+          "meanEnemyTargets": 0,
+          "peakEnemyTargets": 0,
+          "baseChannels": 0,
+          "fireUnitSeconds": 0,
+          "maxFire": 0
+        },
+        "maxArmy": 10
+      }
+    }
+  ],
+  "finalProduction": {
+    "referenceCommit": "896af660eac6ca6b769afa670ffdb8b2f4dcdc94",
+    "productWorkingTree": true,
+    "sourceHashes": {
+      "src/game/BattleSession.ts": "dbc17cd310c707c7e3b13bd66f2af41601df3196ced4a5620475c9713baa9ac4",
+      "src/game/battle/balance.ts": "c4f83e593af8d83f3eb8dc06b8e2eaaf597d771634ddefc9f0ad3220cef8c816",
+      "src/game/progression/stages.ts": "340e8c826356fa43bb4c7463c43c90c6bb30f9bd2bf0dc9efe79f87ab1a97142",
+      "src/game/progression/ProfileService.ts": "bdf9737be99fb592c59414d16a4b402dbfd3cba3d1e736ee76a0644a9a722498",
+      "scripts/balanceSimulation.ts": "2772d002b826d423a91e0289cb8030390999cb286c259340f86852864edb3cb4"
+    },
+    "method": "Current production graph including C tuning and Athlete pending endpoint preservation; unchanged public earned Profile policy, no replay grind.",
+    "config": {
+      "firefighter": {
+        "label": "소방관",
+        "team": "human",
+        "bodyWidth": 32,
+        "hp": 110,
+        "damage": 48,
+        "speed": 20,
+        "range": 85,
+        "attackInterval": 2.75,
+        "cost": 200,
+        "summonCooldown": 8
+      },
+      "WATER": {
+        "duration": 1,
+        "tickInterval": 0.25,
+        "ticks": 4,
+        "extraReach": 30
+      },
+      "ATHLETE": {
+        "knockback": 20,
+        "knockbackDuration": 0.15
+      }
+    },
+    "campaigns": [
+      {
+        "cadence": 0.5,
+        "rounds": [
+          {
+            "stage": "1-1",
+            "policy": "balanced",
+            "cadence": 0.5,
+            "level": "earned",
+            "skills": [
+              "hello-world"
+            ],
+            "outcome": "won",
+            "seconds": 47.2,
+            "heroHp": 320,
+            "heroMaxHp": 320,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 0,
+            "goldSpent": 1725,
+            "goldLeft": 274.2,
+            "economyLevel": 4,
+            "maxArmy": 8,
+            "spend": {
+              "upgrade-economy": 740,
+              "melee": 240,
+              "hello-world": 315,
+              "ranged": 330,
+              "support": 100
+            },
+            "accepted": {
+              "upgrade-economy": 3,
+              "melee": 4,
+              "hello-world": 9,
+              "ranged": 3,
+              "support": 1
+            },
+            "xpBefore": 0,
+            "earnedLevels": {
+              "hero": 1,
+              "melee": 1,
+              "ranged": 1,
+              "support": 1,
+              "technician": 1,
+              "judge": 1,
+              "counselor": 1,
+              "athlete": 1,
+              "firefighter": 1,
+              "singer": 1
+            }
+          },
+          {
+            "stage": "1-2",
+            "policy": "balanced",
+            "cadence": 0.5,
+            "level": "earned",
+            "skills": [
+              "hello-world"
+            ],
+            "outcome": "won",
+            "seconds": 54.5,
+            "heroHp": 368,
+            "heroMaxHp": 368,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 0,
+            "goldSpent": 1845,
+            "goldLeft": 227.6,
+            "economyLevel": 3,
+            "maxArmy": 10,
+            "spend": {
+              "upgrade-economy": 360,
+              "melee": 299.99999999999994,
+              "hello-world": 455,
+              "technician": 300,
+              "ranged": 330,
+              "support": 100
+            },
+            "accepted": {
+              "upgrade-economy": 2,
+              "melee": 5,
+              "hello-world": 13,
+              "technician": 2,
+              "ranged": 3,
+              "support": 1
+            },
+            "xpBefore": 0,
+            "earnedLevels": {
+              "hero": 2,
+              "melee": 2,
+              "ranged": 1,
+              "support": 1,
+              "technician": 1,
+              "judge": 1,
+              "counselor": 1,
+              "athlete": 1,
+              "firefighter": 1,
+              "singer": 1
+            }
+          },
+          {
+            "stage": "1-3",
+            "policy": "balanced",
+            "cadence": 0.5,
+            "level": "earned",
+            "skills": [
+              "hello-world",
+              "heal"
+            ],
+            "outcome": "won",
+            "seconds": 61.2,
+            "heroHp": 368,
+            "heroMaxHp": 368,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 0,
+            "goldSpent": 2580,
+            "goldLeft": 161.8,
+            "economyLevel": 4,
+            "maxArmy": 11,
+            "spend": {
+              "upgrade-economy": 740,
+              "melee": 360,
+              "hello-world": 560,
+              "technician": 300,
+              "ranged": 330,
+              "judge": 190,
+              "support": 100
+            },
+            "accepted": {
+              "upgrade-economy": 3,
+              "melee": 6,
+              "hello-world": 16,
+              "technician": 2,
+              "ranged": 3,
+              "judge": 1,
+              "support": 1
+            },
+            "xpBefore": 0,
+            "earnedLevels": {
+              "hero": 2,
+              "melee": 2,
+              "ranged": 1,
+              "support": 1,
+              "technician": 1,
+              "judge": 1,
+              "counselor": 1,
+              "athlete": 1,
+              "firefighter": 1,
+              "singer": 1
+            }
+          },
+          {
+            "stage": "1-4",
+            "policy": "balanced",
+            "cadence": 0.5,
+            "level": "earned",
+            "skills": [
+              "hello-world",
+              "heal"
+            ],
+            "outcome": "won",
+            "seconds": 71,
+            "heroHp": 368,
+            "heroMaxHp": 368,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 0,
+            "goldSpent": 3160,
+            "goldLeft": 5.8,
+            "economyLevel": 4,
+            "maxArmy": 11,
+            "spend": {
+              "upgrade-economy": 740,
+              "melee": 360,
+              "hello-world": 665,
+              "technician": 300,
+              "judge": 570,
+              "firefighter": 400,
+              "counselor": 125
+            },
+            "accepted": {
+              "upgrade-economy": 3,
+              "melee": 6,
+              "hello-world": 19,
+              "technician": 2,
+              "judge": 3,
+              "firefighter": 2,
+              "counselor": 1
+            },
+            "xpBefore": 80,
+            "earnedLevels": {
+              "hero": 2,
+              "melee": 2,
+              "ranged": 2,
+              "support": 1,
+              "technician": 2,
+              "judge": 1,
+              "counselor": 1,
+              "athlete": 1,
+              "firefighter": 1,
+              "singer": 1
+            }
+          },
+          {
+            "stage": "1-5",
+            "policy": "balanced",
+            "cadence": 0.5,
+            "level": "earned",
+            "skills": [
+              "hello-world",
+              "heal",
+              "foreach"
+            ],
+            "outcome": "won",
+            "seconds": 107.1,
+            "heroHp": 414,
+            "heroMaxHp": 416,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 1,
+            "goldSpent": 4040,
+            "goldLeft": 36.8,
+            "economyLevel": 3,
+            "maxArmy": 6,
+            "spend": {
+              "upgrade-economy": 360,
+              "technician": 600,
+              "heal": 80,
+              "hello-world": 1190.0000000000002,
+              "foreach": 600,
+              "athlete": 720,
+              "judge": 190,
+              "counselor": 125,
+              "singer": 175
+            },
+            "accepted": {
+              "upgrade-economy": 2,
+              "technician": 4,
+              "heal": 1,
+              "hello-world": 34,
+              "foreach": 6,
+              "athlete": 4,
+              "judge": 1,
+              "counselor": 1,
+              "singer": 1
+            },
+            "xpBefore": 30,
+            "earnedLevels": {
+              "hero": 3,
+              "melee": 2,
+              "ranged": 2,
+              "support": 1,
+              "technician": 2,
+              "judge": 1,
+              "counselor": 1,
+              "athlete": 1,
+              "firefighter": 1,
+              "singer": 1
+            }
+          },
+          {
+            "stage": "2-1",
+            "policy": "balanced",
+            "cadence": 0.5,
+            "level": "earned",
+            "skills": [
+              "hello-world",
+              "heal",
+              "foreach"
+            ],
+            "outcome": "won",
+            "seconds": 68.6,
+            "heroHp": 512,
+            "heroMaxHp": 512,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 0,
+            "goldSpent": 3005,
+            "goldLeft": 128.2,
+            "economyLevel": 4,
+            "maxArmy": 10,
+            "spend": {
+              "upgrade-economy": 740,
+              "foreach": 300,
+              "hello-world": 665,
+              "technician": 300,
+              "melee": 300,
+              "firefighter": 400,
+              "counselor": 125,
+              "singer": 175
+            },
+            "accepted": {
+              "upgrade-economy": 3,
+              "foreach": 3,
+              "hello-world": 19,
+              "technician": 2,
+              "melee": 5,
+              "firefighter": 2,
+              "counselor": 1,
+              "singer": 1
+            },
+            "xpBefore": 30,
+            "earnedLevels": {
+              "hero": 5,
+              "melee": 2,
+              "ranged": 2,
+              "support": 1,
+              "technician": 3,
+              "judge": 1,
+              "counselor": 1,
+              "athlete": 1,
+              "firefighter": 1,
+              "singer": 1
+            }
+          },
+          {
+            "stage": "2-2",
+            "policy": "balanced",
+            "cadence": 0.5,
+            "level": "earned",
+            "skills": [
+              "hello-world",
+              "heal",
+              "foreach"
+            ],
+            "outcome": "won",
+            "seconds": 68.5,
+            "heroHp": 512,
+            "heroMaxHp": 512,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 0,
+            "goldSpent": 3065,
+            "goldLeft": 109.6,
+            "economyLevel": 4,
+            "maxArmy": 10,
+            "spend": {
+              "upgrade-economy": 740,
+              "technician": 300,
+              "foreach": 300,
+              "hello-world": 630.0000000000001,
+              "melee": 300,
+              "judge": 570,
+              "counselor": 125,
+              "support": 100
+            },
+            "accepted": {
+              "upgrade-economy": 3,
+              "technician": 2,
+              "foreach": 3,
+              "hello-world": 18,
+              "melee": 5,
+              "judge": 3,
+              "counselor": 1,
+              "support": 1
+            },
+            "xpBefore": 100,
+            "earnedLevels": {
+              "hero": 5,
+              "melee": 2,
+              "ranged": 3,
+              "support": 1,
+              "technician": 3,
+              "judge": 2,
+              "counselor": 2,
+              "athlete": 1,
+              "firefighter": 2,
+              "singer": 2
+            }
+          },
+          {
+            "stage": "2-3",
+            "policy": "balanced",
+            "cadence": 0.5,
+            "level": "earned",
+            "skills": [
+              "hello-world",
+              "heal",
+              "foreach"
+            ],
+            "outcome": "won",
+            "seconds": 80.5,
+            "heroHp": 512,
+            "heroMaxHp": 512,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 0,
+            "goldSpent": 3795,
+            "goldLeft": 189.6,
+            "economyLevel": 4,
+            "maxArmy": 9,
+            "spend": {
+              "upgrade-economy": 740,
+              "hello-world": 944.9999999999998,
+              "foreach": 400,
+              "technician": 300,
+              "athlete": 540,
+              "judge": 570,
+              "counselor": 125,
+              "singer": 175
+            },
+            "accepted": {
+              "upgrade-economy": 3,
+              "hello-world": 27,
+              "foreach": 4,
+              "technician": 2,
+              "athlete": 3,
+              "judge": 3,
+              "counselor": 1,
+              "singer": 1
+            },
+            "xpBefore": 90,
+            "earnedLevels": {
+              "hero": 5,
+              "melee": 3,
+              "ranged": 3,
+              "support": 1,
+              "technician": 4,
+              "judge": 3,
+              "counselor": 2,
+              "athlete": 2,
+              "firefighter": 3,
+              "singer": 2
+            }
+          },
+          {
+            "stage": "2-4",
+            "policy": "balanced",
+            "cadence": 0.5,
+            "level": "earned",
+            "skills": [
+              "hello-world",
+              "heal",
+              "foreach"
+            ],
+            "outcome": "won",
+            "seconds": 77.5,
+            "heroHp": 560,
+            "heroMaxHp": 560,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 0,
+            "goldSpent": 3655,
+            "goldLeft": 215.8,
+            "economyLevel": 4,
+            "maxArmy": 9,
+            "spend": {
+              "upgrade-economy": 740,
+              "hello-world": 875,
+              "foreach": 300,
+              "technician": 300,
+              "athlete": 540,
+              "firefighter": 600,
+              "counselor": 125,
+              "singer": 175
+            },
+            "accepted": {
+              "upgrade-economy": 3,
+              "hello-world": 25,
+              "foreach": 3,
+              "technician": 2,
+              "athlete": 3,
+              "firefighter": 3,
+              "counselor": 1,
+              "singer": 1
+            },
+            "xpBefore": 30,
+            "earnedLevels": {
+              "hero": 6,
+              "melee": 3,
+              "ranged": 3,
+              "support": 1,
+              "technician": 5,
+              "judge": 4,
+              "counselor": 2,
+              "athlete": 3,
+              "firefighter": 3,
+              "singer": 2
+            }
+          },
+          {
+            "stage": "2-5",
+            "policy": "balanced",
+            "cadence": 0.5,
+            "level": "earned",
+            "skills": [
+              "hello-world",
+              "heal",
+              "foreach"
+            ],
+            "outcome": "won",
+            "seconds": 100.1,
+            "heroHp": 608,
+            "heroMaxHp": 608,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 2,
+            "goldSpent": 4775,
+            "goldLeft": 224.2,
+            "economyLevel": 4,
+            "maxArmy": 8,
+            "spend": {
+              "upgrade-economy": 740,
+              "hello-world": 1190,
+              "foreach": 600,
+              "heal": 80,
+              "technician": 450,
+              "athlete": 720,
+              "judge": 570,
+              "counselor": 250,
+              "singer": 175
+            },
+            "accepted": {
+              "upgrade-economy": 3,
+              "hello-world": 34,
+              "foreach": 6,
+              "heal": 1,
+              "technician": 3,
+              "athlete": 4,
+              "judge": 3,
+              "counselor": 2,
+              "singer": 1
+            },
+            "xpBefore": 40,
+            "earnedLevels": {
+              "hero": 7,
+              "melee": 3,
+              "ranged": 3,
+              "support": 1,
+              "technician": 5,
+              "judge": 4,
+              "counselor": 3,
+              "athlete": 3,
+              "firefighter": 4,
+              "singer": 3
+            }
+          }
+        ],
+        "purchases": [
+          {
+            "after": "1-1",
+            "type": "level",
+            "key": "hero",
+            "xp": 60
+          },
+          {
+            "after": "1-1",
+            "type": "level",
+            "key": "melee",
+            "xp": 60
+          },
+          {
+            "after": "1-2",
+            "type": "skill",
+            "key": "heal",
+            "xp": 160
+          },
+          {
+            "after": "1-3",
+            "type": "level",
+            "key": "technician",
+            "xp": 60
+          },
+          {
+            "after": "1-3",
+            "type": "level",
+            "key": "ranged",
+            "xp": 60
+          },
+          {
+            "after": "1-4",
+            "type": "skill",
+            "key": "foreach",
+            "xp": 220
+          },
+          {
+            "after": "1-4",
+            "type": "level",
+            "key": "hero",
+            "xp": 90
+          },
+          {
+            "after": "1-5",
+            "type": "level",
+            "key": "hero",
+            "xp": 120
+          },
+          {
+            "after": "1-5",
+            "type": "level",
+            "key": "hero",
+            "xp": 150
+          },
+          {
+            "after": "1-5",
+            "type": "level",
+            "key": "technician",
+            "xp": 90
+          },
+          {
+            "after": "2-1",
+            "type": "level",
+            "key": "firefighter",
+            "xp": 60
+          },
+          {
+            "after": "2-1",
+            "type": "level",
+            "key": "ranged",
+            "xp": 90
+          },
+          {
+            "after": "2-1",
+            "type": "level",
+            "key": "judge",
+            "xp": 60
+          },
+          {
+            "after": "2-1",
+            "type": "level",
+            "key": "counselor",
+            "xp": 60
+          },
+          {
+            "after": "2-1",
+            "type": "level",
+            "key": "singer",
+            "xp": 60
+          },
+          {
+            "after": "2-2",
+            "type": "level",
+            "key": "technician",
+            "xp": 120
+          },
+          {
+            "after": "2-2",
+            "type": "level",
+            "key": "judge",
+            "xp": 90
+          },
+          {
+            "after": "2-2",
+            "type": "level",
+            "key": "athlete",
+            "xp": 60
+          },
+          {
+            "after": "2-2",
+            "type": "level",
+            "key": "melee",
+            "xp": 90
+          },
+          {
+            "after": "2-2",
+            "type": "level",
+            "key": "firefighter",
+            "xp": 90
+          },
+          {
+            "after": "2-3",
+            "type": "level",
+            "key": "hero",
+            "xp": 180
+          },
+          {
+            "after": "2-3",
+            "type": "level",
+            "key": "technician",
+            "xp": 150
+          },
+          {
+            "after": "2-3",
+            "type": "level",
+            "key": "judge",
+            "xp": 120
+          },
+          {
+            "after": "2-3",
+            "type": "level",
+            "key": "athlete",
+            "xp": 90
+          },
+          {
+            "after": "2-4",
+            "type": "level",
+            "key": "firefighter",
+            "xp": 120
+          },
+          {
+            "after": "2-4",
+            "type": "level",
+            "key": "counselor",
+            "xp": 90
+          },
+          {
+            "after": "2-4",
+            "type": "level",
+            "key": "singer",
+            "xp": 90
+          },
+          {
+            "after": "2-4",
+            "type": "level",
+            "key": "hero",
+            "xp": 210
+          }
+        ],
+        "totalSeconds": 736.2,
+        "finalXp": 690,
+        "clears": [
+          "1-1",
+          "1-2",
+          "1-3",
+          "1-4",
+          "1-5",
+          "2-1",
+          "2-2",
+          "2-3",
+          "2-4",
+          "2-5"
+        ]
+      },
+      {
+        "cadence": 1,
+        "rounds": [
+          {
+            "stage": "1-1",
+            "policy": "balanced",
+            "cadence": 1,
+            "level": "earned",
+            "skills": [
+              "hello-world"
+            ],
+            "outcome": "won",
+            "seconds": 49.2,
+            "heroHp": 320,
+            "heroMaxHp": 320,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 0,
+            "goldSpent": 1725,
+            "goldLeft": 387.4,
+            "economyLevel": 4,
+            "maxArmy": 8,
+            "spend": {
+              "upgrade-economy": 740,
+              "melee": 240,
+              "hello-world": 314.99999999999994,
+              "ranged": 330,
+              "support": 100
+            },
+            "accepted": {
+              "upgrade-economy": 3,
+              "melee": 4,
+              "hello-world": 9,
+              "ranged": 3,
+              "support": 1
+            },
+            "xpBefore": 0,
+            "earnedLevels": {
+              "hero": 1,
+              "melee": 1,
+              "ranged": 1,
+              "support": 1,
+              "technician": 1,
+              "judge": 1,
+              "counselor": 1,
+              "athlete": 1,
+              "firefighter": 1,
+              "singer": 1
+            }
+          },
+          {
+            "stage": "1-2",
+            "policy": "balanced",
+            "cadence": 1,
+            "level": "earned",
+            "skills": [
+              "hello-world"
+            ],
+            "outcome": "won",
+            "seconds": 51.7,
+            "heroHp": 368,
+            "heroMaxHp": 368,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 0,
+            "goldSpent": 1775,
+            "goldLeft": 198,
+            "economyLevel": 3,
+            "maxArmy": 10,
+            "spend": {
+              "upgrade-economy": 360,
+              "melee": 299.99999999999994,
+              "hello-world": 385,
+              "technician": 300,
+              "ranged": 330,
+              "support": 100
+            },
+            "accepted": {
+              "upgrade-economy": 2,
+              "melee": 5,
+              "hello-world": 11,
+              "technician": 2,
+              "ranged": 3,
+              "support": 1
+            },
+            "xpBefore": 0,
+            "earnedLevels": {
+              "hero": 2,
+              "melee": 2,
+              "ranged": 1,
+              "support": 1,
+              "technician": 1,
+              "judge": 1,
+              "counselor": 1,
+              "athlete": 1,
+              "firefighter": 1,
+              "singer": 1
+            }
+          },
+          {
+            "stage": "1-3",
+            "policy": "balanced",
+            "cadence": 1,
+            "level": "earned",
+            "skills": [
+              "hello-world",
+              "heal"
+            ],
+            "outcome": "won",
+            "seconds": 62.9,
+            "heroHp": 351,
+            "heroMaxHp": 368,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 0,
+            "goldSpent": 2700,
+            "goldLeft": 112.4,
+            "economyLevel": 4,
+            "maxArmy": 12,
+            "spend": {
+              "upgrade-economy": 740,
+              "melee": 360,
+              "hello-world": 490.0000000000001,
+              "technician": 300,
+              "ranged": 330,
+              "judge": 380,
+              "support": 100
+            },
+            "accepted": {
+              "upgrade-economy": 3,
+              "melee": 6,
+              "hello-world": 14,
+              "technician": 2,
+              "ranged": 3,
+              "judge": 2,
+              "support": 1
+            },
+            "xpBefore": 0,
+            "earnedLevels": {
+              "hero": 2,
+              "melee": 2,
+              "ranged": 1,
+              "support": 1,
+              "technician": 1,
+              "judge": 1,
+              "counselor": 1,
+              "athlete": 1,
+              "firefighter": 1,
+              "singer": 1
+            }
+          },
+          {
+            "stage": "1-4",
+            "policy": "balanced",
+            "cadence": 1,
+            "level": "earned",
+            "skills": [
+              "hello-world",
+              "heal"
+            ],
+            "outcome": "won",
+            "seconds": 69.5,
+            "heroHp": 368,
+            "heroMaxHp": 368,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 0,
+            "goldSpent": 3055,
+            "goldLeft": 44.2,
+            "economyLevel": 4,
+            "maxArmy": 12,
+            "spend": {
+              "upgrade-economy": 740,
+              "melee": 360,
+              "hello-world": 560,
+              "technician": 300,
+              "judge": 570,
+              "firefighter": 400,
+              "counselor": 125
+            },
+            "accepted": {
+              "upgrade-economy": 3,
+              "melee": 6,
+              "hello-world": 16,
+              "technician": 2,
+              "judge": 3,
+              "firefighter": 2,
+              "counselor": 1
+            },
+            "xpBefore": 80,
+            "earnedLevels": {
+              "hero": 2,
+              "melee": 2,
+              "ranged": 2,
+              "support": 1,
+              "technician": 2,
+              "judge": 1,
+              "counselor": 1,
+              "athlete": 1,
+              "firefighter": 1,
+              "singer": 1
+            }
+          },
+          {
+            "stage": "1-5",
+            "policy": "balanced",
+            "cadence": 1,
+            "level": "earned",
+            "skills": [
+              "hello-world",
+              "heal",
+              "foreach"
+            ],
+            "outcome": "won",
+            "seconds": 102.8,
+            "heroHp": 416,
+            "heroMaxHp": 416,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 1,
+            "goldSpent": 3830,
+            "goldLeft": 92,
+            "economyLevel": 3,
+            "maxArmy": 7,
+            "spend": {
+              "upgrade-economy": 360,
+              "technician": 450,
+              "heal": 319.99999999999994,
+              "hello-world": 910,
+              "foreach": 400,
+              "athlete": 900,
+              "judge": 190,
+              "counselor": 125,
+              "singer": 175
+            },
+            "accepted": {
+              "upgrade-economy": 2,
+              "technician": 3,
+              "heal": 4,
+              "hello-world": 26,
+              "foreach": 4,
+              "athlete": 5,
+              "judge": 1,
+              "counselor": 1,
+              "singer": 1
+            },
+            "xpBefore": 30,
+            "earnedLevels": {
+              "hero": 3,
+              "melee": 2,
+              "ranged": 2,
+              "support": 1,
+              "technician": 2,
+              "judge": 1,
+              "counselor": 1,
+              "athlete": 1,
+              "firefighter": 1,
+              "singer": 1
+            }
+          },
+          {
+            "stage": "2-1",
+            "policy": "balanced",
+            "cadence": 1,
+            "level": "earned",
+            "skills": [
+              "hello-world",
+              "heal",
+              "foreach"
+            ],
+            "outcome": "won",
+            "seconds": 73.8,
+            "heroHp": 512,
+            "heroMaxHp": 512,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 0,
+            "goldSpent": 3100,
+            "goldLeft": 304,
+            "economyLevel": 4,
+            "maxArmy": 11,
+            "spend": {
+              "upgrade-economy": 740,
+              "foreach": 300,
+              "hello-world": 560,
+              "technician": 300,
+              "melee": 300,
+              "firefighter": 600,
+              "counselor": 125,
+              "singer": 175
+            },
+            "accepted": {
+              "upgrade-economy": 3,
+              "foreach": 3,
+              "hello-world": 16,
+              "technician": 2,
+              "melee": 5,
+              "firefighter": 3,
+              "counselor": 1,
+              "singer": 1
+            },
+            "xpBefore": 30,
+            "earnedLevels": {
+              "hero": 5,
+              "melee": 2,
+              "ranged": 2,
+              "support": 1,
+              "technician": 3,
+              "judge": 1,
+              "counselor": 1,
+              "athlete": 1,
+              "firefighter": 1,
+              "singer": 1
+            }
+          },
+          {
+            "stage": "2-2",
+            "policy": "balanced",
+            "cadence": 1,
+            "level": "earned",
+            "skills": [
+              "hello-world",
+              "heal",
+              "foreach"
+            ],
+            "outcome": "won",
+            "seconds": 69.1,
+            "heroHp": 512,
+            "heroMaxHp": 512,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 0,
+            "goldSpent": 2995,
+            "goldLeft": 263.4,
+            "economyLevel": 4,
+            "maxArmy": 11,
+            "spend": {
+              "upgrade-economy": 740,
+              "technician": 300,
+              "foreach": 300,
+              "hello-world": 560,
+              "melee": 300,
+              "judge": 570,
+              "counselor": 125,
+              "support": 100
+            },
+            "accepted": {
+              "upgrade-economy": 3,
+              "technician": 2,
+              "foreach": 3,
+              "hello-world": 16,
+              "melee": 5,
+              "judge": 3,
+              "counselor": 1,
+              "support": 1
+            },
+            "xpBefore": 100,
+            "earnedLevels": {
+              "hero": 5,
+              "melee": 2,
+              "ranged": 3,
+              "support": 1,
+              "technician": 3,
+              "judge": 2,
+              "counselor": 2,
+              "athlete": 1,
+              "firefighter": 2,
+              "singer": 2
+            }
+          },
+          {
+            "stage": "2-3",
+            "policy": "balanced",
+            "cadence": 1,
+            "level": "earned",
+            "skills": [
+              "hello-world",
+              "heal",
+              "foreach"
+            ],
+            "outcome": "won",
+            "seconds": 80.1,
+            "heroHp": 512,
+            "heroMaxHp": 512,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 0,
+            "goldSpent": 3520,
+            "goldLeft": 425.2,
+            "economyLevel": 4,
+            "maxArmy": 9,
+            "spend": {
+              "upgrade-economy": 740,
+              "hello-world": 769.9999999999999,
+              "foreach": 300,
+              "technician": 300,
+              "athlete": 540,
+              "judge": 570,
+              "counselor": 125,
+              "singer": 175
+            },
+            "accepted": {
+              "upgrade-economy": 3,
+              "hello-world": 22,
+              "foreach": 3,
+              "technician": 2,
+              "athlete": 3,
+              "judge": 3,
+              "counselor": 1,
+              "singer": 1
+            },
+            "xpBefore": 90,
+            "earnedLevels": {
+              "hero": 5,
+              "melee": 3,
+              "ranged": 3,
+              "support": 1,
+              "technician": 4,
+              "judge": 3,
+              "counselor": 2,
+              "athlete": 2,
+              "firefighter": 3,
+              "singer": 2
+            }
+          },
+          {
+            "stage": "2-4",
+            "policy": "balanced",
+            "cadence": 1,
+            "level": "earned",
+            "skills": [
+              "hello-world",
+              "heal",
+              "foreach"
+            ],
+            "outcome": "won",
+            "seconds": 78.4,
+            "heroHp": 560,
+            "heroMaxHp": 560,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 0,
+            "goldSpent": 3580,
+            "goldLeft": 327.2,
+            "economyLevel": 4,
+            "maxArmy": 9,
+            "spend": {
+              "upgrade-economy": 740,
+              "hello-world": 700,
+              "foreach": 400,
+              "technician": 300,
+              "athlete": 540,
+              "firefighter": 600,
+              "counselor": 125,
+              "singer": 175
+            },
+            "accepted": {
+              "upgrade-economy": 3,
+              "hello-world": 20,
+              "foreach": 4,
+              "technician": 2,
+              "athlete": 3,
+              "firefighter": 3,
+              "counselor": 1,
+              "singer": 1
+            },
+            "xpBefore": 30,
+            "earnedLevels": {
+              "hero": 6,
+              "melee": 3,
+              "ranged": 3,
+              "support": 1,
+              "technician": 5,
+              "judge": 4,
+              "counselor": 2,
+              "athlete": 3,
+              "firefighter": 3,
+              "singer": 2
+            }
+          },
+          {
+            "stage": "2-5",
+            "policy": "balanced",
+            "cadence": 1,
+            "level": "earned",
+            "skills": [
+              "hello-world",
+              "heal",
+              "foreach"
+            ],
+            "outcome": "won",
+            "seconds": 99.9,
+            "heroHp": 608,
+            "heroMaxHp": 608,
+            "baseHp": 900,
+            "enemyBaseHp": 0,
+            "bossDefeated": 2,
+            "goldSpent": 4735,
+            "goldLeft": 247,
+            "economyLevel": 4,
+            "maxArmy": 9,
+            "spend": {
+              "upgrade-economy": 740,
+              "hello-world": 980.0000000000001,
+              "foreach": 500,
+              "technician": 450,
+              "athlete": 720,
+              "judge": 760,
+              "counselor": 250,
+              "heal": 160,
+              "singer": 175
+            },
+            "accepted": {
+              "upgrade-economy": 3,
+              "hello-world": 28,
+              "foreach": 5,
+              "technician": 3,
+              "athlete": 4,
+              "judge": 4,
+              "counselor": 2,
+              "heal": 2,
+              "singer": 1
+            },
+            "xpBefore": 40,
+            "earnedLevels": {
+              "hero": 7,
+              "melee": 3,
+              "ranged": 3,
+              "support": 1,
+              "technician": 5,
+              "judge": 4,
+              "counselor": 3,
+              "athlete": 3,
+              "firefighter": 4,
+              "singer": 3
+            }
+          }
+        ],
+        "purchases": [
+          {
+            "after": "1-1",
+            "type": "level",
+            "key": "hero",
+            "xp": 60
+          },
+          {
+            "after": "1-1",
+            "type": "level",
+            "key": "melee",
+            "xp": 60
+          },
+          {
+            "after": "1-2",
+            "type": "skill",
+            "key": "heal",
+            "xp": 160
+          },
+          {
+            "after": "1-3",
+            "type": "level",
+            "key": "technician",
+            "xp": 60
+          },
+          {
+            "after": "1-3",
+            "type": "level",
+            "key": "ranged",
+            "xp": 60
+          },
+          {
+            "after": "1-4",
+            "type": "skill",
+            "key": "foreach",
+            "xp": 220
+          },
+          {
+            "after": "1-4",
+            "type": "level",
+            "key": "hero",
+            "xp": 90
+          },
+          {
+            "after": "1-5",
+            "type": "level",
+            "key": "hero",
+            "xp": 120
+          },
+          {
+            "after": "1-5",
+            "type": "level",
+            "key": "hero",
+            "xp": 150
+          },
+          {
+            "after": "1-5",
+            "type": "level",
+            "key": "technician",
+            "xp": 90
+          },
+          {
+            "after": "2-1",
+            "type": "level",
+            "key": "firefighter",
+            "xp": 60
+          },
+          {
+            "after": "2-1",
+            "type": "level",
+            "key": "ranged",
+            "xp": 90
+          },
+          {
+            "after": "2-1",
+            "type": "level",
+            "key": "judge",
+            "xp": 60
+          },
+          {
+            "after": "2-1",
+            "type": "level",
+            "key": "counselor",
+            "xp": 60
+          },
+          {
+            "after": "2-1",
+            "type": "level",
+            "key": "singer",
+            "xp": 60
+          },
+          {
+            "after": "2-2",
+            "type": "level",
+            "key": "technician",
+            "xp": 120
+          },
+          {
+            "after": "2-2",
+            "type": "level",
+            "key": "judge",
+            "xp": 90
+          },
+          {
+            "after": "2-2",
+            "type": "level",
+            "key": "athlete",
+            "xp": 60
+          },
+          {
+            "after": "2-2",
+            "type": "level",
+            "key": "melee",
+            "xp": 90
+          },
+          {
+            "after": "2-2",
+            "type": "level",
+            "key": "firefighter",
+            "xp": 90
+          },
+          {
+            "after": "2-3",
+            "type": "level",
+            "key": "hero",
+            "xp": 180
+          },
+          {
+            "after": "2-3",
+            "type": "level",
+            "key": "technician",
+            "xp": 150
+          },
+          {
+            "after": "2-3",
+            "type": "level",
+            "key": "judge",
+            "xp": 120
+          },
+          {
+            "after": "2-3",
+            "type": "level",
+            "key": "athlete",
+            "xp": 90
+          },
+          {
+            "after": "2-4",
+            "type": "level",
+            "key": "firefighter",
+            "xp": 120
+          },
+          {
+            "after": "2-4",
+            "type": "level",
+            "key": "counselor",
+            "xp": 90
+          },
+          {
+            "after": "2-4",
+            "type": "level",
+            "key": "singer",
+            "xp": 90
+          },
+          {
+            "after": "2-4",
+            "type": "level",
+            "key": "hero",
+            "xp": 210
+          }
+        ],
+        "totalSeconds": 737.4,
+        "finalXp": 690,
+        "clears": [
+          "1-1",
+          "1-2",
+          "1-3",
+          "1-4",
+          "1-5",
+          "2-1",
+          "2-2",
+          "2-3",
+          "2-4",
+          "2-5"
+        ]
+      }
+    ]
+  }
+}
