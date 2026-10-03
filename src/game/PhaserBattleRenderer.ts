@@ -12,8 +12,9 @@ export class PhaserBattleRenderer {
   private readonly actors = new Map<number, { image: Phaser.GameObjects.Image; scale: number; lastX: number; dyingAt?: number }>();
   private readonly scenery: Phaser.GameObjects.GameObject[] = [];
   private readonly living = new Set<number>();
-  constructor(private readonly scene: Phaser.Scene, theme?: 'early' | 'mid' | 'boss') {
+  constructor(private readonly scene: Phaser.Scene, theme?: 'early' | 'mid' | 'boss', stageId?: string) {
     scene.cameras.main.setBackgroundColor('#233342');
+    const useEnemyBaseImage = ['1-1', '1-2', '1-3', '1-4'].includes(stageId ?? '') && scene.textures.exists('enemy-base');
     const key = backgroundArt(theme);
     if (scene.textures.exists(key)) {
       const bg = scene.add.image(320, 140, key).setDepth(-10);
@@ -24,15 +25,22 @@ export class PhaserBattleRenderer {
       bases.fillStyle(0xd0a86b).fillRect(25, 167, 57, 63);
       bases.fillStyle(0x77614f).fillRect(20, 159, 67, 9);
       bases.fillStyle(0x453c40).fillRect(46, 197, 18, 33);
-      bases.fillStyle(0x131e2b).fillRect(552, 130, 65, 100);
-      bases.fillStyle(0x547386).fillRect(548, 122, 73, 8);
-      for (let y = 142; y < 215; y += 17) bases.fillStyle(0x75d7db).fillRect(562, y, 45, 3);
+      if (!useEnemyBaseImage) {
+        bases.fillStyle(0x131e2b).fillRect(552, 130, 65, 100);
+        bases.fillStyle(0x547386).fillRect(548, 122, 73, 8);
+        for (let y = 142; y < 215; y += 17) bases.fillStyle(0x75d7db).fillRect(562, y, 45, 3);
+      }
       this.scenery.push(bases);
       if (scene.textures.exists('seoultech-symbol')) {
         const logo = scene.add.image(54, 182, 'seoultech-symbol').setDepth(2);
         logo.setScale(Math.min(30 / logo.width, 28 / logo.height)); this.scenery.push(logo);
       }
-    } else drawPlaceholder(scene, true);
+    } else drawPlaceholder(scene, true, !useEnemyBaseImage);
+    if (useEnemyBaseImage) {
+      const base = scene.add.image(FIELD.aiBaseX, FIELD.groundY, 'enemy-base').setOrigin(.5, 1).setDepth(1);
+      base.setScale(Math.min(112 / base.width, 112 / base.height));
+      this.scenery.push(base);
+    }
     this.graphics = scene.add.graphics().setDepth(10);
   }
 

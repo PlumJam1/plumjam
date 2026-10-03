@@ -28,7 +28,7 @@ export class BattleScene extends Phaser.Scene {
     const scope = this.scope;
     this.session = new BattleSession({ runId: scope.id, stage, levels: this.context.profile.snapshot().levels });
     const session = this.session;
-    this.battleRenderer = new PhaserBattleRenderer(this, stage.theme);
+    this.battleRenderer = new PhaserBattleRenderer(this, stage.theme, stage.id);
     const battleRenderer = this.battleRenderer;
     scope.defer(() => { this.context.sound.stopRun(scope.id); session.dispose(); battleRenderer.destroy(); });
     scope.defer(this.context.bridge.subscribe('battle-command', ({ runId, command }) => {
