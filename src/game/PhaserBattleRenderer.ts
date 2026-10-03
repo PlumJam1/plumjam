@@ -4,12 +4,14 @@ import { drawPlaceholder } from '../scenes/drawPlaceholder';
 import { FIELD, SONG } from './battle/balance';
 import type { BattleSnapshot, SkillKind, TimedBuffs, UnitState } from './battle/types';
 import { getBaseArt, getEnemyBaseKey, skillPreview } from './presentation/battlePresentation';
+import { BATTLE_CAMERA, getBattleCamera, type BattleViewMode } from './presentation/battleCamera';
 
 /** Scene-owned presentation; app-owned source textures survive scene shutdown. */
 export class PhaserBattleRenderer {
   private readonly graphics: Phaser.GameObjects.Graphics;
   private readonly groundGraphics: Phaser.GameObjects.Graphics;
   private previewSkill: SkillKind | null = null;
+  private viewMode: BattleViewMode = 'close';
   private readonly labels = new Map<string, Phaser.GameObjects.Text>();
   private readonly visibleLabels = new Set<string>();
   private readonly actors = new Map<number, { image: Phaser.GameObjects.Image; scale: number; lastX: number; dyingAt?: number }>();
@@ -19,15 +21,16 @@ export class PhaserBattleRenderer {
   private readonly living = new Set<number>();
   constructor(private readonly scene: Phaser.Scene, theme?: 'early' | 'mid' | 'boss', stageId?: string) {
     scene.cameras.main.setBackgroundColor('#233342');
-    scene.cameras.main.setScroll(0, FIELD.cameraY);
+    this.applyCamera(FIELD.heroStartX);
     const useHumanBaseImage = scene.textures.exists('human-base');
     const enemyBaseKey = getEnemyBaseKey(stageId);
     const useEnemyBaseImage = !!enemyBaseKey && scene.textures.exists(enemyBaseKey);
     const key = backgroundArt(theme);
     if (scene.textures.exists(key)) {
-      const bg = scene.add.image(FIELD.width / 2, FIELD.cameraY + FIELD.height / 2, key).setDepth(-10);
-      // Cover the taller field with the intact source image and preserve its aspect ratio.
-      bg.setScale(Math.max(FIELD.width / bg.width, FIELD.height / bg.height));
+      const backdropHeight = BATTLE_CAMERA.backdropBottom - FIELD.cameraY;
+      const bg = scene.add.image(FIELD.width / 2, FIELD.cameraY + backdropHeight / 2, key).setDepth(-10);
+      // Cover both zoomed world views with the intact source image and preserve its aspect ratio.
+      bg.setScale(Math.max(FIELD.width / bg.width, backdropHeight / bg.height));
       this.scenery.push(bg);
       const bases = scene.add.graphics().setDepth(1);
       if (!useHumanBaseImage) {
@@ -63,8 +66,16 @@ export class PhaserBattleRenderer {
   }
 
   setPreview(skill: SkillKind | null): void { this.previewSkill = skill; }
+  setViewMode(mode: BattleViewMode): void { if (mode === 'close' || mode === 'overview') this.viewMode = mode; }
+
+  private applyCamera(heroX: number) {
+    const view = getBattleCamera(heroX, this.viewMode);
+    this.scene.cameras.main.setZoom(view.zoom).setScroll(view.scrollX, view.scrollY);
+    return view;
+  }
 
   render(snapshot: BattleSnapshot): void {
+    const cameraView = this.applyCamera(snapshot.hero.x);
     const baseArt = getBaseArt(snapshot);
     if (this.humanBaseImage) {
       const key = baseArt.human;
@@ -90,8 +101,9 @@ export class PhaserBattleRenderer {
     if (preview) {
       const color = preview.skill === 'hello-world' ? 0xffdf9c : preview.skill === 'sleep' ? 0xd5b6ff : preview.skill === 'git-push' ? 0x89dfff : 0x9cf3ba;
       if (preview.shape === 'line') {
-        g.lineStyle(2, color, .85).lineBetween(preview.x, 244, preview.endX, 244);
-        g.fillStyle(color, .9).fillTriangle(preview.endX, 244, preview.endX - 7, 240, preview.endX - 7, 248);
+        const lineY = FIELD.groundY + 10;
+        g.lineStyle(2, color, .85).lineBetween(preview.x, lineY, preview.endX, lineY);
+        g.fillStyle(color, .9).fillTriangle(preview.endX, lineY, preview.endX - 7, lineY - 4, preview.endX - 7, lineY + 4);
       } else {
         this.groundGraphics.fillStyle(color, .1).fillCircle(preview.x, FIELD.groundY, preview.radius);
         this.groundGraphics.lineStyle(2, color, .85).strokeCircle(preview.x, FIELD.groundY, preview.radius);
@@ -109,7 +121,8 @@ export class PhaserBattleRenderer {
     for (const attack of snapshot.judgeAttacks) {
       const source = snapshot.units.find(unit => unit.id === attack.sourceId);
       const fall = Math.max(0, Math.min(1, (attack.duration - attack.remaining - attack.windup) / (attack.duration - attack.windup)));
-      const y = -65 + fall * fall * 250;
+      const startY = Math.max(-65, cameraView.worldView.y + 24);
+      const y = startY + fall * fall * (185 - startY);
       const width = source && source.level >= 5 ? 46 : 38;
       // Handle trails above; the heavy head leads the fall so it strikes head-first.
       g.fillStyle(0xe0b583).fillRect(attack.x - 3, y - 40, 6, 31);

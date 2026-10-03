@@ -1,3 +1,4 @@
+import type { BattleViewMode } from '../../game/presentation/battleCamera';
 import { computed, effectScope, readonly, shallowRef } from 'vue';
 import type { AppContext } from '../../core/AppContext';
 import type { SceneScope } from '../../core/SceneLifetimeManager';
@@ -14,6 +15,7 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
   const battle = shallowRef<BattleSnapshot | null>(null);
   const feedback = shallowRef('');
   const unitPage = shallowRef<0 | 1>(0);
+  const viewMode = shallowRef<BattleViewMode>('close');
   const activePageScope = () => {
     const current = context.bridge.sceneState;
     return !scope.disposed && !!battle.value && (battle.value.status === 'active' || battle.value.status === 'paused') && (!current || current.scene === 'Battle' && current.runId === scope.id);
@@ -25,7 +27,14 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
     for (const [source, detail] of detailSources) {
       if (detail.type === 'unit' && Math.floor(detail.slot / FORMATION_PAGE_SIZE) !== value.page) detailSources.delete(source);
     }
+    if (lastDetail.value?.type === 'unit' && Math.floor(lastDetail.value.slot / FORMATION_PAGE_SIZE) !== value.page) lastDetail.value = null;
     publishDetail();
+  }));
+  const publishView = (mode: BattleViewMode) => {
+    if (activePageScope() && (mode === 'close' || mode === 'overview')) context.bridge.emit('battle-view', { runId: scope.id, mode });
+  };
+  scope.defer(context.bridge.subscribe('battle-view', value => {
+    if (value.runId === scope.id && (value.mode === 'close' || value.mode === 'overview') && activePageScope()) viewMode.value = value.mode;
   }));
   const intro = shallowRef(showIntro);
   const reward = shallowRef(0);
@@ -36,8 +45,17 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
   type Detail = { type: 'unit'; slot: number } | { type: 'skill'; kind: SkillKind } | { type: 'economy' };
   const detailSources = new Map<'hover' | 'focus', Detail>();
   const selectedDetail = shallowRef<Detail | null>(null);
-  const publishDetail = () => { selectedDetail.value = [...detailSources.values()].at(-1) ?? null; };
-  const clearDetail = () => { detailSources.clear(); selectedDetail.value = null; };
+  const lastDetail = shallowRef<Detail | null>(null);
+  const detailRegionSources = new Set<'hover' | 'focus'>();
+  const detailRegionActive = shallowRef(false);
+  const publishDetail = () => {
+    selectedDetail.value = [...detailSources.values()].at(-1) ?? null;
+    if (selectedDetail.value) lastDetail.value = selectedDetail.value;
+  };
+  const clearDetail = () => {
+    detailSources.clear(); selectedDetail.value = null; lastDetail.value = null;
+    detailRegionSources.clear(); detailRegionActive.value = false;
+  };
   scope.defer(clearDetail);
   let defeatedBossCount = 0;
   let bossNoticeTimer: ReturnType<typeof setTimeout> | undefined;
@@ -92,6 +110,8 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
         level: battle.value?.levels[kind] ?? 1, progress: 1 - cooldown / definition.summonCooldown!, ...presentation, description };
     }));
     const visibleUnits = computed(() => units.value.slice(unitPage.value * FORMATION_PAGE_SIZE, (unitPage.value + 1) * FORMATION_PAGE_SIZE));
+    const viewModeLabel = computed(() => viewMode.value === 'close' ? '근접 시점' : '전체 전장');
+    const viewDisabled = computed(() => !battle.value || ended.value);
     const pageDisabled = computed(() => !battle.value || ended.value);
     const allSkills = computed(() => (Object.keys(SKILLS) as SkillKind[]).map((kind) => {
       const definition = SKILLS[kind];
@@ -133,7 +153,7 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
       return next ? `수입 +${next.income}/초 · 상한 ${next.cap}` : '수입과 보유 상한 최대';
     });
     const controlDetail = computed(() => {
-      const detail = selectedDetail.value;
+      const detail = selectedDetail.value ?? (detailRegionActive.value ? lastDetail.value : null);
       if (!detail) return null;
       if (detail.type === 'unit') {
         const unit = visibleUnits.value.find(value => value.slotIndex === detail.slot);
@@ -154,15 +174,23 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
     const resultDescription = computed(() => campaignComplete.value ? `GPT-4o를 이겼어. ${CHAPTERS.length}개 챕터 · ${STAGES.length}개 스테이지를 모두 클리어했어!` : battle.value?.status === 'won' ? 'AI 데이터센터를 파괴했어. 재화로 강화하거나 다음 출근에 도전해봐.' : battle.value?.defeatReason === 'hero' ? '개발자가 쓰러졌어. 병력 뒤에서 전선을 도와줘.' : '아군 기지가 파괴됐어. 병력과 경제 투자 타이밍을 바꿔봐.');
     const hasNextStage = computed(() => battle.value?.status === 'won' && !!nextStage(battle.value.stageId));
     return {
-      battle: readonly(battle), feedback: readonly(feedback), intro: readonly(intro), units, visibleUnits, unitPage: readonly(unitPage), pageDisabled, skills, allSkills, skillSlots, speed, speedDisabled, ended, danger,
+      battle: readonly(battle), feedback: readonly(feedback), intro: readonly(intro), units, visibleUnits, unitPage: readonly(unitPage), pageDisabled, viewMode: readonly(viewMode), viewModeLabel, viewDisabled, skills, allSkills, skillSlots, speed, speedDisabled, ended, danger,
       boss, bossNotice: readonly(bossNotice), waveNotice, heroBuffs, preview, previewDescription, previewTargets,
       economyDisabled, economyDescription, economyReason, economyState, controlDetail, time, resultTitle, resultDescription,
       newAllies: computed(() => newAllies.value.map(kind => ({ kind, label: UNIT_DEFINITIONS[kind].label }))), reward: readonly(reward), prototypeComplete: campaignComplete, hasNextStage,
+      setViewMode: publishView,
+      toggleViewMode: () => publishView(viewMode.value === 'close' ? 'overview' : 'close'),
       setUnitPage: (page: 0 | 1) => { if (activePageScope() && (page === 0 || page === 1)) context.bridge.emit('battle-page', { runId: scope.id, page }); },
       setSpeed: (value: BattleSpeed) => {
         const current = context.bridge.sceneState;
         if (scope.disposed || !battle.value || ended.value || ![1, 2, 3].includes(value) || current && (current.scene !== 'Battle' || current.runId !== scope.id)) return;
         command({ type: 'set-speed', speed: value });
+      },
+      setDetailRegionActive: (source: 'hover' | 'focus', enabled: boolean) => {
+        if (scope.disposed) return;
+        if (enabled && battle.value?.status === 'active') detailRegionSources.add(source);
+        else detailRegionSources.delete(source);
+        detailRegionActive.value = detailRegionSources.size > 0;
       },
       describeUnit: (slot: number, source: 'hover' | 'focus', enabled: boolean) => {
         if (scope.disposed) return;

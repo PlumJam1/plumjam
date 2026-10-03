@@ -1,3 +1,4 @@
+import type { BattleViewMode } from '../game/presentation/battleCamera';
 import type { AllyKind, BattleCommand, BattleSnapshot, CommandResult, SkillKind } from '../game/battle/types';
 
 export type SceneKey = 'Boot' | 'Lobby' | 'Battle';
@@ -31,6 +32,8 @@ export interface GameBridgeEvents {
   'battle-preview': { runId: number; skill: SkillKind | null };
   /** Presentation-only summon-card page; authoritative battle state does not change. */
   'battle-page': { runId: number; page: 0 | 1 };
+  /** Camera-only intent; never changes the simulation, cost or cooldowns. */
+  'battle-view': { runId: number; mode: BattleViewMode };
   'battle-snapshot': BattleSnapshot;
   'battle-feedback': { runId: number; result: CommandResult };
   'battle-result': { runId: number; stageId: string; reward: number; prototypeComplete: boolean; firstClear?: boolean; newlyUnlockedAllies?: readonly AllyKind[] };

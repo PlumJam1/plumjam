@@ -38,6 +38,29 @@ describe('typed UI control state', () => {
     expect(commands).not.toHaveBeenCalled(); expect(session.snapshot()).toEqual(initial);
     off(); context.dispose();
   });
+  it('holds a descriptor while the readable region is focused, updates live costs and clears on page/phase/disposal', () => {
+    const context = new AppContext(); const scope = context.lifetimes.begin({ events: new EventEmitter() } as unknown as Phaser.Scene);
+    const model = createBattleViewModel(context, scope, false), session = new BattleSession({ runId: scope.id });
+    const snapshot = session.snapshot(); context.bridge.emit('battle-snapshot', snapshot);
+    const commands = vi.fn(); const off = context.bridge.subscribe('battle-command', commands);
+    model.previewSkill('hello-world', 'focus', true); model.previewSkill('hello-world', 'focus', false);
+    expect(model.controlDetail.value).toBeNull(); expect(model.preview.value).toBeNull();
+    model.setDetailRegionActive('focus', true);
+    expect(model.controlDetail.value).toMatchObject({ name: 'Hello World', cost: '35원', reason: '사용 가능' });
+    context.bridge.emit('battle-snapshot', { ...snapshot, gold: 0, skillCooldowns: { ...snapshot.skillCooldowns, 'hello-world': 2 } });
+    expect(model.controlDetail.value).toMatchObject({ reason: '준비 2.0초', status: 'cooldown' });
+    model.setDetailRegionActive('hover', true); model.setDetailRegionActive('focus', false);
+    expect(model.controlDetail.value?.name).toBe('Hello World');
+    model.setDetailRegionActive('hover', false); expect(model.controlDetail.value).toBeNull();
+    model.describeUnit(0, 'focus', true); model.describeUnit(0, 'focus', false); model.setDetailRegionActive('focus', true);
+    expect(model.controlDetail.value?.name).toBe('1번 근접 회사원');
+    model.setUnitPage(1); expect(model.controlDetail.value).toBeNull();
+    model.previewSkill('hello-world', 'focus', true);
+    context.bridge.emit('battle-snapshot', { ...snapshot, status: 'paused' }); expect(model.controlDetail.value).toBeNull();
+    context.bridge.emit('battle-snapshot', snapshot); model.setDetailRegionActive('focus', true); expect(model.controlDetail.value).toBeNull();
+    model.previewSkill('hello-world', 'hover', true); scope.dispose(); model.setDetailRegionActive('hover', true); expect(model.controlDetail.value).toBeNull();
+    expect(commands).not.toHaveBeenCalled(); expect(session.snapshot()).toEqual(snapshot); off(); context.dispose();
+  });
   it('shows changing full names/reasons on focus without commanding battle or spending', () => {
     const context = new AppContext(); const scene = { events: new EventEmitter() } as unknown as Phaser.Scene;
     const scope = context.lifetimes.begin(scene), model = createBattleViewModel(context, scope, false);

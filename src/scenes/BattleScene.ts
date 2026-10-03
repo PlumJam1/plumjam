@@ -1,3 +1,4 @@
+import type { BattleViewMode } from '../game/presentation/battleCamera';
 import { nextStage } from '../game/progression/stages';
 import Phaser from 'phaser';
 import type { AppContext } from '../core/AppContext';
@@ -74,6 +75,16 @@ export class BattleScene extends Phaser.Scene {
       const status = session.snapshot().status;
       if (status === 'active' || status === 'paused') unitPage = page;
     }));
+    let viewMode: BattleViewMode = 'close';
+    scope.defer(this.context.bridge.subscribe('battle-view', ({ runId, mode }) => {
+      if (scope.disposed || runId !== scope.id || this.context.bridge.sceneState?.runId !== scope.id || (mode !== 'close' && mode !== 'overview')) return;
+      const snapshot = session.snapshot();
+      if (snapshot.status !== 'active' && snapshot.status !== 'paused') return;
+      viewMode = mode;
+      battleRenderer.setViewMode(mode);
+      // Paused scenes do not update, so redraw the camera without advancing any clock.
+      battleRenderer.render(snapshot);
+    }));
     const pressed = new Set<string>();
     const dispatch = (command: BattleCommand) => this.context.bridge.emit('battle-command', { runId: scope.id, command });
     const movement = () => dispatch({ type: 'move', direction: (Number(pressed.has('KeyD') || pressed.has('ArrowRight')) - Number(pressed.has('KeyA') || pressed.has('ArrowLeft'))) as -1 | 0 | 1 });
@@ -92,6 +103,12 @@ export class BattleScene extends Phaser.Scene {
       if (event.code === 'Escape') {
         if (!event.repeat) this.context.bridge.emit('scene-command', { runId: scope.id, command: { type: 'toggle-pause' } });
         event.preventDefault(); return;
+      }
+      if (event.code === 'KeyV') {
+        event.preventDefault();
+        const status = session.snapshot().status;
+        if (!event.repeat && (status === 'active' || status === 'paused')) this.context.bridge.emit('battle-view', { runId: scope.id, mode: viewMode === 'close' ? 'overview' : 'close' });
+        return;
       }
       if (event.code === 'KeyQ') {
         event.preventDefault();

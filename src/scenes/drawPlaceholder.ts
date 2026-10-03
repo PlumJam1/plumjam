@@ -1,11 +1,12 @@
 import type Phaser from 'phaser';
 import { FIELD } from '../game/battle/balance';
+import { BATTLE_CAMERA } from '../game/presentation/battleCamera';
 
 /** Geometry is temporary; art can replace it without changing game state. */
 export function drawPlaceholder(scene: Phaser.Scene, battle: boolean, drawEnemyBase = true, drawHumanBase = true): void {
   scene.cameras.main.setBackgroundColor(battle ? '#233342' : '#314452');
   const graphics = scene.add.graphics();
-  graphics.fillStyle(0x233342).fillRect(0, battle ? FIELD.cameraY : 0, FIELD.width, FIELD.height);
+  graphics.fillStyle(0x233342).fillRect(0, battle ? FIELD.cameraY : 0, FIELD.width, battle ? BATTLE_CAMERA.backdropBottom - FIELD.cameraY : FIELD.height);
   graphics.fillStyle(0x52626b).fillRect(0, 154, 640, 85);
   for (let x = 0; x < 640; x += 54) {
     const height = 32 + (x % 89);
