@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { ProfileService, SAVE_KEY, type SaveStorage } from '../src/game/progression/ProfileService';
 import { AppContext } from '../src/core/AppContext';
 import { BattleSession } from '../src/game/BattleSession';
-import { getStage, nextStage, STAGES } from '../src/game/progression/stages';
+import { CHAPTER_ONE, getStage, nextStage, STAGES } from '../src/game/progression/stages';
 import { DEFAULT_UNLOCKED_SKILLS } from '../src/game/battle/balance';
 import type { SkillKind } from '../src/game/battle/types';
 
@@ -153,14 +153,14 @@ describe('permanent progression', () => {
     expect(before.snapshot().hero.level).toBe(4);
   });
 });
-describe('five-stage campaign', () => {
+describe('first chapter campaign', () => {
   it('adds distinct tactical pressure with increasing base health and rewards, and only stage five starts with GPT-4o', () => {
-    expect(STAGES.map(stage => stage.id)).toEqual(['1-1', '1-2', '1-3', '1-4', '1-5']);
-    for (let index = 1; index < STAGES.length; index++) {
-      expect(STAGES[index].spawns.length).toBeGreaterThanOrEqual(STAGES[index - 1].spawns.length);
-      expect(STAGES[index].repeat!.interval).toBeLessThanOrEqual(STAGES[index - 1].repeat!.interval);
-      expect(STAGES[index].aiBaseHp).toBeGreaterThan(STAGES[index - 1].aiBaseHp);
-      expect(STAGES[index].clearReward).toBeGreaterThan(STAGES[index - 1].clearReward!);
+    expect(CHAPTER_ONE.map(stage => stage.id)).toEqual(['1-1', '1-2', '1-3', '1-4', '1-5']);
+    for (let index = 1; index < CHAPTER_ONE.length; index++) {
+      expect(CHAPTER_ONE[index].spawns.length).toBeGreaterThanOrEqual(CHAPTER_ONE[index - 1].spawns.length);
+      expect(CHAPTER_ONE[index].repeat!.interval).toBeLessThanOrEqual(CHAPTER_ONE[index - 1].repeat!.interval);
+      expect(CHAPTER_ONE[index].aiBaseHp).toBeGreaterThan(CHAPTER_ONE[index - 1].aiBaseHp);
+      expect(CHAPTER_ONE[index].clearReward).toBeGreaterThan(CHAPTER_ONE[index - 1].clearReward!);
     }
     expect(getStage('1-2')!.spawns.filter(spawn => spawn.kind === 'robot-runner')).toHaveLength(3);
     expect(getStage('1-3')!.spawns.filter(spawn => spawn.kind === 'robot-ranged').length).toBeGreaterThan(getStage('1-3')!.spawns.filter(spawn => spawn.kind === 'robot-melee').length);
@@ -168,7 +168,7 @@ describe('five-stage campaign', () => {
     const boss = new BattleSession({ runId: 1, stage: getStage('1-5') });
     expect(boss.snapshot().elapsed).toBe(0);
     expect(boss.snapshot().units.map(unit => unit.kind)).toEqual(['gpt-4o']);
-    expect(nextStage('1-5')).toBeUndefined(); expect(nextStage('missing')).toBeUndefined();
+    expect(nextStage('1-5')?.id).toBe('2-1'); expect(nextStage('2-5')).toBeUndefined(); expect(nextStage('missing')).toBeUndefined();
   });
 });
 
@@ -302,5 +302,70 @@ describe('new roster and foreach ownership progression', () => {
     expect(profile.purchaseSkill('foreach').accepted).toBe(false); expect(profile.snapshot()).toEqual(bought);
     expect(profile.setEquippedSkills(['foreach', 'hello-world', 'sleep']).accepted).toBe(true);
     expect(profile.snapshot().equippedSkills).toEqual(['foreach', 'hello-world', 'sleep']);
+  });
+});
+
+describe('chapter catalog extension migration', () => {
+  const chapterOne = ['1-1', '1-2', '1-3', '1-4', '1-5'];
+  const oldComplete = () => ({ version: 1, xp: 735,
+    levels: { hero: 5, melee: 3, ranged: 3, support: 2, technician: 4, judge: 4, counselor: 2, athlete: 2, firefighter: 4, singer: 5 },
+    clearedStages: [...chapterOne], unlockedStages: [...chapterOne],
+    unlockedSkills: ['hello-world', 'sleep', 'heal', 'git-push', 'overclock', 'foreach'], equippedSkills: ['hello-world', 'heal', 'foreach'],
+    unlockedAllies: ['melee', 'ranged', 'support', 'technician', 'judge', 'counselor', 'athlete', 'firefighter', 'singer'],
+    equippedAllies: ['technician', 'judge', 'counselor', 'firefighter', 'singer', 'melee', 'ranged', 'support', 'athlete', null], muted: true });
+  it('adds only the new 2-1 frontier to a fully completed released v1 catalog, retaining all earned fields', () => {
+    const saved = oldComplete(); const storage = memoryStorage(JSON.stringify(saved)); const write = vi.spyOn(storage, 'setItem');
+    const model = new ProfileService(storage); const snapshot = model.snapshot();
+    expect(snapshot).toMatchObject({ ...saved, unlockedStages: [...chapterOne, '2-1'], storageMessage: '' });
+    expect(snapshot.xp).toBe(735); expect(snapshot.levels).toEqual(saved.levels);
+    expect(snapshot.equippedSkills).toEqual(saved.equippedSkills); expect(snapshot.equippedAllies).toEqual(saved.equippedAllies);
+    expect(snapshot.unlockedSkills).toEqual(saved.unlockedSkills); expect(snapshot.muted).toBe(true);
+    expect(write).not.toHaveBeenCalled(); // Migration reads safely; the next earned mutation persists it.
+    expect(model.canStart('2-1')).toBe(true); expect(model.canStart('2-2')).toBe(false);
+    const reward = getStage('2-1')!.clearReward!;
+    expect(model.rewardWin('chapter-two', '2-1')).toBe(reward);
+    expect(model.rewardWin('chapter-two', '2-1')).toBe(0);
+    expect(new ProfileService(storage).snapshot()).toEqual(model.snapshot());
+    expect(snapshot.unlockedStages).toEqual([...chapterOne, '2-1']);
+  });
+  it('leaves valid old partial progress unchanged rather than granting the next chapter', () => {
+    const saved = { ...oldComplete(), clearedStages: chapterOne.slice(0, 3), unlockedStages: chapterOne.slice(0, 4), equippedAllies: ['melee', 'ranged', 'support', null, null, null, null, null, null, null] };
+    const model = new ProfileService(memoryStorage(JSON.stringify(saved)));
+    expect(model.snapshot()).toMatchObject({ xp: saved.xp, levels: saved.levels, clearedStages: saved.clearedStages, unlockedStages: saved.unlockedStages, equippedSkills: saved.equippedSkills, equippedAllies: saved.equippedAllies, muted: true, storageMessage: '' });
+    expect(model.canStart('2-1')).toBe(false);
+  });
+  it('still rejects unknown stages, skipped clears and impossible unlocks instead of treating them as extension', () => {
+    const variants = [
+      { clearedStages: [...chapterOne, '2-2'], unlockedStages: [...chapterOne, '2-1', '2-2', '2-3'] },
+      { clearedStages: [...chapterOne], unlockedStages: chapterOne.slice(0, 4) },
+      { clearedStages: [...chapterOne], unlockedStages: [...chapterOne, '2-2'] },
+      { clearedStages: [...chapterOne], unlockedStages: [...chapterOne, '2-1', '2-2'] },
+      { clearedStages: ['1-1', '1-3'], unlockedStages: ['1-1', '1-2', '1-3', '1-4'] },
+      { clearedStages: ['1-1'], unlockedStages: ['1-1', '1-2', '2-1'] },
+      { clearedStages: [...chapterOne, '2-9'], unlockedStages: [...chapterOne, '2-1', '2-9'] },
+    ];
+    for (const progress of variants) {
+      const model = new ProfileService(memoryStorage(JSON.stringify({ ...oldComplete(), ...progress })));
+      expect(model.snapshot().storageMessage).not.toBe(''); expect(model.snapshot().xp).toBe(0);
+      expect(model.snapshot().clearedStages).toEqual([]); expect(model.snapshot().unlockedStages).toEqual(['1-1']);
+    }
+  });
+  it('rewards sequentially through 2-5 and grants replay XP once per distinct receipt', () => {
+    const storage = memoryStorage(JSON.stringify(oldComplete())); const model = new ProfileService(storage);
+    const allIds = STAGES.map(stage => stage.id); let expectedXp = 735;
+    for (const stage of STAGES.filter(stage => stage.id.startsWith('2-'))) {
+      const position = allIds.indexOf(stage.id);
+      expect(model.canStart(stage.id)).toBe(true);
+      expect(model.rewardWin(`clear-${stage.id}`, stage.id)).toBe(stage.clearReward);
+      expectedXp += stage.clearReward!;
+      expect(model.rewardWin(`clear-${stage.id}`, stage.id)).toBe(0);
+      expect(model.snapshot().unlockedStages).toEqual(allIds.slice(0, Math.min(position + 2, allIds.length)));
+    }
+    expect(model.snapshot().clearedStages).toEqual(allIds);
+    expect(model.rewardWin('last-replay', '2-5')).toBe(getStage('2-5')!.clearReward);
+    expectedXp += getStage('2-5')!.clearReward!;
+    expect(model.rewardWin('last-replay', '2-5')).toBe(0);
+    expect(model.snapshot().xp).toBe(expectedXp);
+    expect(new ProfileService(storage).snapshot()).toEqual(model.snapshot());
   });
 });

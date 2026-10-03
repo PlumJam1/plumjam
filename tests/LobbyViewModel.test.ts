@@ -146,3 +146,43 @@ describe('lobby skill equipment', () => {
     scope.dispose(); model.equipSkill('hello-world'); expect(set).not.toHaveBeenCalled(); context.dispose();
   });
 });
+
+
+describe('chapter map selection', () => {
+  it('keeps five visible stages per chapter and inspects locked stages without authorizing them', () => {
+    const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
+    context.bridge.emit('scene-state', { scene: 'Lobby', runId: scope.id, phase: 'ready', lobbyTab: 'stages' });
+    const shell = createShellViewModel(context); const model = shell.screen.value!;
+    expect(model.chapters.value).toEqual([expect.objectContaining({ id: 1, locked: false, total: 5 }), expect.objectContaining({ id: 2, locked: true, total: 5 })]);
+    expect(model.chapterStages.value.map(stage => stage.id)).toEqual(['1-1', '1-2', '1-3', '1-4', '1-5']);
+    model.selectStage('2-4');
+    expect(model.selectedChapterId.value).toBe(2);
+    expect(model.chapterStages.value.map(stage => stage.id)).toEqual(['2-1', '2-2', '2-3', '2-4', '2-5']);
+    expect(model.selectedStage.value.locked).toBe(true);
+    model.selectStage('2-5'); expect(model.selectedStage.value.enemies).toContain('GPT-4o 2회 등장');
+    model.selectStage('2-4');
+    const sent = vi.fn(); const off = context.bridge.subscribe('scene-command', sent);
+    model.startBattle('2-4'); expect(sent).not.toHaveBeenCalled();
+    expect(context.profile.snapshot().unlockedStages).toEqual(['1-1']);
+    model.selectChapter(1); expect(model.selectedStageId.value).toBe('1-1');
+    model.selectChapter(2); expect(model.selectedStageId.value).toBe('2-4');
+    scope.dispose(); model.selectChapter(1); expect(model.selectedStageId.value).toBe('2-4');
+    off(); shell.dispose(); context.dispose();
+  });
+  it('opens the new frontier chapter after earned 1-5 progress and preserves the next-stage command', () => {
+    const context = new AppContext();
+    for (const id of ['1-1', '1-2', '1-3', '1-4', '1-5']) context.profile.rewardWin(id, id);
+    const lobbyScope = context.lifetimes.begin(fakeScene());
+    context.bridge.emit('scene-state', { scene: 'Lobby', runId: lobbyScope.id, phase: 'ready', lobbyTab: 'stages' });
+    const lobby = createLobbyViewModel(context, lobbyScope, 'stages');
+    expect(lobby.selectedStageId.value).toBe('2-1'); expect(lobby.selectedChapterId.value).toBe(2);
+    expect(lobby.chapters.value[1]).toMatchObject({ locked: false, cleared: 0 });
+    lobbyScope.dispose();
+    const battleScope = context.lifetimes.begin(fakeScene()); const shell = createShellViewModel(context);
+    context.bridge.emit('scene-state', { scene: 'Battle', runId: battleScope.id, phase: 'ready', stageId: '1-5' });
+    const sent = vi.fn(); const off = context.bridge.subscribe('scene-command', sent);
+    shell.screen.value!.nextStage();
+    expect(sent).toHaveBeenCalledWith({ runId: battleScope.id, command: { type: 'start-battle', stageId: '2-1' } });
+    battleScope.dispose(); off(); shell.dispose(); context.dispose();
+  });
+});

@@ -1,7 +1,7 @@
 import { BattleSession } from '../src/game/BattleSession';
-import { ALLY_KINDS, ALLY_UNLOCK_STAGES, ECONOMY, SKILLS, STARTER_ALLIES, UNIT_DEFINITIONS } from '../src/game/battle/balance';
+import { ALLY_KINDS, ALLY_UNLOCK_STAGES, ECONOMY, FORMATION_SIZE, SKILLS, STARTER_ALLIES, UNIT_DEFINITIONS } from '../src/game/battle/balance';
 import { ProfileService, type ProfileSnapshot } from '../src/game/progression/ProfileService';
-import { STAGES } from '../src/game/progression/stages';
+import { CHAPTER_ONE, CHAPTER_TWO, STAGES } from '../src/game/progression/stages';
 import type { AllyKind, BattleCommand, CharacterKind, SkillKind, StageDefinition } from '../src/game/battle/types';
 
 export type AuditPolicy = 'passive-pair' | 'melee-spam' | 'balanced' | 'priority-spam' | 'no-invest' | 'ranged-only';
@@ -16,15 +16,16 @@ export interface AuditOptions {
   reactionSeconds?: number;
   heroDistance?: number;
 }
+const roleCore: Record<string, AllyKind[]> = { '1-1': ['melee', 'ranged', 'support'], '1-2': ['melee', 'technician', 'ranged', 'support'], '1-3': ['melee', 'technician', 'ranged', 'judge', 'support'], '1-4': ['melee', 'technician', 'judge', 'firefighter', 'counselor'], '1-5': ['technician', 'athlete', 'judge', 'counselor', 'singer'], '2-1': ['technician', 'melee', 'firefighter', 'counselor', 'singer'], '2-2': ['technician', 'melee', 'judge', 'counselor', 'support'], '2-3': ['technician', 'athlete', 'judge', 'counselor', 'singer'], '2-4': ['technician', 'athlete', 'firefighter', 'counselor', 'singer'], '2-5': ['technician', 'athlete', 'judge', 'counselor', 'singer'] };
+export const coreArmyForStage = (stageId: string, unlocked: readonly AllyKind[]) => (roleCore[stageId] ?? ['melee', 'ranged', 'support']).filter(kind => unlocked.includes(kind));
 /** Fixed 0.1s world steps, with player decisions at .2/.5/1s. No writes to engine state. */
 export function simulateBattle(options: AuditOptions) {
   const cadence = options.decisionSeconds ?? .5, budget = options.budgetSeconds ?? 240;
   const stageIndex = STAGES.findIndex(stage => stage.id === options.stage.id);
   const unlocked = options.profile?.unlockedAllies ?? ALLY_KINDS.filter(kind => STARTER_ALLIES.includes(kind) || STAGES.findIndex(stage => stage.id === ALLY_UNLOCK_STAGES[kind]) < stageIndex);
-  const roleCore: Record<string, AllyKind[]> = { '1-1': ['melee', 'ranged', 'support'], '1-2': ['melee', 'technician', 'ranged', 'support'], '1-3': ['melee', 'technician', 'ranged', 'judge', 'support'], '1-4': ['melee', 'technician', 'judge', 'firefighter', 'counselor'], '1-5': ['technician', 'athlete', 'judge', 'counselor', 'singer'] };
   const greedyArmy: AllyKind[] = ['melee', ...(unlocked.includes('technician') ? ['technician' as const] : []), 'ranged', ...(unlocked.includes('judge') ? ['judge' as const] : []), unlocked.includes('counselor') ? 'counselor' : 'support', ...(unlocked.includes('athlete') ? ['athlete' as const] : [])];
   const chosen: AllyKind[] = options.policy === 'passive-pair' ? ['melee', 'ranged'] : options.policy === 'melee-spam' ? ['melee'] : options.policy === 'ranged-only' ? ['ranged'] :
-    options.policy === 'priority-spam' ? greedyArmy : (roleCore[options.stage.id] ?? ['melee', 'ranged', 'support']).filter(kind => unlocked.includes(kind));
+    options.policy === 'priority-spam' ? greedyArmy : options.profile ? options.profile.equippedAllies.filter((kind): kind is AllyKind => kind !== null) : coreArmyForStage(options.stage.id, unlocked);
   const equipped = (options.skills ?? options.profile?.equippedSkills ?? ['hello-world']).slice(0, 3);
   const ownedSkills = options.profile?.unlockedSkills ?? equipped;
   const levels = options.profile?.levels ?? Object.fromEntries((['hero', ...ALLY_KINDS] as CharacterKind[]).map(kind => [kind, options.level ?? 1]));
@@ -104,16 +105,19 @@ export function simulateBattle(options: AuditOptions) {
   session.dispose(); return result;
 }
 
-export function simulateFreshCampaign(cadence: number) {
+export function simulateFreshCampaign(cadence: number, chapters = 2) {
   const profile = new ProfileService({ getItem: () => null, setItem: () => {} });
   const rounds = [];
   const purchases: Array<{ after: string; type: string; key: string; xp: number }> = [];
   const upgrade = (kind: CharacterKind, after: string) => { const before = profile.snapshot().xp; if (profile.upgrade(kind).accepted) purchases.push({ after, type: 'level', key: kind, xp: before - profile.snapshot().xp }); };
   const buy = (kind: SkillKind, after: string) => { const before = profile.snapshot().xp; if (profile.purchaseSkill(kind).accepted) purchases.push({ after, type: 'skill', key: kind, xp: before - profile.snapshot().xp }); };
-  for (let index = 0; index < STAGES.length; index++) {
-    const stage = STAGES[index], snapshot = profile.snapshot();
+  const route = chapters === 1 ? CHAPTER_ONE : STAGES;
+  for (let index = 0; index < route.length; index++) {
+    const stage = route[index], snapshot = profile.snapshot();
     const equippedSkills: SkillKind[] = ['hello-world', ...(snapshot.unlockedSkills.includes('heal') ? ['heal' as const] : []), ...(snapshot.unlockedSkills.includes('foreach') ? ['foreach' as const] : [])];
     profile.setEquippedSkills(equippedSkills);
+    const army = coreArmyForStage(stage.id, snapshot.unlockedAllies);
+    profile.setFormation([...army, ...Array<null>(FORMATION_SIZE - army.length).fill(null)]);
     const result = simulateBattle({ stage, policy: 'balanced', decisionSeconds: cadence, profile: profile.snapshot() });
     rounds.push({ ...result, xpBefore: snapshot.xp, earnedLevels: snapshot.levels });
     if (result.outcome !== 'won') break;
@@ -122,6 +126,11 @@ export function simulateFreshCampaign(cadence: number) {
     if (index === 1) buy('heal', stage.id);
     if (index === 2) { upgrade('technician', stage.id); upgrade('ranged', stage.id); }
     if (index === 3) { buy('foreach', stage.id); upgrade('hero', stage.id); }
+    if (index === 4 && chapters > 1) { upgrade('hero', stage.id); upgrade('hero', stage.id); upgrade('technician', stage.id); }
+    if (index === 5) for (const kind of ['firefighter', 'ranged', 'judge', 'counselor', 'singer'] as CharacterKind[]) upgrade(kind, stage.id);
+    if (index === 6) for (const kind of ['technician', 'judge', 'athlete', 'melee', 'firefighter'] as CharacterKind[]) upgrade(kind, stage.id);
+    if (index === 7) for (const kind of ['hero', 'technician', 'judge', 'athlete'] as CharacterKind[]) upgrade(kind, stage.id);
+    if (index === 8) for (const kind of ['firefighter', 'counselor', 'singer', 'hero'] as CharacterKind[]) upgrade(kind, stage.id);
   }
   const final = profile.snapshot(); profile.dispose();
   return { cadence, rounds, purchases, totalSeconds: Number(rounds.reduce((total, round) => total + round.seconds, 0).toFixed(1)), finalXp: final.xp, clears: final.clearedStages };
@@ -193,10 +202,18 @@ export function auditBalance() {
   for (const stage of STAGES.slice(1)) for (const skills of [['hello-world'], ['hello-world', 'heal'], ['hello-world', 'sleep'], ['hello-world', 'foreach'], ['hello-world', 'heal', 'foreach'], ['hello-world', 'heal', 'git-push'], ['hello-world', 'heal', 'overclock']] as SkillKind[][]) {
     skillAblations.push(simulateBattle({ stage, policy: 'balanced', level: 1, decisionSeconds: .5, skills }));
   }
-  const utilityPosition = [['hello-world', 'heal'], ['hello-world', 'heal', 'sleep'], ['hello-world', 'heal', 'git-push']] .map(skills => simulateBattle({ stage: STAGES[4], policy: 'balanced', level: 3, decisionSeconds: .5, heroDistance: 110, skills: skills as SkillKind[] }));
-  const finalCadence = [.2, .5, 1].flatMap(cadence => [1, 3].map(level => simulateBattle({ stage: STAGES[4], policy: 'balanced', level, decisionSeconds: cadence, skills: ['hello-world', 'heal'] })));
-  return { version: 1, method: 'Public dispatch/step only; fixed .1 world step, player cadence .5 by default; .5s explicit telegraph reaction delay (.2s expert rows use zero delay); budget 240 game seconds. Skill ablations and fixed-level rows explicitly grant their listed loadout for comparison, not progression claims.',
-    matrix, skillAblations, utilityPosition, finalCadence, freshCampaigns: [.5, 1].map(simulateFreshCampaign), roleEfficiency: roleEfficiency(),
+  const utilityPosition = [['hello-world', 'heal'], ['hello-world', 'heal', 'sleep'], ['hello-world', 'heal', 'git-push']] .map(skills => simulateBattle({ stage: STAGES.find(stage => stage.id === '2-5')!, policy: 'balanced', level: 3, decisionSeconds: .5, heroDistance: 110, skills: skills as SkillKind[] }));
+  const finalCadence = [.2, .5, 1].flatMap(cadence => [1, 3].map(level => simulateBattle({ stage: STAGES.find(stage => stage.id === '2-5')!, policy: 'balanced', level, decisionSeconds: cadence, skills: ['hello-world', 'heal'] })));
+  return { version: 2, method: 'Public dispatch/step only; fixed .1 world step, player cadence .5 by default; .5s explicit telegraph reaction delay (.2s expert rows use zero delay); budget 240 game seconds. Skill ablations and fixed-level rows explicitly grant their listed loadout for comparison, not progression claims.',
+    matrix, skillAblations, utilityPosition, finalCadence, freshCampaigns: [.5, 1].map(cadence => simulateFreshCampaign(cadence)), roleEfficiency: roleEfficiency(),
     bankedBurst: simulateBankedBurst(),
     economyPaybackSeconds: ECONOMY.slice(0, -1).map((row, index) => ({ fromLevel: index + 1, cost: row.upgradeCost, extraIncome: ECONOMY[index + 1].income - row.income, seconds: Number((row.upgradeCost! / (ECONOMY[index + 1].income - row.income)).toFixed(1)) })) };
+}
+
+
+/** Focused chapter extension evidence; the original five-stage audit artifacts remain immutable. */
+export function auditChapters() {
+  return { version: 2, method: 'Both chapters use real first-clear ProfileService rewards, purchases, levels and equipment. No replay receipts or private engine writes. Fixed .1s world step, .5/1s player decisions and .5s warning reaction; 240s stage budget. These are deterministic policy results, not a human playtime average.',
+    chapterTwo: CHAPTER_TWO.map(stage => ({ id: stage.id, label: stage.label, aiBaseHp: stage.aiBaseHp, initialGold: stage.initialGold, reward: stage.clearReward, repeatInterval: stage.repeat?.interval, bossSpawnTimes: stage.spawns.filter(spawn => spawn.kind === 'gpt-4o').map(spawn => spawn.at) })),
+    freshCampaigns: [.5, 1].map(cadence => simulateFreshCampaign(cadence)) };
 }

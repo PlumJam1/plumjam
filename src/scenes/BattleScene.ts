@@ -1,3 +1,4 @@
+import { nextStage } from '../game/progression/stages';
 import Phaser from 'phaser';
 import type { AppContext } from '../core/AppContext';
 import type { SceneScope } from '../core/SceneLifetimeManager';
@@ -145,7 +146,7 @@ export class BattleScene extends Phaser.Scene {
       const after = this.context.profile.snapshot();
       const firstClear = snapshot.status === 'won' && !before.clearedStages.includes(this.stageId) && after.clearedStages.includes(this.stageId);
       const newlyUnlockedAllies = after.unlockedAllies.filter(kind => !before.unlockedAllies.includes(kind));
-      this.context.bridge.emit('battle-result', { firstClear, newlyUnlockedAllies, runId: this.scope.id, stageId: this.stageId, reward, prototypeComplete: snapshot.status === 'won' && this.stageId === '1-5' });
+      this.context.bridge.emit('battle-result', { firstClear, newlyUnlockedAllies, runId: this.scope.id, stageId: this.stageId, reward, prototypeComplete: snapshot.status === 'won' && !nextStage(this.stageId) });
     }
     this.battleRenderer.render(snapshot);
     this.context.bridge.emit('battle-snapshot', snapshot);

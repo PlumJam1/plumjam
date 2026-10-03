@@ -65,7 +65,7 @@ h1, h2, h3, p { margin-top: 0; }
 .hero-welcome p { position: relative; background: #fff9e5; color: #17130d; border: 3px solid var(--ink); border-radius: 18px; font-size: clamp(14px, 1.3vw, 20px); font-weight: 800; line-height: 1.6; padding: 12px 22px; text-align: center; margin-bottom: 8px; z-index: 1; }
 .hero-welcome p::after { content: ''; position: absolute; bottom: -13px; left: 45%; width: 20px; height: 20px; background: #fff9e5; border-right: 3px solid var(--ink); border-bottom: 3px solid var(--ink); transform: rotate(45deg); }
 .hero-welcome img { height: 70%; width: 60%; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(4px 6px #122b1f60); }
-.stage-map-ui { background: url('/assets/ui/paper-map.svg') center / 100% 100% !important; }
+.stage-map-ui { background: #ecdca4 url('/assets/ui/paper-map.svg') center / 100% 100% !important; }
 .stage-strip { position: absolute; top: 5%; left: 5%; right: 5%; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; z-index: 3; }
 .stage-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 8px; border-radius: 5px; min-height: 58px; background: #fff2bd; }
 .stage-number { font-size: 19px; font-weight: 900; color: #21190d; }
@@ -511,3 +511,14 @@ body { min-width: 800px; }
 .field-wrapper > .skill-row { top: 92px; }
 .field-notice { top: 205px; }
 .boss-quote { top: 252px; }
+/* A chapter is inspected without unlocking it; each map retains five stages. */
+.chapter-tabs { position: absolute; top: 2%; left: 5%; right: 5%; display: flex; gap: 8px; z-index: 4; }
+.chapter-tabs button { flex: 1; min-width: 0; min-height: 46px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 4px 8px; }
+.chapter-tabs strong { font-size: 14px; line-height: 1.25; }
+.chapter-tabs small { font-size: 12px; line-height: 1.25; color: var(--ui-muted-paper); }
+.chapter-tabs button[aria-pressed=true] { background: #ffd334; outline: 3px solid var(--pink); outline-offset: -5px; }
+.chapter-tabs button.locked { background: #d0c9b9; }
+.stage-map-ui .stage-strip { top: calc(2% + 56px); }
+.stage-map-ui .map-route { top: 36%; height: 24%; }
+
+.chapter-tabs button:focus-visible { outline: 3px solid var(--ui-focus); outline-offset: 3px; box-shadow: 0 0 0 2px var(--ink), 0 0 0 6px var(--paper); }

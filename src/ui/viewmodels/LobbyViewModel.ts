@@ -3,7 +3,7 @@ import { computed, effectScope, readonly, shallowRef } from 'vue';
 import type { AppContext } from '../../core/AppContext';
 import type { SceneScope } from '../../core/SceneLifetimeManager';
 import { CHARACTERS, levelMultiplier, MAX_LEVEL, upgradeCost } from '../../game/progression/ProfileService';
-import { STAGES } from '../../game/progression/stages';
+import { CHAPTERS, getChapter, STAGES } from '../../game/progression/stages';
 import { ALLY_KINDS, ALLY_ROLES, ALLY_UNLOCK_STAGES, FORMATION_SIZE, HERO, SKILLS, SKILL_UNLOCK_COSTS, SKILL_SLOT_COUNT, SONG, SUPPORT, UNIT_DEFINITIONS, WATER } from '../../game/battle/balance';
 import type { AllyKind, CharacterKind, SkillKind } from '../../game/battle/types';
 const growth = { hero: '맥북과 능숙해진 개발자', ...Object.fromEntries(ALLY_KINDS.map(kind => [kind, ALLY_ROLES[kind].evolution])) } as Record<CharacterKind, string>;
@@ -18,7 +18,10 @@ export function createLobbyViewModel(context: AppContext, scope: SceneScope, ini
   const selectedCharacterKind = shallowRef<CharacterKind>('hero');
   const shiftSelection = <T extends string>(values: readonly T[], current: T, offset: number): T => values[(values.indexOf(current) + offset % values.length + values.length) % values.length];
   const currentLobby = () => !scope.disposed && context.bridge.sceneState?.scene === 'Lobby' && context.bridge.sceneState.runId === scope.id;
-  const selectedStageId = shallowRef('1-1');
+  const selectedStageId = shallowRef(context.bridge.sceneState?.stageId ?? profile.value.unlockedStages.at(-1) ?? '1-1');
+  const rememberedStages = new Map<number, string>();
+  const rememberStage = (id: string) => { const chapter = getChapter(id); if (chapter) rememberedStages.set(chapter.id, id); };
+  rememberStage(selectedStageId.value);
   scope.defer(context.profile.subscribe(value => { if (!scope.disposed) profile.value = value; }));
   const model = effects.run(() => ({
     profile: readonly(profile), lobbyTab: readonly(tab), upgradeFeedback: readonly(upgradeFeedback),
@@ -48,8 +51,20 @@ export function createLobbyViewModel(context: AppContext, scope: SceneScope, ini
       upgradeFeedback.value = context.profile.setFormation(next).reason ?? '';
     },
     removeAlly: () => { if (currentLobby()) upgradeFeedback.value = context.profile.setSlot(selectedSlot.value, null).reason ?? ''; },
-    selectedStage: computed(() => { const stage = STAGES.find(item => item.id === selectedStageId.value)!; return { ...stage, locked: !profile.value.unlockedStages.includes(stage.id), enemies: [...new Set(stage.spawns.map(spawn => UNIT_DEFINITIONS[spawn.kind].label))].join(' · ') }; }),
-    selectStage: (id: string) => { if (!scope.disposed && STAGES.some(stage => stage.id === id)) selectedStageId.value = id; },
+    selectedStage: computed(() => { const stage = STAGES.find(item => item.id === selectedStageId.value)!; return { ...stage, locked: !profile.value.unlockedStages.includes(stage.id), enemies: [...new Set(stage.spawns.map(spawn => spawn.kind))].map(kind => { const count = stage.spawns.filter(spawn => spawn.kind === kind).length; return kind === 'gpt-4o' && count > 1 ? `${UNIT_DEFINITIONS[kind].label} ${count}회 등장` : UNIT_DEFINITIONS[kind].label; }).join(' · ') }; }),
+    selectStage: (id: string) => { if (currentLobby() && STAGES.some(stage => stage.id === id)) { selectedStageId.value = id; rememberStage(id); } },
+    selectedChapterId: computed(() => getChapter(selectedStageId.value)?.id ?? CHAPTERS[0].id),
+    chapters: computed(() => CHAPTERS.map(chapter => ({ id: chapter.id, label: chapter.label,
+      locked: !chapter.stages.some(stage => profile.value.unlockedStages.includes(stage.id)),
+      cleared: chapter.stages.filter(stage => profile.value.clearedStages.includes(stage.id)).length,
+      total: chapter.stages.length,
+    }))),
+    selectChapter: (id: number) => {
+      if (!currentLobby()) return;
+      const chapter = CHAPTERS.find(value => value.id === id);
+      if (chapter) selectedStageId.value = rememberedStages.get(id) ?? chapter.stages[0].id;
+    },
+    chapterStages: computed(() => (getChapter(selectedStageId.value)?.stages ?? CHAPTERS[0].stages).map(stage => ({ ...stage, locked: !profile.value.unlockedStages.includes(stage.id), cleared: profile.value.clearedStages.includes(stage.id) }))),
     stages: computed(() => STAGES.map(stage => ({ ...stage, locked: !profile.value.unlockedStages.includes(stage.id), cleared: profile.value.clearedStages.includes(stage.id) }))),
     skillLoadout: computed(() => Array.from({ length: SKILL_SLOT_COUNT }, (_, index) => {
       const kind = profile.value.equippedSkills[index] ?? null;

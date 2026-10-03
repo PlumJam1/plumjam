@@ -3,7 +3,7 @@ import { backgroundArt, characterArt, type ArtKey } from './presentation/assets'
 import { drawPlaceholder } from '../scenes/drawPlaceholder';
 import { FIELD, SONG } from './battle/balance';
 import type { BattleSnapshot, SkillKind, TimedBuffs, UnitState } from './battle/types';
-import { getBaseArt, skillPreview } from './presentation/battlePresentation';
+import { getBaseArt, getEnemyBaseKey, skillPreview } from './presentation/battlePresentation';
 
 /** Scene-owned presentation; app-owned source textures survive scene shutdown. */
 export class PhaserBattleRenderer {
@@ -21,8 +21,8 @@ export class PhaserBattleRenderer {
     scene.cameras.main.setBackgroundColor('#233342');
     scene.cameras.main.setScroll(0, FIELD.cameraY);
     const useHumanBaseImage = scene.textures.exists('human-base');
-    const enemyBaseKey = stageId === '1-5' ? 'enemy-base-3' : 'enemy-base';
-    const useEnemyBaseImage = ['1-1', '1-2', '1-3', '1-4', '1-5'].includes(stageId ?? '') && scene.textures.exists(enemyBaseKey);
+    const enemyBaseKey = getEnemyBaseKey(stageId);
+    const useEnemyBaseImage = !!enemyBaseKey && scene.textures.exists(enemyBaseKey);
     const key = backgroundArt(theme);
     if (scene.textures.exists(key)) {
       const bg = scene.add.image(FIELD.width / 2, FIELD.cameraY + FIELD.height / 2, key).setDepth(-10);
@@ -52,7 +52,7 @@ export class PhaserBattleRenderer {
       this.humanBaseImage = base;
       this.scenery.push(base);
     }
-    if (useEnemyBaseImage) {
+    if (useEnemyBaseImage && enemyBaseKey) {
       const base = scene.add.image(FIELD.aiBaseX, FIELD.groundY, enemyBaseKey).setOrigin(.5, 1).setDepth(1);
       base.setScale(Math.min(112 / base.width, 112 / base.height));
       this.enemyBaseImage = base;

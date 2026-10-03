@@ -4,9 +4,9 @@ import type { SceneScope } from '../../core/SceneLifetimeManager';
 import { ALLY_ROLES, ECONOMY, SKILLS, SUPPORT, UNIT_DEFINITIONS, SKILL_SLOT_COUNT, FORMATION_SIZE, FORMATION_PAGE_SIZE, SKILL_KEYS } from '../../game/battle/balance';
 import { getCooldownEta, getSkillValues } from '../../game/BattleSession';
 import { controlState, type ControlInput } from '../controlState';
-import { skillPreview } from '../../game/presentation/battlePresentation';
+import { getBossHud, skillPreview } from '../../game/presentation/battlePresentation';
 import type { AllyKind, BattleCommand, BattleSnapshot, BattleSpeed, SkillKind } from '../../game/battle/types';
-import { getStage, nextStage } from '../../game/progression/stages';
+import { CHAPTERS, STAGES, getStage, nextStage } from '../../game/progression/stages';
 
 /** View-independent display decisions; the session remains authoritative for every command. */
 export function createBattleViewModel(context: AppContext, scope: SceneScope, showIntro: boolean) {
@@ -112,13 +112,7 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
     const skillSlots = computed(() => Array.from({ length: SKILL_SLOT_COUNT }, (_, index) => skills.value[index] ?? null));
     const speed = computed(() => battle.value?.speed ?? 1);
     const speedDisabled = computed(() => !battle.value || ended.value);
-    const boss = computed(() => {
-      const unit = battle.value?.units.find(unit => unit.kind === 'gpt-4o' && unit.hp > 0);
-      if (!unit) return null;
-      const telegraph = battle.value?.bossTelegraphs.find(value => value.ownerId === unit.id);
-      return { hp: Math.ceil(unit.hp), maxHp: unit.maxHp, percent: Math.round(unit.hp / unit.maxHp * 100), progress: unit.hp / unit.maxHp,
-        attack: telegraph ? `전방 범위 공격 ${telegraph.remaining.toFixed(1)}초` : `범위 공격 준비 ${unit.bossCooldown.toFixed(1)}초` };
-    });
+    const boss = computed(() => battle.value ? getBossHud(battle.value) : null);
     const waveNotice = computed(() => {
       const snapshot = battle.value;
       if (!snapshot || snapshot.status !== 'active') return '';
@@ -155,14 +149,15 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
       const seconds = Math.floor(battle.value?.elapsed ?? 0);
       return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
     });
-    const resultTitle = computed(() => prototypeComplete.value ? '마지막 출근까지 지켰다!' : battle.value?.status === 'won' ? '오늘의 출근을 지켰다!' : '전선을 지키지 못했다.');
-    const resultDescription = computed(() => prototypeComplete.value ? 'GPT-4o를 이겼어. 프로토타입의 5개 스테이지를 모두 클리어했어!' : battle.value?.status === 'won' ? 'AI 데이터센터를 파괴했어. 재화로 강화하거나 다음 출근에 도전해봐.' : battle.value?.defeatReason === 'hero' ? '개발자가 쓰러졌어. 병력 뒤에서 전선을 도와줘.' : '아군 기지가 파괴됐어. 병력과 경제 투자 타이밍을 바꿔봐.');
+    const campaignComplete = computed(() => prototypeComplete.value && battle.value?.status === 'won' && !!getStage(battle.value.stageId) && !nextStage(battle.value.stageId));
+    const resultTitle = computed(() => campaignComplete.value ? '마지막 출근까지 지켰다!' : battle.value?.status === 'won' ? '오늘의 출근을 지켰다!' : '전선을 지키지 못했다.');
+    const resultDescription = computed(() => campaignComplete.value ? `GPT-4o를 이겼어. ${CHAPTERS.length}개 챕터 · ${STAGES.length}개 스테이지를 모두 클리어했어!` : battle.value?.status === 'won' ? 'AI 데이터센터를 파괴했어. 재화로 강화하거나 다음 출근에 도전해봐.' : battle.value?.defeatReason === 'hero' ? '개발자가 쓰러졌어. 병력 뒤에서 전선을 도와줘.' : '아군 기지가 파괴됐어. 병력과 경제 투자 타이밍을 바꿔봐.');
     const hasNextStage = computed(() => battle.value?.status === 'won' && !!nextStage(battle.value.stageId));
     return {
       battle: readonly(battle), feedback: readonly(feedback), intro: readonly(intro), units, visibleUnits, unitPage: readonly(unitPage), pageDisabled, skills, allSkills, skillSlots, speed, speedDisabled, ended, danger,
       boss, bossNotice: readonly(bossNotice), waveNotice, heroBuffs, preview, previewDescription, previewTargets,
       economyDisabled, economyDescription, economyReason, economyState, controlDetail, time, resultTitle, resultDescription,
-      newAllies: computed(() => newAllies.value.map(kind => ({ kind, label: UNIT_DEFINITIONS[kind].label }))), reward: readonly(reward), prototypeComplete: readonly(prototypeComplete), hasNextStage,
+      newAllies: computed(() => newAllies.value.map(kind => ({ kind, label: UNIT_DEFINITIONS[kind].label }))), reward: readonly(reward), prototypeComplete: campaignComplete, hasNextStage,
       setUnitPage: (page: 0 | 1) => { if (activePageScope() && (page === 0 || page === 1)) context.bridge.emit('battle-page', { runId: scope.id, page }); },
       setSpeed: (value: BattleSpeed) => {
         const current = context.bridge.sceneState;

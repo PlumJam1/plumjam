@@ -133,7 +133,7 @@ describe('BattleViewModel scoped MVVM', () => {
     context.dispose();
   });
 
-  it('shows per-run rewards and the final completion without inventing a sixth stage', () => {
+  it('continues after 1-5 and completes only at the last catalog stage', () => {
     const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
     const model = createBattleViewModel(context, scope, false);
     const session = new BattleSession({ unlockedSkills: ['hello-world', 'sleep', 'heal'], equippedSkills: ['hello-world', 'sleep', 'heal'], runId: scope.id });
@@ -144,8 +144,14 @@ describe('BattleViewModel scoped MVVM', () => {
     expect(model.reward.value).toBe(120); expect(model.hasNextStage.value).toBe(true);
     context.bridge.emit('battle-result', { runId: scope.id, stageId: '1-5', reward: 360, prototypeComplete: true });
     context.bridge.emit('battle-snapshot', { ...session.snapshot(), stageId: '1-5', status: 'won' });
+    expect(model.hasNextStage.value).toBe(true);
+    expect(model.prototypeComplete.value).toBe(false); // Stale 1-5 completion metadata cannot end chapter two.
+    expect(model.resultDescription.value).not.toContain('모두 클리어');
+    context.bridge.emit('battle-result', { runId: scope.id, stageId: '2-5', reward: 650, prototypeComplete: true });
+    context.bridge.emit('battle-snapshot', { ...session.snapshot(), stageId: '2-5', status: 'won' });
     expect(model.hasNextStage.value).toBe(false);
-    expect(model.resultDescription.value).toContain('5개 스테이지');
+    expect(model.prototypeComplete.value).toBe(true);
+    expect(model.resultDescription.value).toContain('2개 챕터 · 10개 스테이지');
     context.dispose();
   });
   it('derives costs/cooldown/reasons and sends click commands through the same run-scoped bridge', () => {
@@ -314,5 +320,20 @@ describe('foreach equipped skill display', () => {
     context.bridge.emit('battle-snapshot', { ...session.snapshot(), hero: { ...hero, buffs: { ...hero.buffs, combat: 7 } } });
     expect(model.skills.value[0].effectLabel).toBe('광역 피해 182.4');
     context.dispose();
+  });
+});
+
+
+describe('chapter two boss HUD', () => {
+  it('shows alive boss HP totals and removes dead owners from the aggregate', () => {
+    const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
+    const model = createBattleViewModel(context, scope, false);
+    const session = new BattleSession({ runId: scope.id, stage: { id: '2-5', label: 'double boss', humanBaseHp: 900, aiBaseHp: 3400, initialGold: 340, spawns: [{ at: 0, kind: 'gpt-4o' }, { at: 0, kind: 'gpt-4o' }] } });
+    const snapshot = session.snapshot(); const [first, second] = snapshot.units;
+    context.bridge.emit('battle-snapshot', { ...snapshot, units: [{ ...first, hp: 600 }, { ...second, hp: 900 }] });
+    expect(model.boss.value).toMatchObject({ count: 2, label: 'GPT-4o ×2', hp: 1500, maxHp: 3000, percent: 50 });
+    context.bridge.emit('battle-snapshot', { ...snapshot, units: [{ ...first, hp: 0 }, { ...second, hp: 900 }], defeatedBossCount: 1 });
+    expect(model.boss.value).toMatchObject({ count: 1, label: 'GPT-4o', hp: 900, maxHp: 1500, percent: 60 });
+    scope.dispose(); context.dispose();
   });
 });

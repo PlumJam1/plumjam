@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { simulateBattle, simulateFreshCampaign, simulateBankedBurst } from '../scripts/balanceSimulation';
-import { STAGES } from '../src/game/progression/stages';
+import { CHAPTER_ONE, STAGES } from '../src/game/progression/stages';
 
 describe('earned campaign playability with human-like decisions', () => {
   it.each([.5, 1])('clears without replay XP at %ss decisions and a half-second telegraph reaction', cadence => {
-    const campaign = simulateFreshCampaign(cadence);
-    expect(campaign.clears).toEqual(STAGES.map(stage => stage.id));
+    const campaign = simulateFreshCampaign(cadence, 1);
+    expect(campaign.clears).toEqual(CHAPTER_ONE.map(stage => stage.id));
     expect(campaign.rounds).toHaveLength(5);
     for (const round of campaign.rounds) {
       expect(round.outcome, round.stage).toBe('won');
@@ -21,6 +21,18 @@ describe('earned campaign playability with human-like decisions', () => {
     expect(campaign.rounds[4].accepted.singer).toBeGreaterThan(0);
     expect(campaign.rounds[4].accepted.foreach).toBeGreaterThan(0);
     expect(campaign.finalXp).toBe(390);
+  });
+  it.each([.5, 1])('continues through both chapters at %ss decisions using first-clear XP only', cadence => {
+    const campaign = simulateFreshCampaign(cadence);
+    expect(campaign.clears).toEqual(STAGES.map(stage => stage.id)); expect(campaign.rounds).toHaveLength(10);
+    expect(campaign.totalSeconds).toBeLessThan(1200);
+    for (const round of campaign.rounds) {
+      expect(round.outcome, round.stage).toBe('won'); expect(round.seconds).toBeLessThan(240);
+      expect(round.goldLeft).toBeGreaterThanOrEqual(0); expect(round.heroHp).toBeGreaterThan(0); expect(round.baseHp).toBeGreaterThan(0);
+    }
+    expect(campaign.rounds[5]).toMatchObject({ stage: '2-1', xpBefore: 30, earnedLevels: { hero: 5, technician: 3 } });
+    expect(campaign.rounds[9]).toMatchObject({ stage: '2-5', bossDefeated: 2 });
+    expect(campaign.finalXp).toBe(690);
   });
   it('turns saved funds into more accepted burst actions without creating income or debt', () => {
     const result = simulateBankedBurst();

@@ -1,9 +1,41 @@
 import { describe, expect, it } from 'vitest';
 import { BattleSession } from '../src/game/BattleSession';
-import { getBaseArt, skillPreview } from '../src/game/presentation/battlePresentation';
+import { getBaseArt, getBossHud, getEnemyBaseKey, skillPreview } from '../src/game/presentation/battlePresentation';
 import { characterArt } from '../src/game/presentation/assets';
+import { STAGES } from '../src/game/progression/stages';
 
 describe('battle presentation eligibility', () => {
+  it('uses provided base art for every catalog stage, choosing boss bases by encounter rather than dark backgrounds', () => {
+    const snapshot = new BattleSession({ runId: 1 }).snapshot();
+    expect(STAGES).toHaveLength(10);
+    for (const stage of STAGES) {
+      const expected = stage.spawns.some(spawn => spawn.kind === 'gpt-4o') ? 'enemy-base-3' : 'enemy-base';
+      expect(getEnemyBaseKey(stage.id)).toBe(expected);
+      expect(getBaseArt({ ...snapshot, stageId: stage.id }).enemy).toBe(expected);
+      expect(getBaseArt({ ...snapshot, stageId: stage.id, aiBase: { ...snapshot.aiBase, hp: 0 } }).enemy).toBe(`${expected}-destroyed`);
+    }
+    expect(getEnemyBaseKey('2-3')).toBe('enemy-base');
+    expect(getEnemyBaseKey('2-4')).toBe('enemy-base');
+    expect(getEnemyBaseKey('2-5')).toBe('enemy-base-3');
+    expect(getEnemyBaseKey('benchmark')).toBeNull();
+    expect(getEnemyBaseKey()).toBeNull();
+  });
+
+  it('shows all living boss HP and the closest actual warning owner, then updates after one boss dies', () => {
+    const battle = new BattleSession({ runId: 1, stage: { id: 'bosses', label: 'bosses', initialGold: 400, humanBaseHp: 900, aiBaseHp: 900,
+      spawns: [{ at: 0, kind: 'gpt-4o' }, { at: 0, kind: 'gpt-4o' }] } });
+    const snapshot = battle.snapshot(); const first = snapshot.units[0]!, second = snapshot.units[1]!;
+    const value = { ...snapshot, hero: { ...snapshot.hero, x: 350 }, units: [{ ...first, hp: 600 }, { ...second, hp: 1200 }],
+      bossTelegraphs: [{ ownerId: first.id, x: 100, radius: 80, remaining: .4, duration: 1.4 }, { ownerId: second.id, x: 360, radius: 80, remaining: 1.2, duration: 1.4 }] };
+    expect(getBossHud(value)).toMatchObject({ count: 2, label: 'GPT-4o ×2', hp: 1800, maxHp: 3000, percent: 60, progress: .6,
+      castCount: 2, attackOwnerId: second.id, attack: '범위 공격 2개 · 가까운 공격 1.2초' });
+    const one = { ...value, units: [{ ...first, hp: 0 }, { ...second, hp: 1200 }] };
+    expect(getBossHud(one)).toMatchObject({ count: 1, label: 'GPT-4o', hp: 1200, maxHp: 1500, percent: 80,
+      castCount: 1, attackOwnerId: second.id, attack: '전방 범위 공격 1.2초' });
+    expect(getBossHud({ ...one, bossTelegraphs: [], units: [{ ...second, bossCooldown: 4.2 }] })?.attack).toBe('범위 공격 준비 4.2초');
+    expect(getBossHud({ ...value, units: [] })).toBeNull();
+  });
+
   it('preserves standing bases on hero defeat and selects each destroyed texture by its own HP', () => {
     const snapshot = new BattleSession({ runId: 1 }).snapshot();
     const heroDefeat = { ...snapshot, status: 'lost' as const, hero: { ...snapshot.hero, hp: 0 } };

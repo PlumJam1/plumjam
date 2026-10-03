@@ -60,7 +60,15 @@ function parse(value: unknown): ProfileData | null {
   // Reject impossible progress instead of accepting hand-edited locks or silently resetting earned levels.
   if (cleared.some(id => stageIds.slice(0, stageIds.indexOf(id)).some(previous => !cleared.includes(previous)))) return null;
   const unlocked = stageIds.filter((_, index) => index === 0 || cleared.includes(stageIds[index - 1]));
-  if (unlocked.length !== new Set(data.unlockedStages).size || unlocked.some(id => !data.unlockedStages.includes(id))) return null;
+  const savedUnlocked = [...new Set(data.unlockedStages)];
+  const matchesCurrent = unlocked.length === savedUnlocked.length && unlocked.every(id => savedUnlocked.includes(id));
+  // Only the released five-stage catalog may lack its newly appended frontier.
+  // Partial/hand-edited saves still must match the complete derived unlock set.
+  const legacyCatalog = ['1-1', '1-2', '1-3', '1-4', '1-5'];
+  const completedLegacyCatalog = legacyCatalog.every((id, index) => stageIds[index] === id && cleared.includes(id) && savedUnlocked.includes(id))
+    && cleared.length === legacyCatalog.length && savedUnlocked.length === legacyCatalog.length
+    && unlocked.length === legacyCatalog.length + 1 && unlocked.at(-1) === '2-1';
+  if (!matchesCurrent && !completedLegacyCatalog) return null;
   const unlockedAllies = unlockedFor(cleared);
   const savedFormation = data.equippedAllies;
   const equippedAllies = validFormation(savedFormation, unlockedAllies) ? [...savedFormation]
