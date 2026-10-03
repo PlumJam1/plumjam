@@ -39,13 +39,14 @@ GPT-4o는 전용 HP 바와 격파 알림을 갖고, 등장 6초 뒤부터 9초�
 
 Vue MVVM UI와 순수 TypeScript 전투 모델을 분리했다. `SceneLifetimeManager`가 씬 실행의 이벤트·ViewModel·오디오·표시 객체를 정리하고, 공용 텍스처와 저장 서비스는 앱 수명을 따른다. 짧은 원본 WebAudio 효과음은 첫 키보드/클릭 입력으로 활성화된다. 음소거는 준비실·전투 화면에서 조절하며 저장된다. 배경 음악은 이번 범위에 포함하지 않았다.
 
-타이틀의 중앙 시작 버튼, 준비실 메뉴, 스테이지 경로와 승리 보상 띠는 [냥코대전쟁 공식 안내](https://ponosgames.com/information/appli/battlecats/help/index.html)의 화면 흐름을 참고했다. 원작 UI·캐릭터·소리 파일을 사용하지 않는다.
+UI는 [냥코대전쟁 공식 안내](https://ponosgames.com/information/appli/battlecats/help/index.html)의 화면을 관찰하여 재구성했다. 초록 소용돌이 준비실, 종이 지도와 빨간 경로점, 5칸 편성 및 중앙 캐릭터 카드, 파워 업 카드, 상단 노란 자금과 하단 소환 카드를 적용한다. 전투는 왼쪽 원형 투자·가운데 5병력/5스킬 카드·오른쪽 Hello World 빠른 발사로 구성하며 기존 조작·전투 규칙을 유지한다. 승리·패배 화면은 큰 표제와 경험치 보상 띠로 재구성했다. 참고 화면과 구현 대응은 [UI_REFERENCE.md](UI_REFERENCE.md)에 기록했다.
 
 ## 에셋·출처
 
 - 배경 3종과 캐릭터 이미지 17개(기본·레벨 5 외형 포함)는 ImageGen으로 생성했으며 원본 PNG를 수정 없이 사용한다. [생성 프롬프트와 목록](public/assets/generated/ASSET_PROMPTS.md), [원본 메타데이터](public/assets/generated/ASSET_METADATA.json).
 - 서울과기대 심볼은 사용자가 지정한 필수 원본이다. [공식 심볼 안내](https://www.seoultech.ac.kr/intro/symbol/logo/symbol)에서 확보했고 파일은 `public/assets/bases/seoultech-symbol.gif`다. 외부 사용 사전 문의·상업적 사용 금지 조건을 SPEC에 기록했다.
 - 효과음은 코드로 합성한 짧은 triangle 톤이다. 외부 오디오 샘플을 포함하지 않는다.
+- UI 무늬 `public/assets/ui/office-swirl.svg`, `frame-spots.svg`, `paper-map.svg`는 독립 작성한 SVG이며 버튼·프레임·경로는 CSS로 제작한다. 원작 화면 PNG·캐릭터·소리 파일을 포함하지 않는다.
 - 한국어 글꼴은 Google Fonts의 Noto Sans KR을 사용하며, 네트워크 없이도 시스템 sans-serif로 플레이할 수 있다.
 
 [게임 명세](SPEC.md)와 [승인된 구현 계획](IMPLEMENTATION_PLAN.md)은 기획 기준이다. 초기 밸런스는 실제 플레이로 계속 다듬을 수 있다.

@@ -13,12 +13,20 @@ export function createLobbyViewModel(context: AppContext, scope: SceneScope, ini
   const tab = shallowRef(initialTab);
   const upgradeFeedback = shallowRef('');
   const selectedSlot = shallowRef(0);
+  const selectedAllyKind = shallowRef<AllyKind>(ALLY_KINDS[0]);
+  const selectedCharacterKind = shallowRef<CharacterKind>('hero');
+  const shiftSelection = <T extends string>(values: readonly T[], current: T, offset: number): T => values[(values.indexOf(current) + offset % values.length + values.length) % values.length];
   const currentLobby = () => !scope.disposed && context.bridge.sceneState?.scene === 'Lobby' && context.bridge.sceneState.runId === scope.id;
   const selectedStageId = shallowRef('1-1');
   scope.defer(context.profile.subscribe(value => { if (!scope.disposed) profile.value = value; }));
   const model = effects.run(() => ({
     profile: readonly(profile), lobbyTab: readonly(tab), upgradeFeedback: readonly(upgradeFeedback),
     selectedStageId: readonly(selectedStageId), selectedSlot: readonly(selectedSlot),
+    selectedAllyKind: readonly(selectedAllyKind), selectedCharacterKind: readonly(selectedCharacterKind),
+    selectAlly: (kind: AllyKind) => { if (currentLobby() && ALLY_KINDS.includes(kind)) selectedAllyKind.value = kind; },
+    shiftAlly: (offset: number) => { if (currentLobby() && Number.isInteger(offset)) selectedAllyKind.value = shiftSelection(ALLY_KINDS, selectedAllyKind.value, offset); },
+    selectCharacter: (kind: CharacterKind) => { if (currentLobby() && CHARACTERS.includes(kind)) selectedCharacterKind.value = kind; },
+    shiftCharacter: (offset: number) => { if (currentLobby() && Number.isInteger(offset)) selectedCharacterKind.value = shiftSelection(CHARACTERS, selectedCharacterKind.value, offset); },
     formation: computed(() => profile.value.equippedAllies.map((kind, index) => ({ index, kind, key: String(index + 1), label: kind ? UNIT_DEFINITIONS[kind].label : '빈 칸', image: kind ? assetUrl(characterArt(kind, profile.value.levels[kind])) : null }))),
     formationSummary: computed(() => profile.value.equippedAllies.map(kind => kind ? UNIT_DEFINITIONS[kind].label : '빈 칸').join(' · ')),
     roster: computed(() => ALLY_KINDS.map(kind => {
