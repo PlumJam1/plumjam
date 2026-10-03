@@ -67,13 +67,13 @@ describe('BattleSession targeting and combat', () => {
     exposed.dispatch({ type: 'summon', kind: 'melee' });
     exposed.step(0.02);
     expect(exposed.snapshot().hero.hp).toBe(310);
-    expect(exposed.snapshot().units.find((unit) => unit.kind === 'melee')?.hp).toBe(180);
+    expect(exposed.snapshot().units.find((unit) => unit.kind === 'melee')?.hp).toBe(defs.melee.hp);
     const protectedSession = new BattleSession({ runId: 2, stage, unitDefinitions: defs });
     protectedSession.dispatch({ type: 'summon', kind: 'melee' });
     protectedSession.dispatch({ type: 'move', direction: -1 });
     protectedSession.step(0.7);
     expect(protectedSession.snapshot().hero.hp).toBe(310);
-    expect(protectedSession.snapshot().units.find((unit) => unit.kind === 'melee')?.hp).toBeLessThan(180);
+    expect(protectedSession.snapshot().units.find((unit) => unit.kind === 'melee')?.hp).toBeLessThan(defs.melee.hp);
   });
 
   it('attacks and destroys the closer human base while the hero is still alive elsewhere', () => {

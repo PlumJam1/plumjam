@@ -82,10 +82,10 @@ describe('BattleViewModel scoped MVVM', () => {
     const model = createBattleViewModel(context, scope, false);
     const snapshot = new BattleSession({ unlockedSkills: ['hello-world', 'sleep', 'heal'], equippedSkills: ['hello-world', 'sleep', 'heal'], runId: scope.id, levels: { hero: 5, melee: 1, ranged: 1, support: 1 } }).snapshot();
     context.bridge.emit('battle-snapshot', { ...snapshot, hero: { ...snapshot.hero, buffs: { combat: 6.2, speed: 3.1, haste: 0 } } });
-    expect(model.skills.value.find(skill => skill.kind === 'hello-world')?.description).toContain('피해 156');
+    expect(model.skills.value.find(skill => skill.kind === 'hello-world')?.description).toContain('피해 144');
     expect(model.skills.value.find(skill => skill.kind === 'heal')?.description).toContain('회복 112');
     expect(model.skills.value.find(skill => skill.kind === 'sleep')?.description).toContain('반경 120');
-    expect(model.heroBuffs.value).toEqual(['공격 +30% · 받는 피해 -25% 6.2초', '이동 +35% 3.1초']);
+    expect(model.heroBuffs.value).toEqual(['공격 +20% · 받는 피해 -15% 6.2초', '이동 +35% 3.1초']);
     context.bridge.emit('battle-snapshot', snapshot);
     expect(model.skills.value.find(skill => skill.kind === 'hello-world')?.description).toContain('피해 120');
     expect(model.heroBuffs.value).toEqual([]);
@@ -164,7 +164,7 @@ describe('BattleViewModel scoped MVVM', () => {
     expect(model.skillSlots.value).toHaveLength(3);
     model.useSkill('heal');
     expect(model.skills.value.find((skill) => skill.kind === 'heal')).toMatchObject({ disabled: true, reason: '준비 12.0초' });
-    expect(model.units.value.find((unit) => unit.kind === 'ranged')?.reason).toBe('자금 20 부족');
+    expect(model.units.value.find((unit) => unit.kind === 'ranged')?.reason).toBe('자금 10 부족');
     expect(model.economyDescription.value).toBe('수입 +26/초 · 상한 650');
     model.dismissIntro();
     expect(model.intro.value).toBe(false);
@@ -312,7 +312,7 @@ describe('foreach equipped skill display', () => {
     expect(model.skills.value[0].description).toContain('피해 152 · 전방 180 · 반경 90 · 0.7초 뒤 착지');
     const hero = session.snapshot().hero;
     context.bridge.emit('battle-snapshot', { ...session.snapshot(), hero: { ...hero, buffs: { ...hero.buffs, combat: 7 } } });
-    expect(model.skills.value[0].effectLabel).toBe('광역 피해 197.6');
+    expect(model.skills.value[0].effectLabel).toBe('광역 피해 182.4');
     context.dispose();
   });
 });

@@ -179,7 +179,7 @@ describe('ten-slot roster progression', () => {
     const model = new ProfileService(memoryStorage(JSON.stringify(legacy)));
     expect(model.snapshot()).toMatchObject({ xp: 710, levels: { ...legacy.levels, technician: 1, judge: 1, counselor: 1 }, clearedStages: legacy.clearedStages, muted: true, storageMessage: '' });
     expect(model.snapshot().unlockedSkills).toContain('git-push');
-    expect(model.snapshot().unlockedAllies).toEqual(['melee', 'ranged', 'support', 'technician', 'judge', 'counselor']);
+    expect(model.snapshot().unlockedAllies).toEqual(['melee', 'ranged', 'support', 'technician', 'judge', 'counselor', 'firefighter']);
     expect(model.snapshot().equippedAllies).toEqual(['melee', 'ranged', 'support', null, null, null, null, null, null, null]);
   });
   it('repairs malformed, duplicate, locked and empty formations while preserving earned progress', () => {

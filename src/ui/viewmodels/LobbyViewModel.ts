@@ -4,7 +4,7 @@ import type { AppContext } from '../../core/AppContext';
 import type { SceneScope } from '../../core/SceneLifetimeManager';
 import { CHARACTERS, levelMultiplier, MAX_LEVEL, upgradeCost } from '../../game/progression/ProfileService';
 import { STAGES } from '../../game/progression/stages';
-import { ALLY_KINDS, ALLY_ROLES, ALLY_UNLOCK_STAGES, FORMATION_SIZE, HERO, SKILLS, SKILL_UNLOCK_COSTS, SKILL_SLOT_COUNT, SUPPORT, UNIT_DEFINITIONS } from '../../game/battle/balance';
+import { ALLY_KINDS, ALLY_ROLES, ALLY_UNLOCK_STAGES, FORMATION_SIZE, HERO, SKILLS, SKILL_UNLOCK_COSTS, SKILL_SLOT_COUNT, SONG, SUPPORT, UNIT_DEFINITIONS, WATER } from '../../game/battle/balance';
 import type { AllyKind, CharacterKind, SkillKind } from '../../game/battle/types';
 const growth = { hero: '맥북과 능숙해진 개발자', ...Object.fromEntries(ALLY_KINDS.map(kind => [kind, ALLY_ROLES[kind].evolution])) } as Record<CharacterKind, string>;
 export function createLobbyViewModel(context: AppContext, scope: SceneScope, initialTab: 'menu' | 'stages' | 'training' | 'shop' | 'formation') {
@@ -93,7 +93,7 @@ export function createLobbyViewModel(context: AppContext, scope: SceneScope, ini
         evolved: level >= 5, growth: growth[kind], image: assetUrl(characterArt(kind, level)), preview: assetUrl(characterArt(kind, 5)),
         hp: Math.round(hp * multiplier), nextHp: Math.round(hp * nextMultiplier),
         statLabel: kind === 'singer' ? '공격력 ×' : kind === 'firefighter' ? '물줄기 총피해' : kind === 'support' ? '공격속도 ×' : kind === 'counselor' ? '회복' : kind === 'hero' ? '스킬 피해' : '공격', stat: kind === 'singer' ? SUPPORT.damageMultiplier : kind === 'support' ? SUPPORT.hasteMultiplier : Math.round(damage * multiplier), nextStat: kind === 'singer' ? SUPPORT.damageMultiplier : kind === 'support' ? SUPPORT.hasteMultiplier : Math.round(damage * nextMultiplier),
-        unlocked, supportNote: kind === 'singer' ? '5초마다 반경 100 · 7초 아군 피해 ×1.3 · 받는 피해 ×0.75 / 적 피해 ×0.75 · 배율 고정' : kind === 'firefighter' ? '전방 물줄기 · 1초 동안 0.25초 간격 4회 · 총피해는 레벨에 비례' : kind === 'support' ? '공격 유닛만 · 반경 100 · 7초 / 5초마다 · 배율은 고정' : kind === 'counselor' ? '아군과 개발자 · 반경 100 · 5초마다 회복' : '',
+        unlocked, supportNote: kind === 'singer' ? `${SONG.period}초마다 반경 ${SONG.radius} · ${SONG.duration}초 아군 피해 +${Math.round((SUPPORT.damageMultiplier - 1) * 100)}% · 받는 피해 -${Math.round((1 - SUPPORT.receivedDamageMultiplier) * 100)}% / 적 피해 -${Math.round((1 - SONG.enemyDamageMultiplier) * 100)}% · 배율 고정` : kind === 'firefighter' ? `공격 개시 ${UNIT_DEFINITIONS.firefighter.range} · 분사 ${UNIT_DEFINITIONS.firefighter.range + WATER.extraReach} · ${WATER.duration}초 동안 ${WATER.tickInterval}초 간격 ${WATER.ticks}회 · 총피해는 레벨에 비례` : kind === 'support' ? '공격 유닛만 · 반경 100 · 7초 / 5초마다 · 배율은 고정' : kind === 'counselor' ? '아군과 개발자 · 반경 100 · 5초마다 회복' : '',
         disabled: !unlocked || cost === null || profile.value.xp < cost,
         reason: !unlocked ? `${ALLY_UNLOCK_STAGES[kind as AllyKind]} 첫 클리어로 해금` : cost === null ? '최대 레벨' : profile.value.xp < cost ? `재화 ${cost - profile.value.xp} 부족` : `${cost} XP 강화`,
       };

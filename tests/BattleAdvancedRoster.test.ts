@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BattleSession } from '../src/game/BattleSession';
-import { ALLY_KINDS, BOSS, DEFAULT_STAGE, SKILLS, UNIT_DEFINITIONS } from '../src/game/battle/balance';
+import { ALLY_KINDS, BOSS, DEFAULT_STAGE, SKILLS, SONG, SUPPORT, UNIT_DEFINITIONS } from '../src/game/battle/balance';
 import type { AllyKind, BattleSpeed, SkillKind, StageDefinition } from '../src/game/battle/types';
 
 const quiet = (patch: Partial<StageDefinition> = {}): StageDefinition => ({ ...DEFAULT_STAGE, initialGold: 400, spawns: [], repeat: undefined, ...patch });
@@ -28,9 +28,9 @@ describe('tracking judge hammer', () => {
     expect(target.hp).toBe(1000);
     session.step(.3);
     expect(session.snapshot().judgeAttacks).toHaveLength(0);
-    expect(session.snapshot().units.filter(unit => unit.team === 'ai').map(unit => unit.hp)).toEqual([895, 1000]);
+    expect(session.snapshot().units.filter(unit => unit.team === 'ai').map(unit => unit.hp)).toEqual([1000 - UNIT_DEFINITIONS.judge.damage, 1000]);
     session.step(.5);
-    expect(session.snapshot().units.filter(unit => unit.team === 'ai').map(unit => unit.hp)).toEqual([895, 1000]);
+    expect(session.snapshot().units.filter(unit => unit.team === 'ai').map(unit => unit.hp)).toEqual([1000 - UNIT_DEFINITIONS.judge.damage, 1000]);
   });
 
   it('cancels a dead target or caster and can land on the enemy base', () => {
@@ -57,7 +57,7 @@ describe('tracking judge hammer', () => {
     base.dispatch({ type: 'summon', kind: 'judge' }); base.step(.01);
     expect(base.snapshot().judgeAttacks[0]!.targetId).toBe(base.snapshot().aiBase.id);
     base.step(.6);
-    expect(base.snapshot().aiBase.hp).toBe(quiet().aiBaseHp - 105);
+    expect(base.snapshot().aiBase.hp).toBe(quiet().aiBaseHp - UNIT_DEFINITIONS.judge.damage);
   });
 
   it('cancels impact when its caster dies on the exact final fall step', () => {
@@ -139,14 +139,14 @@ describe('singer support on both teams', () => {
     expect(unit(session, 'gpt-4o').weakenRemaining).toBeCloseTo(6.99, 1);
     expect(state.hero.buffs.haste).toBe(0);
     session.step(BOSS.firstCastDelay - state.elapsed + BOSS.windup + .01);
-    expect(session.snapshot().hero.hp).toBeCloseTo(320 - 80 * .75 * .75);
+    expect(session.snapshot().hero.hp).toBeCloseTo(320 - BOSS.damage * SONG.enemyDamageMultiplier * SUPPORT.receivedDamageMultiplier);
     session.step(10.01 - session.snapshot().elapsed);
     state = session.snapshot();
     expect(state.hero.buffs.combat).toBeCloseTo(6.99, 1);
     expect(unit(session, 'gpt-4o').weakenRemaining).toBeCloseTo(6.99, 1);
     expect(state.hero.buffs.combat).toBeLessThanOrEqual(7);
     // The base takes the debuffed boss damage, but never receives singer's defensive buff.
-    expect(state.humanBase.hp).toBe(quiet().humanBaseHp - 80 * .75);
+    expect(state.humanBase.hp).toBe(quiet().humanBaseHp - BOSS.damage * SONG.enemyDamageMultiplier);
   });
 
   it('starts evolved athletes and firefighters with the same shared level multiplier', () => {
@@ -219,7 +219,7 @@ describe('fixed landing foreach attack', () => {
     expect(session.snapshot().hero.buffs.combat).toBeGreaterThan(0);
     session.dispatch({ type: 'skill', skill: 'foreach' }); session.step(.7);
     expect(session.snapshot().hero.buffs.combat).toBe(0);
-    expect(unit(session, 'robot-melee').hp).toBeCloseTo(1000 - 95 * 1.6 * 1.3);
+    expect(unit(session, 'robot-melee').hp).toBeCloseTo(1000 - SKILLS.foreach.damage * 1.6 * SUPPORT.damageMultiplier);
   });
 
   it('rejects locked/unequipped casts without charging and cancels flight on hero death or disposal', () => {

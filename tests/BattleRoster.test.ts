@@ -122,7 +122,9 @@ describe('new fighting roles and battle lifetime', () => {
     expect(session.snapshot().projectiles).toHaveLength(0);
     expect(session.snapshot().judgeAttacks).toHaveLength(1);
     session.step(2.4);
-    expect(session.snapshot().units.filter(unit => unit.team === 'ai').map(unit => unit.hp)).toEqual([5, 110]);
+    expect(session.snapshot().units.filter(unit => unit.team === 'ai').map(unit => unit.hp)).toEqual([110]);
+    expect(UNIT_DEFINITIONS.judge.damage).toBeGreaterThanOrEqual(UNIT_DEFINITIONS['robot-melee'].hp);
+    expect(session.snapshot().effects.filter(effect => effect.kind === 'judge-impact')).toHaveLength(0);
   });
 
   it('starts every battle with empty timers and all six cooldown entries, including newly equipped slots', () => {

@@ -16,7 +16,7 @@ export interface BattleOptions {
 type Target = UnitState | HeroState | BaseState;
 type PendingBoss = BossTelegraphState & { damage: number };
 type PendingJudge = JudgeAttackState & { damage: number };
-type PendingWater = WaterChannelState & { damage: number; untilTick: number; ticksRemaining: number };
+type PendingWater = WaterChannelState & { damage: number; untilTick: number; ticksRemaining: number; direction: -1 | 1 };
 type PendingForeach = ForeachFlightState & { damage: number };
 
 /** Shared lane collision order: forward distance first, then stable entity ID. */
@@ -178,7 +178,7 @@ export class BattleSession {
       effects: this.effects.map((effect) => ({ ...effect })),
       bossTelegraphs: this.bossTelegraphs.map(({ damage: _damage, ...telegraph }) => ({ ...telegraph })), defeatedBossCount: this.defeatedBossCount,
       judgeAttacks: this.judgeAttacks.map(({ damage: _damage, ...attack }) => ({ ...attack })),
-      waterChannels: this.waterChannels.map(({ damage: _damage, untilTick: _tick, ticksRemaining: _ticks, ...channel }) => ({ ...channel })),
+      waterChannels: this.waterChannels.map(({ damage: _damage, untilTick: _tick, ticksRemaining: _ticks, direction: _direction, ...channel }) => ({ ...channel })),
       foreachFlights: this.foreachFlights.map(({ damage: _damage, ...flight }) => ({ ...flight })),
       levels: { ...this.levels }, equippedAllies: [...this.equippedAllies], unlockedAllies: [...this.unlockedAllies],
       unlockedSkills: [...this.unlockedSkills], equippedSkills: [...this.equippedSkills], overclockRemaining: this.overclockRemaining,
@@ -232,7 +232,7 @@ export class BattleSession {
     this.waterChannels = this.waterChannels.filter(channel => {
       const source = this.units.find(unit => unit.id === channel.sourceId && unit.hp > 0);
       if (!source) return false;
-      channel.x = source.x; channel.endX = source.x + this.definitions[source.kind].range;
+      channel.x = source.x; channel.endX = source.x + channel.direction * (this.definitions[source.kind].range + WATER.extraReach);
       channel.remaining = Math.max(0, channel.remaining - dt);
       channel.untilTick -= dt;
       while (channel.ticksRemaining > 0 && channel.untilTick <= 1e-8) {
@@ -305,7 +305,8 @@ export class BattleSession {
             this.judgeAttacks.push({ id: this.nextId++, sourceId: unit.id, targetId: target.id, x: target.x,
               remaining: JUDGE.windup + JUDGE.fall, duration: JUDGE.windup + JUDGE.fall, windup: JUDGE.windup, damage });
           } else if (unit.kind === 'firefighter') {
-            this.waterChannels.push({ id: this.nextId++, sourceId: unit.id, x: unit.x, endX: unit.x + definition.range,
+            const direction = target.x >= unit.x ? 1 : -1;
+            this.waterChannels.push({ id: this.nextId++, sourceId: unit.id, x: unit.x, endX: unit.x + direction * (definition.range + WATER.extraReach), direction,
               remaining: WATER.duration, duration: WATER.duration, untilTick: WATER.tickInterval, ticksRemaining: WATER.ticks, damage: damage / WATER.ticks });
           } else if (definition.projectileSpeed) {
             this.projectiles.push({ id: this.nextId++, source: unit.kind, team: unit.team, x: unit.x,
@@ -330,7 +331,8 @@ export class BattleSession {
     }
     for (const channel of waterTicks) {
       if (!this.units.some(unit => unit.id === channel.sourceId && unit.hp > 0)) continue;
-      for (const target of this.targets('human').filter(target => target.hp > 0 && target.x >= channel.x && target.x <= channel.endX)) this.hit(target, channel.damage);
+      const minX = Math.min(channel.x, channel.endX), maxX = Math.max(channel.x, channel.endX);
+      for (const target of this.targets('human').filter(target => target.hp > 0 && target.x >= minX && target.x <= maxX)) this.hit(target, channel.damage);
     }
     for (const flight of foreachImpacts) {
       if (this.hero.hp <= 0) continue;

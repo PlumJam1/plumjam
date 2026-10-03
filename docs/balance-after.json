@@ -1,0 +1,3304 @@
+{
+  "version": 1,
+  "method": "Public dispatch/step only; fixed .1 world step, player cadence .5 by default; .5s explicit telegraph reaction delay (.2s expert rows use zero delay); budget 240 game seconds. Skill ablations and fixed-level rows explicitly grant their listed loadout for comparison, not progression claims.",
+  "matrix": [
+    {
+      "stage": "1-1",
+      "policy": "passive-pair",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "lost",
+      "seconds": 96.5,
+      "heroHp": 0,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 180,
+      "bossDefeated": 0,
+      "goldSpent": 170,
+      "goldLeft": 400,
+      "economyLevel": 1,
+      "maxArmy": 2,
+      "spend": {
+        "melee": 60,
+        "ranged": 110
+      },
+      "accepted": {
+        "melee": 1,
+        "ranged": 1
+      }
+    },
+    {
+      "stage": "1-1",
+      "policy": "melee-spam",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 47,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 1760,
+      "goldLeft": 301.6,
+      "economyLevel": 4,
+      "maxArmy": 10,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 600,
+        "hello-world": 419.99999999999994
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 10,
+        "hello-world": 12
+      }
+    },
+    {
+      "stage": "1-1",
+      "policy": "priority-spam",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 45,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 1765,
+      "goldLeft": 93.4,
+      "economyLevel": 4,
+      "maxArmy": 10,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 360,
+        "ranged": 220,
+        "support": 200,
+        "hello-world": 244.99999999999997
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 6,
+        "ranged": 2,
+        "support": 2,
+        "hello-world": 7
+      }
+    },
+    {
+      "stage": "1-1",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 47.2,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 1725,
+      "goldLeft": 274.2,
+      "economyLevel": 4,
+      "maxArmy": 8,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 240,
+        "hello-world": 315,
+        "ranged": 330,
+        "support": 100
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 4,
+        "hello-world": 9,
+        "ranged": 3,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-1",
+      "policy": "no-invest",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 29.9,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 680,
+      "goldLeft": 38.8,
+      "economyLevel": 1,
+      "maxArmy": 4,
+      "spend": {
+        "melee": 120,
+        "hello-world": 350,
+        "ranged": 110,
+        "support": 100
+      },
+      "accepted": {
+        "melee": 2,
+        "hello-world": 10,
+        "ranged": 1,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-1",
+      "policy": "ranged-only",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 50.6,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 1855,
+      "goldLeft": 412.2,
+      "economyLevel": 4,
+      "maxArmy": 6,
+      "spend": {
+        "upgrade-economy": 740,
+        "ranged": 660,
+        "hello-world": 455
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "ranged": 6,
+        "hello-world": 13
+      }
+    },
+    {
+      "stage": "1-2",
+      "policy": "passive-pair",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "lost",
+      "seconds": 52.4,
+      "heroHp": 0,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 950,
+      "bossDefeated": 0,
+      "goldSpent": 170,
+      "goldLeft": 400,
+      "economyLevel": 1,
+      "maxArmy": 2,
+      "spend": {
+        "melee": 60,
+        "ranged": 110
+      },
+      "accepted": {
+        "melee": 1,
+        "ranged": 1
+      }
+    },
+    {
+      "stage": "1-2",
+      "policy": "melee-spam",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 52.4,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 1950,
+      "goldLeft": 304,
+      "economyLevel": 4,
+      "maxArmy": 11,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 720,
+        "hello-world": 490.00000000000006
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 12,
+        "hello-world": 14
+      }
+    },
+    {
+      "stage": "1-2",
+      "policy": "priority-spam",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 51.1,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 1930,
+      "goldLeft": 20.8,
+      "economyLevel": 3,
+      "maxArmy": 13,
+      "spend": {
+        "upgrade-economy": 360,
+        "melee": 540,
+        "technician": 300,
+        "hello-world": 420,
+        "support": 200,
+        "ranged": 110
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "melee": 9,
+        "technician": 2,
+        "hello-world": 12,
+        "support": 2,
+        "ranged": 1
+      }
+    },
+    {
+      "stage": "1-2",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 55.1,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 1845,
+      "goldLeft": 247.4,
+      "economyLevel": 3,
+      "maxArmy": 10,
+      "spend": {
+        "upgrade-economy": 360,
+        "melee": 299.99999999999994,
+        "hello-world": 455,
+        "technician": 300,
+        "ranged": 330,
+        "support": 100
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "melee": 5,
+        "hello-world": 13,
+        "technician": 2,
+        "ranged": 3,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-2",
+      "policy": "no-invest",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 48.5,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 1035,
+      "goldLeft": 18.6,
+      "economyLevel": 1,
+      "maxArmy": 4,
+      "spend": {
+        "melee": 180,
+        "hello-world": 594.9999999999999,
+        "technician": 150,
+        "ranged": 110
+      },
+      "accepted": {
+        "melee": 3,
+        "hello-world": 17,
+        "technician": 1,
+        "ranged": 1
+      }
+    },
+    {
+      "stage": "1-2",
+      "policy": "ranged-only",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 56.1,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 1800.0000000000002,
+      "goldLeft": 331.4,
+      "economyLevel": 3,
+      "maxArmy": 8,
+      "spend": {
+        "upgrade-economy": 360,
+        "ranged": 880,
+        "hello-world": 560.0000000000002
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "ranged": 8,
+        "hello-world": 16
+      }
+    },
+    {
+      "stage": "1-3",
+      "policy": "passive-pair",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "lost",
+      "seconds": 52.7,
+      "heroHp": 0,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 1150,
+      "bossDefeated": 0,
+      "goldSpent": 170,
+      "goldLeft": 400,
+      "economyLevel": 1,
+      "maxArmy": 2,
+      "spend": {
+        "melee": 60,
+        "ranged": 110
+      },
+      "accepted": {
+        "melee": 1,
+        "ranged": 1
+      }
+    },
+    {
+      "stage": "1-3",
+      "policy": "melee-spam",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 63.3,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 2330,
+      "goldLeft": 544.2,
+      "economyLevel": 4,
+      "maxArmy": 13,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 959.9999999999999,
+        "hello-world": 629.9999999999999
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 16,
+        "hello-world": 18
+      }
+    },
+    {
+      "stage": "1-3",
+      "policy": "priority-spam",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 59.3,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 2520,
+      "goldLeft": 115.8,
+      "economyLevel": 4,
+      "maxArmy": 15,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 720,
+        "technician": 150,
+        "hello-world": 489.9999999999999,
+        "support": 200,
+        "ranged": 220
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 12,
+        "technician": 1,
+        "hello-world": 14,
+        "support": 2,
+        "ranged": 2
+      }
+    },
+    {
+      "stage": "1-3",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 62.4,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 2770,
+      "goldLeft": 31,
+      "economyLevel": 4,
+      "maxArmy": 12,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 360,
+        "hello-world": 560,
+        "technician": 300,
+        "ranged": 330,
+        "judge": 380,
+        "support": 100
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 6,
+        "hello-world": 16,
+        "technician": 2,
+        "ranged": 3,
+        "judge": 2,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-3",
+      "policy": "no-invest",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 45.2,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 940,
+      "goldLeft": 74.2,
+      "economyLevel": 1,
+      "maxArmy": 4,
+      "spend": {
+        "melee": 120,
+        "hello-world": 560,
+        "technician": 150,
+        "ranged": 110
+      },
+      "accepted": {
+        "melee": 2,
+        "hello-world": 16,
+        "technician": 1,
+        "ranged": 1
+      }
+    },
+    {
+      "stage": "1-3",
+      "policy": "ranged-only",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 63.1,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 2435,
+      "goldLeft": 368,
+      "economyLevel": 4,
+      "maxArmy": 8,
+      "spend": {
+        "upgrade-economy": 740,
+        "ranged": 1100,
+        "hello-world": 595
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "ranged": 10,
+        "hello-world": 17
+      }
+    },
+    {
+      "stage": "1-4",
+      "policy": "passive-pair",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "lost",
+      "seconds": 52.6,
+      "heroHp": 0,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 1400,
+      "bossDefeated": 0,
+      "goldSpent": 170,
+      "goldLeft": 400,
+      "economyLevel": 1,
+      "maxArmy": 2,
+      "spend": {
+        "melee": 60,
+        "ranged": 110
+      },
+      "accepted": {
+        "melee": 1,
+        "ranged": 1
+      }
+    },
+    {
+      "stage": "1-4",
+      "policy": "melee-spam",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 79,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 2910,
+      "goldLeft": 718.6,
+      "economyLevel": 4,
+      "maxArmy": 14,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 1260,
+        "hello-world": 910.0000000000001
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 21,
+        "hello-world": 26
+      }
+    },
+    {
+      "stage": "1-4",
+      "policy": "priority-spam",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 70.1,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 3080,
+      "goldLeft": 41.8,
+      "economyLevel": 4,
+      "maxArmy": 18,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 900,
+        "technician": 150,
+        "hello-world": 630,
+        "ranged": 660
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 15,
+        "technician": 1,
+        "hello-world": 18,
+        "ranged": 6
+      }
+    },
+    {
+      "stage": "1-4",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 73.6,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 3255,
+      "goldLeft": 34.8,
+      "economyLevel": 4,
+      "maxArmy": 12,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 420,
+        "hello-world": 700,
+        "technician": 300,
+        "judge": 570,
+        "firefighter": 400,
+        "counselor": 125
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 7,
+        "hello-world": 20,
+        "technician": 2,
+        "judge": 3,
+        "firefighter": 2,
+        "counselor": 1
+      }
+    },
+    {
+      "stage": "1-4",
+      "policy": "no-invest",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 221.8,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 4120,
+      "goldLeft": 91.8,
+      "economyLevel": 1,
+      "maxArmy": 3,
+      "spend": {
+        "melee": 1020,
+        "hello-world": 2800,
+        "technician": 300
+      },
+      "accepted": {
+        "melee": 17,
+        "hello-world": 80,
+        "technician": 2
+      }
+    },
+    {
+      "stage": "1-4",
+      "policy": "ranged-only",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 71.2,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 2685,
+      "goldLeft": 484.4,
+      "economyLevel": 4,
+      "maxArmy": 11,
+      "spend": {
+        "upgrade-economy": 740,
+        "ranged": 1210,
+        "hello-world": 735
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "ranged": 11,
+        "hello-world": 21
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "passive-pair",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "lost",
+      "seconds": 29.6,
+      "heroHp": 0,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 1700,
+      "bossDefeated": 0,
+      "goldSpent": 170,
+      "goldLeft": 400,
+      "economyLevel": 1,
+      "maxArmy": 2,
+      "spend": {
+        "melee": 60,
+        "ranged": 110
+      },
+      "accepted": {
+        "melee": 1,
+        "ranged": 1
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "melee-spam",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "lost",
+      "seconds": 88.4,
+      "heroHp": 0,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 1700,
+      "bossDefeated": 0,
+      "goldSpent": 3005,
+      "goldLeft": 397.4,
+      "economyLevel": 3,
+      "maxArmy": 4,
+      "spend": {
+        "upgrade-economy": 360,
+        "melee": 1560,
+        "hello-world": 1085.0000000000002
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "melee": 26,
+        "hello-world": 31
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "priority-spam",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "lost",
+      "seconds": 79.4,
+      "heroHp": 0,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 1700,
+      "bossDefeated": 0,
+      "goldSpent": 2975,
+      "goldLeft": 103.4,
+      "economyLevel": 3,
+      "maxArmy": 6,
+      "spend": {
+        "upgrade-economy": 360,
+        "melee": 1260,
+        "technician": 150,
+        "hello-world": 875,
+        "ranged": 330
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "melee": 21,
+        "technician": 1,
+        "hello-world": 25,
+        "ranged": 3
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 140.8,
+      "heroHp": 277,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 1,
+      "goldSpent": 5155,
+      "goldLeft": 134.4,
+      "economyLevel": 3,
+      "maxArmy": 7,
+      "spend": {
+        "upgrade-economy": 360,
+        "technician": 900,
+        "hello-world": 1715,
+        "athlete": 1120,
+        "judge": 760,
+        "counselor": 125,
+        "singer": 175
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "technician": 6,
+        "hello-world": 49,
+        "athlete": 7,
+        "judge": 4,
+        "counselor": 1,
+        "singer": 1
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "no-invest",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "lost",
+      "seconds": 52.4,
+      "heroHp": 0,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 1700,
+      "bossDefeated": 0,
+      "goldSpent": 1125,
+      "goldLeft": 78.2,
+      "economyLevel": 1,
+      "maxArmy": 2,
+      "spend": {
+        "technician": 300,
+        "hello-world": 664.9999999999999,
+        "athlete": 160
+      },
+      "accepted": {
+        "technician": 2,
+        "hello-world": 19,
+        "athlete": 1
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "ranged-only",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "lost",
+      "seconds": 52.4,
+      "heroHp": 0,
+      "heroMaxHp": 320,
+      "baseHp": 820,
+      "enemyBaseHp": 1700,
+      "bossDefeated": 0,
+      "goldSpent": 1945,
+      "goldLeft": 161.4,
+      "economyLevel": 3,
+      "maxArmy": 3,
+      "spend": {
+        "upgrade-economy": 360,
+        "ranged": 989.9999999999999,
+        "hello-world": 595
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "ranged": 9,
+        "hello-world": 17
+      }
+    }
+  ],
+  "skillAblations": [
+    {
+      "stage": "1-2",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 55.1,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 1845,
+      "goldLeft": 247.4,
+      "economyLevel": 3,
+      "maxArmy": 10,
+      "spend": {
+        "upgrade-economy": 360,
+        "melee": 299.99999999999994,
+        "hello-world": 455,
+        "technician": 300,
+        "ranged": 330,
+        "support": 100
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "melee": 5,
+        "hello-world": 13,
+        "technician": 2,
+        "ranged": 3,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-2",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal"
+      ],
+      "outcome": "won",
+      "seconds": 55.1,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 1845,
+      "goldLeft": 247.4,
+      "economyLevel": 3,
+      "maxArmy": 10,
+      "spend": {
+        "upgrade-economy": 360,
+        "melee": 299.99999999999994,
+        "hello-world": 455,
+        "technician": 300,
+        "ranged": 330,
+        "support": 100
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "melee": 5,
+        "hello-world": 13,
+        "technician": 2,
+        "ranged": 3,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-2",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "sleep"
+      ],
+      "outcome": "won",
+      "seconds": 55.1,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 1845,
+      "goldLeft": 247.4,
+      "economyLevel": 3,
+      "maxArmy": 10,
+      "spend": {
+        "upgrade-economy": 360,
+        "melee": 299.99999999999994,
+        "hello-world": 455,
+        "technician": 300,
+        "ranged": 330,
+        "support": 100
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "melee": 5,
+        "hello-world": 13,
+        "technician": 2,
+        "ranged": 3,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-2",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "foreach"
+      ],
+      "outcome": "won",
+      "seconds": 57.6,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 2290,
+      "goldLeft": 176.8,
+      "economyLevel": 4,
+      "maxArmy": 10,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 300,
+        "foreach": 100,
+        "hello-world": 420.00000000000006,
+        "technician": 300,
+        "ranged": 330,
+        "support": 100
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 5,
+        "foreach": 1,
+        "hello-world": 12,
+        "technician": 2,
+        "ranged": 3,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-2",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal",
+        "foreach"
+      ],
+      "outcome": "won",
+      "seconds": 57.6,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 2290,
+      "goldLeft": 176.8,
+      "economyLevel": 4,
+      "maxArmy": 10,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 300,
+        "foreach": 100,
+        "hello-world": 420.00000000000006,
+        "technician": 300,
+        "ranged": 330,
+        "support": 100
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 5,
+        "foreach": 1,
+        "hello-world": 12,
+        "technician": 2,
+        "ranged": 3,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-2",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal",
+        "git-push"
+      ],
+      "outcome": "won",
+      "seconds": 55.1,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 1845,
+      "goldLeft": 247.4,
+      "economyLevel": 3,
+      "maxArmy": 10,
+      "spend": {
+        "upgrade-economy": 360,
+        "melee": 299.99999999999994,
+        "hello-world": 455,
+        "technician": 300,
+        "ranged": 330,
+        "support": 100
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "melee": 5,
+        "hello-world": 13,
+        "technician": 2,
+        "ranged": 3,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-2",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal",
+        "overclock"
+      ],
+      "outcome": "won",
+      "seconds": 57,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 1975,
+      "goldLeft": 188.2,
+      "economyLevel": 3,
+      "maxArmy": 10,
+      "spend": {
+        "upgrade-economy": 360,
+        "melee": 300,
+        "hello-world": 525,
+        "overclock": 60,
+        "technician": 300,
+        "ranged": 330,
+        "support": 100
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "melee": 5,
+        "hello-world": 15,
+        "overclock": 1,
+        "technician": 2,
+        "ranged": 3,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-3",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 62.4,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 2770,
+      "goldLeft": 31,
+      "economyLevel": 4,
+      "maxArmy": 12,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 360,
+        "hello-world": 560,
+        "technician": 300,
+        "ranged": 330,
+        "judge": 380,
+        "support": 100
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 6,
+        "hello-world": 16,
+        "technician": 2,
+        "ranged": 3,
+        "judge": 2,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-3",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal"
+      ],
+      "outcome": "won",
+      "seconds": 62.4,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 2770,
+      "goldLeft": 31,
+      "economyLevel": 4,
+      "maxArmy": 12,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 360,
+        "hello-world": 560,
+        "technician": 300,
+        "ranged": 330,
+        "judge": 380,
+        "support": 100
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 6,
+        "hello-world": 16,
+        "technician": 2,
+        "ranged": 3,
+        "judge": 2,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-3",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "sleep"
+      ],
+      "outcome": "won",
+      "seconds": 62.4,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 2770,
+      "goldLeft": 31,
+      "economyLevel": 4,
+      "maxArmy": 12,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 360,
+        "hello-world": 560,
+        "technician": 300,
+        "ranged": 330,
+        "judge": 380,
+        "support": 100
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 6,
+        "hello-world": 16,
+        "technician": 2,
+        "ranged": 3,
+        "judge": 2,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-3",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "foreach"
+      ],
+      "outcome": "won",
+      "seconds": 63.3,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 2720,
+      "goldLeft": 182.6,
+      "economyLevel": 4,
+      "maxArmy": 11,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 300,
+        "foreach": 200,
+        "hello-world": 560,
+        "technician": 300,
+        "ranged": 330,
+        "judge": 190,
+        "support": 100
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 5,
+        "foreach": 2,
+        "hello-world": 16,
+        "technician": 2,
+        "ranged": 3,
+        "judge": 1,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-3",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal",
+        "foreach"
+      ],
+      "outcome": "won",
+      "seconds": 63.3,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 2720,
+      "goldLeft": 182.6,
+      "economyLevel": 4,
+      "maxArmy": 11,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 300,
+        "foreach": 200,
+        "hello-world": 560,
+        "technician": 300,
+        "ranged": 330,
+        "judge": 190,
+        "support": 100
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 5,
+        "foreach": 2,
+        "hello-world": 16,
+        "technician": 2,
+        "ranged": 3,
+        "judge": 1,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-3",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal",
+        "git-push"
+      ],
+      "outcome": "won",
+      "seconds": 62.4,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 2770,
+      "goldLeft": 31,
+      "economyLevel": 4,
+      "maxArmy": 12,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 360,
+        "hello-world": 560,
+        "technician": 300,
+        "ranged": 330,
+        "judge": 380,
+        "support": 100
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 6,
+        "hello-world": 16,
+        "technician": 2,
+        "ranged": 3,
+        "judge": 2,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-3",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal",
+        "overclock"
+      ],
+      "outcome": "won",
+      "seconds": 65.1,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 2865,
+      "goldLeft": 46,
+      "economyLevel": 4,
+      "maxArmy": 12,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 360,
+        "hello-world": 595,
+        "overclock": 60,
+        "technician": 300,
+        "ranged": 330,
+        "judge": 380,
+        "support": 100
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 6,
+        "hello-world": 17,
+        "overclock": 1,
+        "technician": 2,
+        "ranged": 3,
+        "judge": 2,
+        "support": 1
+      }
+    },
+    {
+      "stage": "1-4",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 73.6,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 3255,
+      "goldLeft": 34.8,
+      "economyLevel": 4,
+      "maxArmy": 12,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 420,
+        "hello-world": 700,
+        "technician": 300,
+        "judge": 570,
+        "firefighter": 400,
+        "counselor": 125
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 7,
+        "hello-world": 20,
+        "technician": 2,
+        "judge": 3,
+        "firefighter": 2,
+        "counselor": 1
+      }
+    },
+    {
+      "stage": "1-4",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal"
+      ],
+      "outcome": "won",
+      "seconds": 73.6,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 3255,
+      "goldLeft": 34.8,
+      "economyLevel": 4,
+      "maxArmy": 12,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 420,
+        "hello-world": 700,
+        "technician": 300,
+        "judge": 570,
+        "firefighter": 400,
+        "counselor": 125
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 7,
+        "hello-world": 20,
+        "technician": 2,
+        "judge": 3,
+        "firefighter": 2,
+        "counselor": 1
+      }
+    },
+    {
+      "stage": "1-4",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "sleep"
+      ],
+      "outcome": "won",
+      "seconds": 71.3,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 3015,
+      "goldLeft": 164.4,
+      "economyLevel": 4,
+      "maxArmy": 11,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 360,
+        "hello-world": 665,
+        "technician": 300,
+        "judge": 570,
+        "sleep": 55,
+        "firefighter": 200,
+        "counselor": 125
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 6,
+        "hello-world": 19,
+        "technician": 2,
+        "judge": 3,
+        "sleep": 1,
+        "firefighter": 1,
+        "counselor": 1
+      }
+    },
+    {
+      "stage": "1-4",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "foreach"
+      ],
+      "outcome": "won",
+      "seconds": 79,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 3520,
+      "goldLeft": 143.8,
+      "economyLevel": 4,
+      "maxArmy": 11,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 480,
+        "foreach": 300,
+        "hello-world": 805,
+        "technician": 300,
+        "judge": 570,
+        "firefighter": 200,
+        "counselor": 125
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 8,
+        "foreach": 3,
+        "hello-world": 23,
+        "technician": 2,
+        "judge": 3,
+        "firefighter": 1,
+        "counselor": 1
+      }
+    },
+    {
+      "stage": "1-4",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal",
+        "foreach"
+      ],
+      "outcome": "won",
+      "seconds": 79,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 3520,
+      "goldLeft": 143.8,
+      "economyLevel": 4,
+      "maxArmy": 11,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 480,
+        "foreach": 300,
+        "hello-world": 805,
+        "technician": 300,
+        "judge": 570,
+        "firefighter": 200,
+        "counselor": 125
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 8,
+        "foreach": 3,
+        "hello-world": 23,
+        "technician": 2,
+        "judge": 3,
+        "firefighter": 1,
+        "counselor": 1
+      }
+    },
+    {
+      "stage": "1-4",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal",
+        "git-push"
+      ],
+      "outcome": "won",
+      "seconds": 77.1,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 3340,
+      "goldLeft": 120.2,
+      "economyLevel": 4,
+      "maxArmy": 11,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 420,
+        "hello-world": 770,
+        "technician": 450,
+        "judge": 570,
+        "git-push": 65,
+        "firefighter": 200,
+        "counselor": 125
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 7,
+        "hello-world": 22,
+        "technician": 3,
+        "judge": 3,
+        "git-push": 1,
+        "firefighter": 1,
+        "counselor": 1
+      }
+    },
+    {
+      "stage": "1-4",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal",
+        "overclock"
+      ],
+      "outcome": "won",
+      "seconds": 78.3,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 0,
+      "goldSpent": 3480,
+      "goldLeft": 141.8,
+      "economyLevel": 4,
+      "maxArmy": 11,
+      "spend": {
+        "upgrade-economy": 740,
+        "melee": 480,
+        "hello-world": 945.0000000000001,
+        "overclock": 119.99999999999997,
+        "technician": 300,
+        "judge": 570,
+        "firefighter": 200,
+        "counselor": 125
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "melee": 8,
+        "hello-world": 27,
+        "overclock": 2,
+        "technician": 2,
+        "judge": 3,
+        "firefighter": 1,
+        "counselor": 1
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world"
+      ],
+      "outcome": "won",
+      "seconds": 140.8,
+      "heroHp": 277,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 1,
+      "goldSpent": 5155,
+      "goldLeft": 134.4,
+      "economyLevel": 3,
+      "maxArmy": 7,
+      "spend": {
+        "upgrade-economy": 360,
+        "technician": 900,
+        "hello-world": 1715,
+        "athlete": 1120,
+        "judge": 760,
+        "counselor": 125,
+        "singer": 175
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "technician": 6,
+        "hello-world": 49,
+        "athlete": 7,
+        "judge": 4,
+        "counselor": 1,
+        "singer": 1
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal"
+      ],
+      "outcome": "won",
+      "seconds": 152.8,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 1,
+      "goldSpent": 5625,
+      "goldLeft": 97,
+      "economyLevel": 3,
+      "maxArmy": 7,
+      "spend": {
+        "upgrade-economy": 360,
+        "technician": 1050,
+        "heal": 400,
+        "hello-world": 1855,
+        "athlete": 1280,
+        "judge": 380,
+        "counselor": 125,
+        "singer": 175
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "technician": 7,
+        "heal": 5,
+        "hello-world": 53,
+        "athlete": 8,
+        "judge": 2,
+        "counselor": 1,
+        "singer": 1
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "sleep"
+      ],
+      "outcome": "lost",
+      "seconds": 70.4,
+      "heroHp": 0,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 1700,
+      "bossDefeated": 0,
+      "goldSpent": 2730,
+      "goldLeft": 24.4,
+      "economyLevel": 3,
+      "maxArmy": 2,
+      "spend": {
+        "upgrade-economy": 360,
+        "technician": 600,
+        "hello-world": 805,
+        "athlete": 800,
+        "sleep": 165
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "technician": 4,
+        "hello-world": 23,
+        "athlete": 5,
+        "sleep": 3
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "foreach"
+      ],
+      "outcome": "lost",
+      "seconds": 44.8,
+      "heroHp": 0,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 1700,
+      "bossDefeated": 0,
+      "goldSpent": 1850,
+      "goldLeft": 108,
+      "economyLevel": 4,
+      "maxArmy": 2,
+      "spend": {
+        "upgrade-economy": 740,
+        "technician": 300,
+        "foreach": 300,
+        "hello-world": 350,
+        "athlete": 160
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "technician": 2,
+        "foreach": 3,
+        "hello-world": 10,
+        "athlete": 1
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal",
+        "foreach"
+      ],
+      "outcome": "won",
+      "seconds": 103.1,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 1,
+      "goldSpent": 3845,
+      "goldLeft": 88.4,
+      "economyLevel": 3,
+      "maxArmy": 6,
+      "spend": {
+        "upgrade-economy": 360,
+        "technician": 600,
+        "heal": 160,
+        "hello-world": 1155.0000000000002,
+        "foreach": 600,
+        "athlete": 480,
+        "judge": 190,
+        "counselor": 125,
+        "singer": 175
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "technician": 4,
+        "heal": 2,
+        "hello-world": 33,
+        "foreach": 6,
+        "athlete": 3,
+        "judge": 1,
+        "counselor": 1,
+        "singer": 1
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal",
+        "git-push"
+      ],
+      "outcome": "won",
+      "seconds": 181.8,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 1,
+      "goldSpent": 6740,
+      "goldLeft": 25.4,
+      "economyLevel": 3,
+      "maxArmy": 8,
+      "spend": {
+        "upgrade-economy": 360,
+        "technician": 1200,
+        "heal": 240,
+        "hello-world": 2240.0000000000005,
+        "athlete": 1440,
+        "git-push": 390,
+        "judge": 570,
+        "counselor": 125,
+        "singer": 175
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "technician": 8,
+        "heal": 3,
+        "hello-world": 64,
+        "athlete": 9,
+        "git-push": 6,
+        "judge": 3,
+        "counselor": 1,
+        "singer": 1
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal",
+        "overclock"
+      ],
+      "outcome": "won",
+      "seconds": 152.8,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 1,
+      "goldSpent": 5625,
+      "goldLeft": 97,
+      "economyLevel": 3,
+      "maxArmy": 7,
+      "spend": {
+        "upgrade-economy": 360,
+        "technician": 1050,
+        "heal": 400,
+        "hello-world": 1855,
+        "athlete": 1280,
+        "judge": 380,
+        "counselor": 125,
+        "singer": 175
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "technician": 7,
+        "heal": 5,
+        "hello-world": 53,
+        "athlete": 8,
+        "judge": 2,
+        "counselor": 1,
+        "singer": 1
+      }
+    }
+  ],
+  "utilityPosition": [
+    {
+      "stage": "1-5",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 3,
+      "skills": [
+        "hello-world",
+        "heal"
+      ],
+      "outcome": "won",
+      "seconds": 96,
+      "heroHp": 416,
+      "heroMaxHp": 416,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 1,
+      "goldSpent": 4090.0000000000005,
+      "goldLeft": 338.4,
+      "economyLevel": 4,
+      "maxArmy": 9,
+      "spend": {
+        "upgrade-economy": 740,
+        "technician": 600,
+        "hello-world": 1050.0000000000005,
+        "athlete": 640,
+        "judge": 760,
+        "counselor": 125,
+        "singer": 175
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "technician": 4,
+        "hello-world": 30,
+        "athlete": 4,
+        "judge": 4,
+        "counselor": 1,
+        "singer": 1
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 3,
+      "skills": [
+        "hello-world",
+        "heal",
+        "sleep"
+      ],
+      "outcome": "won",
+      "seconds": 102.5,
+      "heroHp": 416,
+      "heroMaxHp": 416,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 1,
+      "goldSpent": 3765,
+      "goldLeft": 144.4,
+      "economyLevel": 3,
+      "maxArmy": 7,
+      "spend": {
+        "upgrade-economy": 360,
+        "technician": 600,
+        "hello-world": 1050,
+        "athlete": 640,
+        "sleep": 275,
+        "judge": 380,
+        "counselor": 125,
+        "heal": 160,
+        "singer": 175
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "technician": 4,
+        "hello-world": 30,
+        "athlete": 4,
+        "sleep": 5,
+        "judge": 2,
+        "counselor": 1,
+        "heal": 2,
+        "singer": 1
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 3,
+      "skills": [
+        "hello-world",
+        "heal",
+        "git-push"
+      ],
+      "outcome": "won",
+      "seconds": 142,
+      "heroHp": 416,
+      "heroMaxHp": 416,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 1,
+      "goldSpent": 6400,
+      "goldLeft": 288,
+      "economyLevel": 4,
+      "maxArmy": 8,
+      "spend": {
+        "upgrade-economy": 740,
+        "technician": 900,
+        "hello-world": 1645,
+        "athlete": 1120,
+        "git-push": 520,
+        "heal": 480,
+        "judge": 570,
+        "counselor": 250,
+        "singer": 175
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "technician": 6,
+        "hello-world": 47,
+        "athlete": 7,
+        "git-push": 8,
+        "heal": 6,
+        "judge": 3,
+        "counselor": 2,
+        "singer": 1
+      }
+    }
+  ],
+  "finalCadence": [
+    {
+      "stage": "1-5",
+      "policy": "balanced",
+      "cadence": 0.2,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal"
+      ],
+      "outcome": "won",
+      "seconds": 150.5,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 1,
+      "goldSpent": 5610,
+      "goldLeft": 26.2,
+      "economyLevel": 3,
+      "maxArmy": 8,
+      "spend": {
+        "upgrade-economy": 360,
+        "technician": 900,
+        "hello-world": 1819.9999999999995,
+        "athlete": 1120,
+        "judge": 950,
+        "heal": 160,
+        "counselor": 125,
+        "singer": 175
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "technician": 6,
+        "hello-world": 52,
+        "athlete": 7,
+        "judge": 5,
+        "heal": 2,
+        "counselor": 1,
+        "singer": 1
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "balanced",
+      "cadence": 0.2,
+      "level": 3,
+      "skills": [
+        "hello-world",
+        "heal"
+      ],
+      "outcome": "won",
+      "seconds": 96.3,
+      "heroHp": 416,
+      "heroMaxHp": 416,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 1,
+      "goldSpent": 4055,
+      "goldLeft": 391.4,
+      "economyLevel": 4,
+      "maxArmy": 9,
+      "spend": {
+        "upgrade-economy": 740,
+        "technician": 600,
+        "hello-world": 1015,
+        "athlete": 640,
+        "judge": 760,
+        "counselor": 125,
+        "singer": 175
+      },
+      "accepted": {
+        "upgrade-economy": 3,
+        "technician": 4,
+        "hello-world": 29,
+        "athlete": 4,
+        "judge": 4,
+        "counselor": 1,
+        "singer": 1
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal"
+      ],
+      "outcome": "won",
+      "seconds": 152.8,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 1,
+      "goldSpent": 5625,
+      "goldLeft": 97,
+      "economyLevel": 3,
+      "maxArmy": 7,
+      "spend": {
+        "upgrade-economy": 360,
+        "technician": 1050,
+        "heal": 400,
+        "hello-world": 1855,
+        "athlete": 1280,
+        "judge": 380,
+        "counselor": 125,
+        "singer": 175
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "technician": 7,
+        "heal": 5,
+        "hello-world": 53,
+        "athlete": 8,
+        "judge": 2,
+        "counselor": 1,
+        "singer": 1
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "balanced",
+      "cadence": 0.5,
+      "level": 3,
+      "skills": [
+        "hello-world",
+        "heal"
+      ],
+      "outcome": "won",
+      "seconds": 110.6,
+      "heroHp": 416,
+      "heroMaxHp": 416,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 1,
+      "goldSpent": 4185,
+      "goldLeft": 17.2,
+      "economyLevel": 3,
+      "maxArmy": 7,
+      "spend": {
+        "upgrade-economy": 360,
+        "technician": 600,
+        "heal": 80,
+        "hello-world": 1224.9999999999998,
+        "athlete": 800,
+        "judge": 570,
+        "counselor": 375,
+        "singer": 175
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "technician": 4,
+        "heal": 1,
+        "hello-world": 35,
+        "athlete": 5,
+        "judge": 3,
+        "counselor": 3,
+        "singer": 1
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "balanced",
+      "cadence": 1,
+      "level": 1,
+      "skills": [
+        "hello-world",
+        "heal"
+      ],
+      "outcome": "won",
+      "seconds": 127,
+      "heroHp": 320,
+      "heroMaxHp": 320,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 1,
+      "goldSpent": 4630,
+      "goldLeft": 162.6,
+      "economyLevel": 3,
+      "maxArmy": 8,
+      "spend": {
+        "upgrade-economy": 360,
+        "technician": 750,
+        "heal": 240,
+        "hello-world": 1295,
+        "athlete": 800,
+        "judge": 760,
+        "counselor": 250.00000000000003,
+        "singer": 175
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "technician": 5,
+        "heal": 3,
+        "hello-world": 37,
+        "athlete": 5,
+        "judge": 4,
+        "counselor": 2,
+        "singer": 1
+      }
+    },
+    {
+      "stage": "1-5",
+      "policy": "balanced",
+      "cadence": 1,
+      "level": 3,
+      "skills": [
+        "hello-world",
+        "heal"
+      ],
+      "outcome": "won",
+      "seconds": 87.7,
+      "heroHp": 416,
+      "heroMaxHp": 416,
+      "baseHp": 900,
+      "enemyBaseHp": 0,
+      "bossDefeated": 1,
+      "goldSpent": 3185,
+      "goldLeft": 192.8,
+      "economyLevel": 3,
+      "maxArmy": 8,
+      "spend": {
+        "upgrade-economy": 360,
+        "technician": 450,
+        "heal": 160,
+        "hello-world": 770,
+        "athlete": 640,
+        "judge": 380,
+        "counselor": 250,
+        "singer": 175
+      },
+      "accepted": {
+        "upgrade-economy": 2,
+        "technician": 3,
+        "heal": 2,
+        "hello-world": 22,
+        "athlete": 4,
+        "judge": 2,
+        "counselor": 2,
+        "singer": 1
+      }
+    }
+  ],
+  "freshCampaigns": [
+    {
+      "cadence": 0.5,
+      "rounds": [
+        {
+          "stage": "1-1",
+          "policy": "balanced",
+          "cadence": 0.5,
+          "level": "earned",
+          "skills": [
+            "hello-world"
+          ],
+          "outcome": "won",
+          "seconds": 47.2,
+          "heroHp": 320,
+          "heroMaxHp": 320,
+          "baseHp": 900,
+          "enemyBaseHp": 0,
+          "bossDefeated": 0,
+          "goldSpent": 1725,
+          "goldLeft": 274.2,
+          "economyLevel": 4,
+          "maxArmy": 8,
+          "spend": {
+            "upgrade-economy": 740,
+            "melee": 240,
+            "hello-world": 315,
+            "ranged": 330,
+            "support": 100
+          },
+          "accepted": {
+            "upgrade-economy": 3,
+            "melee": 4,
+            "hello-world": 9,
+            "ranged": 3,
+            "support": 1
+          },
+          "xpBefore": 0,
+          "earnedLevels": {
+            "hero": 1,
+            "melee": 1,
+            "ranged": 1,
+            "support": 1,
+            "technician": 1,
+            "judge": 1,
+            "counselor": 1,
+            "athlete": 1,
+            "firefighter": 1,
+            "singer": 1
+          }
+        },
+        {
+          "stage": "1-2",
+          "policy": "balanced",
+          "cadence": 0.5,
+          "level": "earned",
+          "skills": [
+            "hello-world"
+          ],
+          "outcome": "won",
+          "seconds": 54.5,
+          "heroHp": 368,
+          "heroMaxHp": 368,
+          "baseHp": 900,
+          "enemyBaseHp": 0,
+          "bossDefeated": 0,
+          "goldSpent": 1845,
+          "goldLeft": 227.6,
+          "economyLevel": 3,
+          "maxArmy": 10,
+          "spend": {
+            "upgrade-economy": 360,
+            "melee": 299.99999999999994,
+            "hello-world": 455,
+            "technician": 300,
+            "ranged": 330,
+            "support": 100
+          },
+          "accepted": {
+            "upgrade-economy": 2,
+            "melee": 5,
+            "hello-world": 13,
+            "technician": 2,
+            "ranged": 3,
+            "support": 1
+          },
+          "xpBefore": 0,
+          "earnedLevels": {
+            "hero": 2,
+            "melee": 2,
+            "ranged": 1,
+            "support": 1,
+            "technician": 1,
+            "judge": 1,
+            "counselor": 1,
+            "athlete": 1,
+            "firefighter": 1,
+            "singer": 1
+          }
+        },
+        {
+          "stage": "1-3",
+          "policy": "balanced",
+          "cadence": 0.5,
+          "level": "earned",
+          "skills": [
+            "hello-world",
+            "heal"
+          ],
+          "outcome": "won",
+          "seconds": 61.2,
+          "heroHp": 368,
+          "heroMaxHp": 368,
+          "baseHp": 900,
+          "enemyBaseHp": 0,
+          "bossDefeated": 0,
+          "goldSpent": 2580,
+          "goldLeft": 161.8,
+          "economyLevel": 4,
+          "maxArmy": 11,
+          "spend": {
+            "upgrade-economy": 740,
+            "melee": 360,
+            "hello-world": 560,
+            "technician": 300,
+            "ranged": 330,
+            "judge": 190,
+            "support": 100
+          },
+          "accepted": {
+            "upgrade-economy": 3,
+            "melee": 6,
+            "hello-world": 16,
+            "technician": 2,
+            "ranged": 3,
+            "judge": 1,
+            "support": 1
+          },
+          "xpBefore": 0,
+          "earnedLevels": {
+            "hero": 2,
+            "melee": 2,
+            "ranged": 1,
+            "support": 1,
+            "technician": 1,
+            "judge": 1,
+            "counselor": 1,
+            "athlete": 1,
+            "firefighter": 1,
+            "singer": 1
+          }
+        },
+        {
+          "stage": "1-4",
+          "policy": "balanced",
+          "cadence": 0.5,
+          "level": "earned",
+          "skills": [
+            "hello-world",
+            "heal"
+          ],
+          "outcome": "won",
+          "seconds": 69.4,
+          "heroHp": 368,
+          "heroMaxHp": 368,
+          "baseHp": 900,
+          "enemyBaseHp": 0,
+          "bossDefeated": 0,
+          "goldSpent": 2960,
+          "goldLeft": 129,
+          "economyLevel": 4,
+          "maxArmy": 11,
+          "spend": {
+            "upgrade-economy": 740,
+            "melee": 360,
+            "hello-world": 665,
+            "technician": 300,
+            "judge": 570,
+            "firefighter": 200,
+            "counselor": 125
+          },
+          "accepted": {
+            "upgrade-economy": 3,
+            "melee": 6,
+            "hello-world": 19,
+            "technician": 2,
+            "judge": 3,
+            "firefighter": 1,
+            "counselor": 1
+          },
+          "xpBefore": 80,
+          "earnedLevels": {
+            "hero": 2,
+            "melee": 2,
+            "ranged": 2,
+            "support": 1,
+            "technician": 2,
+            "judge": 1,
+            "counselor": 1,
+            "athlete": 1,
+            "firefighter": 1,
+            "singer": 1
+          }
+        },
+        {
+          "stage": "1-5",
+          "policy": "balanced",
+          "cadence": 0.5,
+          "level": "earned",
+          "skills": [
+            "hello-world",
+            "heal",
+            "foreach"
+          ],
+          "outcome": "won",
+          "seconds": 87.4,
+          "heroHp": 412,
+          "heroMaxHp": 416,
+          "baseHp": 900,
+          "enemyBaseHp": 0,
+          "bossDefeated": 1,
+          "goldSpent": 3215,
+          "goldLeft": 150.8,
+          "economyLevel": 3,
+          "maxArmy": 6,
+          "spend": {
+            "upgrade-economy": 360,
+            "technician": 450,
+            "heal": 160,
+            "hello-world": 875.0000000000001,
+            "foreach": 400,
+            "athlete": 480,
+            "judge": 190,
+            "counselor": 125,
+            "singer": 175
+          },
+          "accepted": {
+            "upgrade-economy": 2,
+            "technician": 3,
+            "heal": 2,
+            "hello-world": 25,
+            "foreach": 4,
+            "athlete": 3,
+            "judge": 1,
+            "counselor": 1,
+            "singer": 1
+          },
+          "xpBefore": 30,
+          "earnedLevels": {
+            "hero": 3,
+            "melee": 2,
+            "ranged": 2,
+            "support": 1,
+            "technician": 2,
+            "judge": 1,
+            "counselor": 1,
+            "athlete": 1,
+            "firefighter": 1,
+            "singer": 1
+          }
+        }
+      ],
+      "purchases": [
+        {
+          "after": "1-1",
+          "type": "level",
+          "key": "hero",
+          "xp": 60
+        },
+        {
+          "after": "1-1",
+          "type": "level",
+          "key": "melee",
+          "xp": 60
+        },
+        {
+          "after": "1-2",
+          "type": "skill",
+          "key": "heal",
+          "xp": 160
+        },
+        {
+          "after": "1-3",
+          "type": "level",
+          "key": "technician",
+          "xp": 60
+        },
+        {
+          "after": "1-3",
+          "type": "level",
+          "key": "ranged",
+          "xp": 60
+        },
+        {
+          "after": "1-4",
+          "type": "skill",
+          "key": "foreach",
+          "xp": 220
+        },
+        {
+          "after": "1-4",
+          "type": "level",
+          "key": "hero",
+          "xp": 90
+        }
+      ],
+      "totalSeconds": 319.7,
+      "finalXp": 390,
+      "clears": [
+        "1-1",
+        "1-2",
+        "1-3",
+        "1-4",
+        "1-5"
+      ]
+    },
+    {
+      "cadence": 1,
+      "rounds": [
+        {
+          "stage": "1-1",
+          "policy": "balanced",
+          "cadence": 1,
+          "level": "earned",
+          "skills": [
+            "hello-world"
+          ],
+          "outcome": "won",
+          "seconds": 49.2,
+          "heroHp": 320,
+          "heroMaxHp": 320,
+          "baseHp": 900,
+          "enemyBaseHp": 0,
+          "bossDefeated": 0,
+          "goldSpent": 1725,
+          "goldLeft": 387.4,
+          "economyLevel": 4,
+          "maxArmy": 8,
+          "spend": {
+            "upgrade-economy": 740,
+            "melee": 240,
+            "hello-world": 314.99999999999994,
+            "ranged": 330,
+            "support": 100
+          },
+          "accepted": {
+            "upgrade-economy": 3,
+            "melee": 4,
+            "hello-world": 9,
+            "ranged": 3,
+            "support": 1
+          },
+          "xpBefore": 0,
+          "earnedLevels": {
+            "hero": 1,
+            "melee": 1,
+            "ranged": 1,
+            "support": 1,
+            "technician": 1,
+            "judge": 1,
+            "counselor": 1,
+            "athlete": 1,
+            "firefighter": 1,
+            "singer": 1
+          }
+        },
+        {
+          "stage": "1-2",
+          "policy": "balanced",
+          "cadence": 1,
+          "level": "earned",
+          "skills": [
+            "hello-world"
+          ],
+          "outcome": "won",
+          "seconds": 51.7,
+          "heroHp": 368,
+          "heroMaxHp": 368,
+          "baseHp": 900,
+          "enemyBaseHp": 0,
+          "bossDefeated": 0,
+          "goldSpent": 1775,
+          "goldLeft": 198,
+          "economyLevel": 3,
+          "maxArmy": 10,
+          "spend": {
+            "upgrade-economy": 360,
+            "melee": 299.99999999999994,
+            "hello-world": 385,
+            "technician": 300,
+            "ranged": 330,
+            "support": 100
+          },
+          "accepted": {
+            "upgrade-economy": 2,
+            "melee": 5,
+            "hello-world": 11,
+            "technician": 2,
+            "ranged": 3,
+            "support": 1
+          },
+          "xpBefore": 0,
+          "earnedLevels": {
+            "hero": 2,
+            "melee": 2,
+            "ranged": 1,
+            "support": 1,
+            "technician": 1,
+            "judge": 1,
+            "counselor": 1,
+            "athlete": 1,
+            "firefighter": 1,
+            "singer": 1
+          }
+        },
+        {
+          "stage": "1-3",
+          "policy": "balanced",
+          "cadence": 1,
+          "level": "earned",
+          "skills": [
+            "hello-world",
+            "heal"
+          ],
+          "outcome": "won",
+          "seconds": 62.9,
+          "heroHp": 351,
+          "heroMaxHp": 368,
+          "baseHp": 900,
+          "enemyBaseHp": 0,
+          "bossDefeated": 0,
+          "goldSpent": 2700,
+          "goldLeft": 112.4,
+          "economyLevel": 4,
+          "maxArmy": 12,
+          "spend": {
+            "upgrade-economy": 740,
+            "melee": 360,
+            "hello-world": 490.0000000000001,
+            "technician": 300,
+            "ranged": 330,
+            "judge": 380,
+            "support": 100
+          },
+          "accepted": {
+            "upgrade-economy": 3,
+            "melee": 6,
+            "hello-world": 14,
+            "technician": 2,
+            "ranged": 3,
+            "judge": 2,
+            "support": 1
+          },
+          "xpBefore": 0,
+          "earnedLevels": {
+            "hero": 2,
+            "melee": 2,
+            "ranged": 1,
+            "support": 1,
+            "technician": 1,
+            "judge": 1,
+            "counselor": 1,
+            "athlete": 1,
+            "firefighter": 1,
+            "singer": 1
+          }
+        },
+        {
+          "stage": "1-4",
+          "policy": "balanced",
+          "cadence": 1,
+          "level": "earned",
+          "skills": [
+            "hello-world",
+            "heal"
+          ],
+          "outcome": "won",
+          "seconds": 69.5,
+          "heroHp": 368,
+          "heroMaxHp": 368,
+          "baseHp": 900,
+          "enemyBaseHp": 0,
+          "bossDefeated": 0,
+          "goldSpent": 3055,
+          "goldLeft": 44.2,
+          "economyLevel": 4,
+          "maxArmy": 12,
+          "spend": {
+            "upgrade-economy": 740,
+            "melee": 360,
+            "hello-world": 560,
+            "technician": 300,
+            "judge": 570,
+            "firefighter": 400,
+            "counselor": 125
+          },
+          "accepted": {
+            "upgrade-economy": 3,
+            "melee": 6,
+            "hello-world": 16,
+            "technician": 2,
+            "judge": 3,
+            "firefighter": 2,
+            "counselor": 1
+          },
+          "xpBefore": 80,
+          "earnedLevels": {
+            "hero": 2,
+            "melee": 2,
+            "ranged": 2,
+            "support": 1,
+            "technician": 2,
+            "judge": 1,
+            "counselor": 1,
+            "athlete": 1,
+            "firefighter": 1,
+            "singer": 1
+          }
+        },
+        {
+          "stage": "1-5",
+          "policy": "balanced",
+          "cadence": 1,
+          "level": "earned",
+          "skills": [
+            "hello-world",
+            "heal",
+            "foreach"
+          ],
+          "outcome": "won",
+          "seconds": 93.7,
+          "heroHp": 416,
+          "heroMaxHp": 416,
+          "baseHp": 900,
+          "enemyBaseHp": 0,
+          "bossDefeated": 1,
+          "goldSpent": 3430,
+          "goldLeft": 163.8,
+          "economyLevel": 3,
+          "maxArmy": 7,
+          "spend": {
+            "upgrade-economy": 360,
+            "technician": 450,
+            "heal": 320,
+            "hello-world": 770.0000000000002,
+            "foreach": 400,
+            "athlete": 640,
+            "judge": 190,
+            "counselor": 125,
+            "singer": 175
+          },
+          "accepted": {
+            "upgrade-economy": 2,
+            "technician": 3,
+            "heal": 4,
+            "hello-world": 22,
+            "foreach": 4,
+            "athlete": 4,
+            "judge": 1,
+            "counselor": 1,
+            "singer": 1
+          },
+          "xpBefore": 30,
+          "earnedLevels": {
+            "hero": 3,
+            "melee": 2,
+            "ranged": 2,
+            "support": 1,
+            "technician": 2,
+            "judge": 1,
+            "counselor": 1,
+            "athlete": 1,
+            "firefighter": 1,
+            "singer": 1
+          }
+        }
+      ],
+      "purchases": [
+        {
+          "after": "1-1",
+          "type": "level",
+          "key": "hero",
+          "xp": 60
+        },
+        {
+          "after": "1-1",
+          "type": "level",
+          "key": "melee",
+          "xp": 60
+        },
+        {
+          "after": "1-2",
+          "type": "skill",
+          "key": "heal",
+          "xp": 160
+        },
+        {
+          "after": "1-3",
+          "type": "level",
+          "key": "technician",
+          "xp": 60
+        },
+        {
+          "after": "1-3",
+          "type": "level",
+          "key": "ranged",
+          "xp": 60
+        },
+        {
+          "after": "1-4",
+          "type": "skill",
+          "key": "foreach",
+          "xp": 220
+        },
+        {
+          "after": "1-4",
+          "type": "level",
+          "key": "hero",
+          "xp": 90
+        }
+      ],
+      "totalSeconds": 327,
+      "finalXp": 390,
+      "clears": [
+        "1-1",
+        "1-2",
+        "1-3",
+        "1-4",
+        "1-5"
+      ]
+    }
+  ],
+  "roleEfficiency": [
+    {
+      "kind": "melee",
+      "hpPerGold": 2.67,
+      "nominalDpsPer100Gold": 30.3,
+      "observed": [
+        {
+          "targets": 1,
+          "firstHitSeconds": 18.6,
+          "dps30s": 18
+        },
+        {
+          "targets": 3,
+          "firstHitSeconds": 18.6,
+          "dps30s": 18
+        }
+      ]
+    },
+    {
+      "kind": "ranged",
+      "hpPerGold": 0.82,
+      "nominalDpsPer100Gold": 17.05,
+      "observed": [
+        {
+          "targets": 1,
+          "firstHitSeconds": 18.7,
+          "dps30s": 18
+        },
+        {
+          "targets": 3,
+          "firstHitSeconds": 18.7,
+          "dps30s": 18
+        }
+      ]
+    },
+    {
+      "kind": "support",
+      "hpPerGold": 1,
+      "nominalDpsPer100Gold": 0,
+      "observed": [
+        {
+          "targets": 1,
+          "firstHitSeconds": null,
+          "dps30s": 0
+        },
+        {
+          "targets": 3,
+          "firstHitSeconds": null,
+          "dps30s": 0
+        }
+      ]
+    },
+    {
+      "kind": "technician",
+      "hpPerGold": 3.47,
+      "nominalDpsPer100Gold": 12.73,
+      "observed": [
+        {
+          "targets": 1,
+          "firstHitSeconds": 24.7,
+          "dps30s": 18.2
+        },
+        {
+          "targets": 3,
+          "firstHitSeconds": 24.7,
+          "dps30s": 18.2
+        }
+      ]
+    },
+    {
+      "kind": "judge",
+      "hpPerGold": 0.5,
+      "nominalDpsPer100Gold": 19.74,
+      "observed": [
+        {
+          "targets": 1,
+          "firstHitSeconds": 19.3,
+          "dps30s": 36
+        },
+        {
+          "targets": 3,
+          "firstHitSeconds": 19.3,
+          "dps30s": 36
+        }
+      ]
+    },
+    {
+      "kind": "counselor",
+      "hpPerGold": 0.96,
+      "nominalDpsPer100Gold": 0,
+      "observed": [
+        {
+          "targets": 1,
+          "firstHitSeconds": null,
+          "dps30s": 0
+        },
+        {
+          "targets": 3,
+          "firstHitSeconds": null,
+          "dps30s": 0
+        }
+      ]
+    },
+    {
+      "kind": "athlete",
+      "hpPerGold": 1.63,
+      "nominalDpsPer100Gold": 28.57,
+      "observed": [
+        {
+          "targets": 1,
+          "firstHitSeconds": 13,
+          "dps30s": 45.87
+        },
+        {
+          "targets": 3,
+          "firstHitSeconds": 13,
+          "dps30s": 45.87
+        }
+      ]
+    },
+    {
+      "kind": "firefighter",
+      "hpPerGold": 1.1,
+      "nominalDpsPer100Gold": 13.64,
+      "observed": [
+        {
+          "targets": 1,
+          "firstHitSeconds": 17.8,
+          "dps30s": 27.5
+        },
+        {
+          "targets": 3,
+          "firstHitSeconds": 17.8,
+          "dps30s": 82.5
+        }
+      ]
+    },
+    {
+      "kind": "singer",
+      "hpPerGold": 0.63,
+      "nominalDpsPer100Gold": 0,
+      "observed": [
+        {
+          "targets": 1,
+          "firstHitSeconds": null,
+          "dps30s": 0
+        },
+        {
+          "targets": 3,
+          "firstHitSeconds": null,
+          "dps30s": 0
+        }
+      ]
+    }
+  ],
+  "bankedBurst": {
+    "durationGameSeconds": 10,
+    "method": "Identical public setup earns level-4 economy and 1300+ bank. Enemy HP/speed/damage isolate a durable stationary target; no engine-state writes.",
+    "baseline": {
+      "boosted": false,
+      "bankBefore": 1322,
+      "economyLevel": 4,
+      "counts": {
+        "melee": 4,
+        "ranged": 2,
+        "athlete": 2,
+        "judge": 2,
+        "hello-world": 4
+      },
+      "totalActions": 14,
+      "targetDamage": 300,
+      "goldLeft": 502
+    },
+    "boosted": {
+      "boosted": true,
+      "bankBefore": 1322,
+      "economyLevel": 4,
+      "counts": {
+        "melee": 7,
+        "ranged": 3,
+        "athlete": 2,
+        "judge": 2,
+        "hello-world": 7,
+        "overclock": 1
+      },
+      "totalActions": 22,
+      "targetDamage": 450,
+      "goldLeft": 47
+    }
+  },
+  "economyPaybackSeconds": [
+    {
+      "fromLevel": 1,
+      "cost": 130,
+      "extraIncome": 8,
+      "seconds": 16.3
+    },
+    {
+      "fromLevel": 2,
+      "cost": 230,
+      "extraIncome": 10,
+      "seconds": 23
+    },
+    {
+      "fromLevel": 3,
+      "cost": 380,
+      "extraIncome": 12,
+      "seconds": 31.7
+    }
+  ],
+  "provenance": {
+    "referenceCommit": "658d1888854a55ffe338d2e16efc97f0bbfb545f",
+    "productSourceSha256": "5dfb05912bf531466422509cf3434bdc78234dc8854d1b9336a4f377726f28af",
+    "simulationPolicySha256": "7410975c413972456a29aa57c258f2a2063119db82f9471333e4d9cfce75f6ae",
+    "productFiles": [
+      "src/game/BattleSession.ts",
+      "src/game/battle/balance.ts",
+      "src/game/progression/stages.ts",
+      "src/game/progression/ProfileService.ts"
+    ],
+    "policyVersion": "five-core-role-quota-v1",
+    "productWorkingTree": true
+  }
+}

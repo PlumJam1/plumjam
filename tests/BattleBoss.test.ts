@@ -36,7 +36,7 @@ describe('GPT-4o locked frontal area attack', () => {
     const blasted = session.snapshot();
     expect(blasted.bossTelegraphs).toHaveLength(0);
     expect(blasted.hero.hp).toBe(240);
-    expect(blasted.units.find(unit => unit.kind === 'melee')?.hp).toBe(100);
+    expect(blasted.units.find(unit => unit.kind === 'melee')?.hp).toBe(UNIT_DEFINITIONS.melee.hp - BOSS.damage);
     expect(blasted.units.find(unit => unit.kind === 'ranged')?.hp).toBe(90);
     expect(blasted.humanBase.hp).toBe(900);
     expect(blasted.effects).toEqual([expect.objectContaining({ kind: 'boss-blast', x: 450, radius: 80 })]);

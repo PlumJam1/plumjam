@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { backgroundArt, characterArt, type ArtKey } from './presentation/assets';
 import { drawPlaceholder } from '../scenes/drawPlaceholder';
-import { FIELD } from './battle/balance';
+import { FIELD, SONG } from './battle/balance';
 import type { BattleSnapshot, SkillKind, TimedBuffs, UnitState } from './battle/types';
 import { getBaseArt, skillPreview } from './presentation/battlePresentation';
 
@@ -120,13 +120,15 @@ export class PhaserBattleRenderer {
     }
     for (const channel of snapshot.waterChannels) {
       const y = 210;
-      g.fillStyle(0x8cdfff, .25).fillTriangle(channel.x + 12, y, channel.endX, y - 15, channel.endX, y + 12);
+      const direction = channel.endX >= channel.x ? 1 : -1;
+      const mouthX = channel.x + direction * 12;
+      g.fillStyle(0x8cdfff, .25).fillTriangle(mouthX, y, channel.endX, y - 15, channel.endX, y + 12);
       for (let index = 0; index < 3; index++) {
         const wave = Math.sin(snapshot.elapsed * 18 + index * 2) * 3;
         g.lineStyle(index === 1 ? 3 : 1, index === 1 ? 0xd8f7ff : 0x71c7f0, .8)
-          .lineBetween(channel.x + 12, y + wave, channel.endX, y + (index - 1) * 10 + wave);
+          .lineBetween(mouthX, y + wave, channel.endX, y + (index - 1) * 10 + wave);
       }
-      this.label(`water-${channel.id}`, '물분사', channel.x + 30, 182, 0xbbefff);
+      this.label(`water-${channel.id}`, '물분사', channel.x + direction * 30, 182, 0xbbefff);
     }
     for (const flight of snapshot.foreachFlights) {
       const progress = Math.max(0, Math.min(1, 1 - flight.remaining / flight.duration));
@@ -192,7 +194,13 @@ export class PhaserBattleRenderer {
     }
     this.health(FIELD.humanBaseX, 149, snapshot.humanBase.hp, snapshot.humanBase.maxHp, 50, 0xf0c28a);
     this.health(FIELD.aiBaseX, 112, snapshot.aiBase.hp, snapshot.aiBase.maxHp, 50, 0x75d7db);
-    for (const unit of [...snapshot.units].sort((a, b) => a.x - b.x)) this.unit(unit, snapshot.elapsed);
+    for (const unit of [...snapshot.units].sort((a, b) => a.x - b.x)) {
+      this.unit(unit, snapshot.elapsed);
+      if (unit.kind === 'firefighter') {
+        const channel = snapshot.waterChannels.find(channel => channel.sourceId === unit.id);
+        this.actors.get(unit.id)?.image.setFlipX(!!channel && channel.endX < channel.x);
+      }
+    }
     const hero = snapshot.hero;
     const x = Math.round(hero.x);
     g.fillStyle(0x000000, 0.3).fillEllipse(x, FIELD.groundY + 1, 23, 5);
@@ -270,7 +278,7 @@ export class PhaserBattleRenderer {
       this.label(`runner-${unit.id}`, '긴급 배포', x, y - 59, 0xffbf95);
     }
     this.buffs(x, y - 32, unit.buffs);
-    if (unit.weakenRemaining > 0) this.label(`weak-${unit.id}`, `공격 -25% ${unit.weakenRemaining.toFixed(1)}초`, x, y - (boss ? 95 : 64), 0xf9b4dc);
+    if (unit.weakenRemaining > 0) this.label(`weak-${unit.id}`, `공격 -${Math.round((1 - SONG.enemyDamageMultiplier) * 100)}% ${unit.weakenRemaining.toFixed(1)}초`, x, y - (boss ? 95 : 64), 0xf9b4dc);
     this.healing(unit.id, x, y - (boss ? 93 : 59), unit.healFlash);
     if (unit.team === 'ai' && unit.slowRemaining > 0) {
       this.label(`sleep-${unit.id}`, `감속 ${unit.slowRemaining.toFixed(1)}초`, x, y - 45, 0xc9b7fa);

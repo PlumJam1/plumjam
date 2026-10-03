@@ -42,9 +42,9 @@ describe('authoritative skill unlocks and git push', () => {
     const unlocked = new BattleSession({ runId: 2, stage: quietStage(), unlockedSkills: supplied, equippedSkills: pushSkills });
     supplied.pop();
     expect(unlocked.dispatch({ type: 'skill', skill: 'git-push' }).accepted).toBe(true);
-    expect(unlocked.snapshot()).toMatchObject({ gold: 320, skillCooldowns: { 'git-push': 12 } });
+    expect(unlocked.snapshot()).toMatchObject({ gold: 400 - SKILLS['git-push'].cost, skillCooldowns: { 'git-push': 12 } });
     expect(unlocked.dispatch({ type: 'skill', skill: 'git-push' }).accepted).toBe(false);
-    expect(unlocked.snapshot().gold).toBe(320);
+    expect(unlocked.snapshot().gold).toBe(400 - SKILLS['git-push'].cost);
   });
 
   it('pushes each in-range enemy by its own body width, preserves HP and timers, and leaves allies/outside enemies alone', () => {
@@ -125,9 +125,9 @@ describe('authoritative skill unlocks and git push', () => {
   });
 
   it('does not start a paid skill when funds are insufficient', () => {
-    const session = new BattleSession({ runId: 1, stage: quietStage({ initialGold: 70 }), unlockedSkills: allSkills, equippedSkills: pushSkills });
+    const session = new BattleSession({ runId: 1, stage: quietStage({ initialGold: Math.min(SKILLS['git-push'].cost, SKILLS.overclock.cost) - 1 }), unlockedSkills: allSkills, equippedSkills: pushSkills });
     for (const skill of ['git-push', 'overclock'] as const) expect(session.dispatch({ type: 'skill', skill }).accepted).toBe(false);
-    expect(session.snapshot()).toMatchObject({ gold: 70, overclockRemaining: 0, skillCooldowns: { 'git-push': 0, overclock: 0 }, effects: [] });
+    expect(session.snapshot()).toMatchObject({ gold: Math.min(SKILLS['git-push'].cost, SKILLS.overclock.cost) - 1, overclockRemaining: 0, skillCooldowns: { 'git-push': 0, overclock: 0 }, effects: [] });
   });
 });
 
@@ -176,7 +176,7 @@ describe('overclock base cooldown work', () => {
     const boosted = new BattleSession({ unlockedSkills: allSkills, equippedSkills: clockSkills, runId: 2, stage, unitDefinitions: defs });
     boosted.dispatch({ type: 'skill', skill: 'overclock' });
     for (const session of [normal, boosted]) session.step(10);
-    expect(boosted.snapshot().gold).toBeCloseTo(280);
+    expect(boosted.snapshot().gold).toBeCloseTo(200 - SKILLS.overclock.cost + 18 * 10);
     expect(normal.snapshot().gold - boosted.snapshot().gold).toBeCloseTo(SKILLS.overclock.cost);
     expect(boosted.snapshot().hero.hp).toBe(normal.snapshot().hero.hp);
     expect(boosted.snapshot().units[0].attackCooldown).toBeCloseTo(normal.snapshot().units[0].attackCooldown);
