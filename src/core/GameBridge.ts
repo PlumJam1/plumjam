@@ -37,7 +37,7 @@ export interface GameBridgeEvents {
   'battle-view': { runId: number; mode: BattleViewMode };
   'battle-snapshot': BattleSnapshot;
   'battle-feedback': { runId: number; result: CommandResult };
-  'battle-result': { runId: number; stageId: string; reward: number; prototypeComplete: boolean; firstClear?: boolean; newlyUnlockedAllies?: readonly AllyKind[] };
+  'battle-result': { developerRun?: boolean; runId: number; stageId: string; reward: number; prototypeComplete: boolean; firstClear?: boolean; newlyUnlockedAllies?: readonly AllyKind[] };
 }
 
 export type Unsubscribe = () => void;

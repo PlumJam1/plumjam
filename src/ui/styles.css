@@ -614,3 +614,11 @@ body { min-width: 800px; }
 .result-banner { overflow-y: auto; scroll-padding: 18px; }
 .result-banner .campaign-clear { color: var(--gold); font-weight: 900; }
 @media(max-height:650px) { .pause-banner,.result-banner { justify-content: flex-start; padding-top: 12px; } .result-headline { margin-top: 0; } }
+
+/* The developer indicator sits outside every game overlay, reserving its own small row. */
+.app-shell.has-developer-mode { width: min(1260px, calc(100vw - 24px), calc((100dvh - 60px) * 4 / 3)); min-width: min(752px, calc((100dvh - 60px) * 4 / 3)); }
+.app-shell.has-developer-mode.is-map { width: min(1260px, calc(100vw - 24px), calc((100dvh - 60px) * 640 / 420)); }
+.app-shell.has-developer-mode.is-training { width: min(1260px, calc(100vw - 24px), calc((100dvh - 60px) * 640 / 428)); }
+.app-shell.has-developer-mode.is-battle { width: min(1440px, calc(100vw - 24px), calc((100dvh - 60px) * 3 / 2)); }
+.developer-mode-badge { min-height: 22px; margin: 6px 0 0; padding: 2px 8px; text-align: center; color: var(--ink); background: var(--gold); border: 2px solid var(--ink); font-size: 12px; line-height: 16px; font-weight: 900; }
+.result-banner .developer-result { font-size: 16px; color: var(--gold); }

@@ -15,6 +15,7 @@ export class BattleScene extends Phaser.Scene {
   private session!: BattleSession;
   private battleRenderer!: PhaserBattleRenderer;
   private receipt = '';
+  private developerRun: () => boolean = () => false;
   private resultPublished = false;
 
   constructor(private readonly context: AppContext) { super('Battle'); }
@@ -23,6 +24,7 @@ export class BattleScene extends Phaser.Scene {
     this.scope = this.context.lifetimes.begin(this);
     this.stageId = data?.stageId ?? '1-1';
     this.receipt = this.context.newBattleReceipt();
+    this.developerRun = this.context.trackDeveloperRun(this.scope);
     this.resultPublished = false;
   }
 
@@ -163,11 +165,11 @@ export class BattleScene extends Phaser.Scene {
       this.resultPublished = true;
       this.context.sound.play(snapshot.status === 'won' ? 'win' : 'lose', this.scope.id);
       const before = this.context.profile.snapshot();
-      const reward = snapshot.status === 'won' ? this.context.profile.rewardWin(this.receipt, this.stageId) : 0;
+      const reward = snapshot.status === 'won' ? this.context.profile.rewardWin(this.receipt, this.stageId, { developerRun: this.developerRun() }) : 0;
       const after = this.context.profile.snapshot();
       const firstClear = snapshot.status === 'won' && !before.clearedStages.includes(this.stageId) && after.clearedStages.includes(this.stageId);
       const newlyUnlockedAllies = after.unlockedAllies.filter(kind => !before.unlockedAllies.includes(kind));
-      this.context.bridge.emit('battle-result', { firstClear, newlyUnlockedAllies, runId: this.scope.id, stageId: this.stageId, reward, prototypeComplete: snapshot.status === 'won' && !nextStage(this.stageId) });
+      this.context.bridge.emit('battle-result', { firstClear, newlyUnlockedAllies, developerRun: this.developerRun(), runId: this.scope.id, stageId: this.stageId, reward, prototypeComplete: snapshot.status === 'won' && !nextStage(this.stageId) });
     }
     this.battleRenderer.render(snapshot);
     this.context.bridge.emit('battle-snapshot', snapshot);

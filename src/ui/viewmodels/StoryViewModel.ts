@@ -64,7 +64,12 @@ export function createStoryViewModel(context: AppContext) {
     currentStory.value = null; pageIndex.value = 0; origin.value = null; feedback.value = '';
     if (!replay) { owner = null; tryAutomatic(); }
   };
-  const unsubscribeProfile = context.profile.subscribe(value => { if (!disposed) profile.value = value; });
+  const unsubscribeProfile = context.profile.subscribe(value => {
+    if (disposed) return;
+    profile.value = value;
+    if (currentStory.value && !isStoryUnlocked(currentStory.value, value.clearedStages)) { cancelOverlay(); lastWon = null; }
+    if (lastWon && !value.clearedStages.includes(lastWon.stageId)) lastWon = null;
+  });
   const unsubscribeScene = context.bridge.subscribe('scene-state', state => {
     if (disposed) return;
     if (owner && (owner.runId !== state.runId || owner.scene !== state.scene || owner.scene === 'Battle' && owner.stageId !== state.stageId)) cancelOverlay();

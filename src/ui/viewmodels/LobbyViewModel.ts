@@ -29,9 +29,16 @@ export function createLobbyViewModel(context: AppContext, scope: SceneScope, ini
   const rememberedStages = new Map<number, string>();
   const rememberStage = (id: string) => { const chapter = getChapter(id); if (chapter) rememberedStages.set(chapter.id, id); };
   rememberStage(selectedStageId.value);
-  scope.defer(context.profile.subscribe(value => { if (!scope.disposed) profile.value = value; }));
+  scope.defer(context.profile.subscribe(value => {
+    if (scope.disposed) return;
+    const previousMode = profile.value.developerMode;
+    profile.value = value;
+    if (previousMode !== value.developerMode) upgradeFeedback.value = value.developerMode
+      ? '개발자 모드야. 변경은 이번 테스트에만 적용돼.'
+      : '개발자 모드를 종료했어. 원래 육성으로 돌아왔어.';
+  }));
   const model = effects.run(() => ({
-    profile: readonly(profile), lobbyTab: readonly(tab), upgradeFeedback: readonly(upgradeFeedback),
+    profile: readonly(profile), xpLabel: computed(() => profile.value.developerMode ? '∞' : String(profile.value.xp)), lobbyTab: readonly(tab), upgradeFeedback: readonly(upgradeFeedback),
     selectedStageId: readonly(selectedStageId), selectedSlot: readonly(selectedSlot), selectedSkillSlot: readonly(selectedSkillSlot),
     selectedAllyKind: readonly(selectedAllyKind), selectedCharacterKind: readonly(selectedCharacterKind),
     selectAlly: (kind: AllyKind) => { if (currentLobby() && ALLY_KINDS.includes(kind)) selectedAllyKind.value = kind; },

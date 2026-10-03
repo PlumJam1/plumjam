@@ -23,6 +23,7 @@ export interface ProfileData {
   muted: boolean;
 }
 export interface ProfileSnapshot {
+  readonly developerMode: boolean;
   readonly version: 1;
   readonly xp: number;
   readonly levels: Readonly<Record<CharacterKind, number>>;
@@ -88,7 +89,11 @@ function parse(value: unknown): ProfileData | null {
 }
 /** Pure model; no Phaser/Vue objects. Win receipts live only within this browser app session. */
 export class ProfileService {
-  private data = fresh();
+  private normalData = fresh();
+  private shadowData: ProfileData | null = null;
+  private disposed = false;
+  private get data(): ProfileData { return this.shadowData ?? this.normalData; }
+  private get developerMode(): boolean { return this.shadowData !== null; }
   private storageMessage = '';
   private readonly listeners = new Set<(snapshot: ProfileSnapshot) => void>();
   private readonly receipts = new Set<string>();
@@ -98,17 +103,25 @@ export class ProfileService {
       const raw = storage.getItem(SAVE_KEY);
       if (raw !== null) {
         const loaded = parse(JSON.parse(raw));
-        if (loaded) this.data = loaded;
+        if (loaded) this.normalData = loaded;
         else this.storageMessage = '저장 데이터 형식이 맞지 않아 새 육성으로 시작했어.';
       }
     } catch { this.storageMessage = '저장 데이터를 읽지 못했어. 이번 창에서는 계속 플레이할 수 있어.'; }
   }
-  snapshot(): ProfileSnapshot { return Object.freeze({ ...this.data, levels: Object.freeze({ ...this.data.levels }), clearedStages: Object.freeze([...this.data.clearedStages]), unlockedStages: Object.freeze([...this.data.unlockedStages]), unlockedSkills: Object.freeze([...this.data.unlockedSkills]), equippedSkills: Object.freeze([...this.data.equippedSkills]), unlockedAllies: Object.freeze([...this.data.unlockedAllies]), equippedAllies: Object.freeze([...this.data.equippedAllies]), seenStoryIds: Object.freeze([...(this.data.seenStoryIds ?? [])]), storageMessage: this.storageMessage }); }
+  snapshot(): ProfileSnapshot { return Object.freeze({ ...this.data, developerMode: this.developerMode, xp: this.developerMode ? Infinity : this.data.xp, levels: Object.freeze({ ...this.data.levels }), clearedStages: Object.freeze([...this.data.clearedStages]), unlockedStages: Object.freeze(this.developerMode ? STAGES.map(stage => stage.id) : [...this.data.unlockedStages]), unlockedSkills: Object.freeze([...this.data.unlockedSkills]), equippedSkills: Object.freeze([...this.data.equippedSkills]), unlockedAllies: Object.freeze([...this.data.unlockedAllies]), equippedAllies: Object.freeze([...this.data.equippedAllies]), seenStoryIds: Object.freeze([...(this.data.seenStoryIds ?? [])]), storageMessage: this.storageMessage }); }
   subscribe(listener: (snapshot: ProfileSnapshot) => void): () => void {
     this.listeners.add(listener); listener(this.snapshot());
     return () => { this.listeners.delete(listener); };
   }
-  canStart(id: string): boolean { return !!getStage(id) && this.data.unlockedStages.includes(id); }
+  canStart(id: string): boolean { return !this.disposed && !!getStage(id) && (this.developerMode || this.data.unlockedStages.includes(id)); }
+  setDeveloperMode(enabled: boolean): CommandResult {
+    if (this.disposed || typeof enabled !== 'boolean') return { accepted: false, reason: '개발자 모드를 바꿀 수 없어.' };
+    if (enabled === this.developerMode) return { accepted: true };
+    // Never put infinite currency or test progress into the normal v1 save.
+    this.shadowData = enabled ? structuredClone(this.normalData) : null;
+    this.notify(); return { accepted: true };
+  }
+  toggleDeveloperMode(): CommandResult { return this.setDeveloperMode(!this.developerMode); }
   markStorySeen(id: StoryId): CommandResult {
     const story = getStory(id);
     if (!story) return { accepted: false, reason: '존재하지 않는 이야기야.' };
@@ -118,12 +131,15 @@ export class ProfileService {
     this.data.seenStoryIds = [...seen, id];
     this.persist(); return { accepted: true, reason: '읽음으로 기록했어.' };
   }
-  rewardWin(receipt: string, stageId: string): number {
+  rewardWin(receipt: string, stageId: string, options: { developerRun?: boolean } = {}): number {
     const stage = getStage(stageId);
-    if (!stage || !this.canStart(stageId) || this.receipts.has(receipt)) return 0;
+    if (!stage || this.disposed || this.receipts.has(receipt)) return 0;
+    // A run that ever used development settings cannot earn normal progress after toggling OFF.
+    if (options.developerRun && !this.developerMode) { this.receipts.add(receipt); return 0; }
+    if (!this.canStart(stageId)) return 0;
     this.receipts.add(receipt);
     const reward = stage.clearReward ?? 0;
-    this.data.xp += reward;
+    if (!this.developerMode) this.data.xp += reward;
     if (!this.data.clearedStages.includes(stageId)) this.data.clearedStages.push(stageId);
     this.data.unlockedStages = STAGES.filter((_, index) => index === 0 || this.data.clearedStages.includes(STAGES[index - 1].id)).map(item => item.id);
     this.data.unlockedAllies = unlockedFor(this.data.clearedStages);
@@ -134,16 +150,17 @@ export class ProfileService {
     if (kind !== 'hero' && !this.data.unlockedAllies.includes(kind)) return { accepted: false, reason: '아직 해금하지 않은 캐릭터야.' };
     const cost = upgradeCost(this.data.levels[kind]);
     if (cost === null) return { accepted: false, reason: '최대 레벨에 도달했어.' };
-    if (this.data.xp < cost) return { accepted: false, reason: '육성 재화가 부족해.' };
-    this.data.xp -= cost; this.data.levels[kind]++;
+    if (!this.developerMode && this.data.xp < cost) return { accepted: false, reason: '육성 재화가 부족해.' };
+    if (!this.developerMode) this.data.xp -= cost;
+    this.data.levels[kind]++;
     this.persist(); return { accepted: true, reason: '강화했어! 다음 출근부터 적용돼.' };
   }
   purchaseSkill(kind: SkillKind): CommandResult {
     if (!Object.hasOwn(SKILL_UNLOCK_COSTS, kind)) return { accepted: false, reason: '상점에서 해금할 수 없는 스킬이야.' };
     if (this.data.unlockedSkills.includes(kind)) return { accepted: false, reason: '이미 해금한 스킬이야.' };
     const cost = SKILL_UNLOCK_COSTS[kind as keyof typeof SKILL_UNLOCK_COSTS];
-    if (this.data.xp < cost) return { accepted: false, reason: '육성 재화가 부족해.' };
-    this.data.xp -= cost;
+    if (!this.developerMode && this.data.xp < cost) return { accepted: false, reason: '육성 재화가 부족해.' };
+    if (!this.developerMode) this.data.xp -= cost;
     this.data.unlockedSkills = [...this.data.unlockedSkills, kind];
     this.persist(); return { accepted: true, reason: `${SKILLS[kind].label} 구매 완료! 장착한 뒤 출근해줘.` };
   }
@@ -164,12 +181,15 @@ export class ProfileService {
     return this.setFormation(next);
   }
   setMuted(muted: boolean): void { this.data.muted = muted; this.persist(); }
-  dispose(): void { this.listeners.clear(); this.receipts.clear(); }
+  dispose(): void { this.disposed = true; this.shadowData = null; this.listeners.clear(); this.receipts.clear(); }
   private persist(): void {
-    if (this.storage) {
+    if (!this.developerMode && this.storage) {
       try { this.storage.setItem(SAVE_KEY, JSON.stringify(this.data)); this.storageMessage = ''; }
       catch { this.storageMessage = '저장을 쓸 수 없어. 현재 육성은 이 창에서만 유지돼.'; }
     }
+    this.notify();
+  }
+  private notify(): void {
     for (const listener of [...this.listeners]) if (this.listeners.has(listener)) listener(this.snapshot());
   }
 }

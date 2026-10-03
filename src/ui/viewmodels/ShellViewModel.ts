@@ -45,6 +45,8 @@ function createScreenViewModel(context: AppContext, scope: SceneScope, initial: 
 
 export function createShellViewModel(context: AppContext) {
   let seenBattleIntro = false;
+  const developerMode = shallowRef(context.profile.snapshot().developerMode);
+  const offDeveloperMode = context.profile.subscribe(profile => { developerMode.value = profile.developerMode; });
   const story = createStoryViewModel(context);
   const guide = createGuideViewModel(context, () => story.hasOverlay.value);
   const blocked = () => story.hasOverlay.value || guide.isOpen.value;
@@ -64,5 +66,5 @@ export function createShellViewModel(context: AppContext) {
   };
   const unsubscribe = context.bridge.subscribe('scene-state', receive);
   if (context.bridge.sceneState) receive(context.bridge.sceneState);
-  return { story, guide, assetNotice: readonly(assetNotice), screen: shallowReadonly(screen), titleVisible: readonly(titleVisible), enterLobby: () => { if (!blocked() && context.bridge.sceneState?.scene === 'Lobby' && context.bridge.sceneState.phase === 'ready') titleVisible.value = false; }, showTitle: () => { if (!blocked()) titleVisible.value = true; }, dispose: () => { guide.dispose(); story.dispose(); unsubscribe(); unsubscribeAssets(); } };
+  return { story, guide, developerMode: readonly(developerMode), assetNotice: readonly(assetNotice), screen: shallowReadonly(screen), titleVisible: readonly(titleVisible), enterLobby: () => { if (!blocked() && context.bridge.sceneState?.scene === 'Lobby' && context.bridge.sceneState.phase === 'ready') titleVisible.value = false; }, showTitle: () => { if (!blocked()) titleVisible.value = true; }, dispose: () => { offDeveloperMode(); guide.dispose(); story.dispose(); unsubscribe(); unsubscribeAssets(); } };
 }

@@ -1,6 +1,6 @@
 import { SoundService } from '../game/presentation/SoundService';
 import { GameBridge } from './GameBridge';
-import { SceneLifetimeManager } from './SceneLifetimeManager';
+import { type SceneScope, SceneLifetimeManager } from './SceneLifetimeManager';
 import { browserStorage, ProfileService, type SaveStorage } from '../game/progression/ProfileService';
 import { getStage } from '../game/progression/stages';
 
@@ -19,6 +19,12 @@ export class AppContext {
   }
 
   stageForBattle(id: string) { return this.profile.canStart(id) ? getStage(id) : undefined; }
+  /** Captured per run, even during loading; OFF never untaints an existing battle. */
+  trackDeveloperRun(scope: SceneScope): () => boolean {
+    let tainted = this.profile.snapshot().developerMode;
+    scope.defer(this.profile.subscribe(profile => { if (!scope.disposed && profile.developerMode) tainted = true; }));
+    return () => tainted;
+  }
   newBattleReceipt(): string { return `battle-${++this.receipt}`; }
 
   dispose(): void {

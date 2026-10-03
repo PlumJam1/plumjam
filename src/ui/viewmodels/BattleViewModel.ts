@@ -51,6 +51,7 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
   const reward = shallowRef(0);
   const newAllies = shallowRef<readonly AllyKind[]>([]);
   const prototypeComplete = shallowRef(false);
+  const developerRun = shallowRef(false);
   const previewSkill = shallowRef<SkillKind | null>(null);
   const bossNotice = shallowRef('');
   type Detail = { type: 'unit'; slot: number } | { type: 'skill'; kind: SkillKind } | { type: 'economy' };
@@ -82,7 +83,7 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
   const clearPreview = () => { previewSources.clear(); publishPreview(); };
   scope.defer(() => { previewSources.clear(); previewSkill.value = null; context.bridge.emit('battle-preview', { runId: scope.id, skill: null }); });
   scope.defer(context.bridge.subscribe('battle-result', value => {
-    if (!scope.disposed && value.runId === scope.id) { reward.value = value.reward; prototypeComplete.value = value.prototypeComplete; newAllies.value = value.newlyUnlockedAllies ?? []; }
+    if (!scope.disposed && value.runId === scope.id) { developerRun.value ||= value.developerRun === true; reward.value = developerRun.value ? 0 : value.reward; prototypeComplete.value = !developerRun.value && value.prototypeComplete; newAllies.value = developerRun.value ? [] : value.newlyUnlockedAllies ?? []; }
   }));
   let feedbackTimer: ReturnType<typeof setTimeout> | undefined;
   scope.defer(() => { if (feedbackTimer) clearTimeout(feedbackTimer); });
@@ -205,14 +206,14 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
       const seconds = Math.floor(battle.value?.elapsed ?? 0);
       return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
     });
-    const campaignComplete = computed(() => prototypeComplete.value && battle.value?.status === 'won' && !!getStage(battle.value.stageId) && !nextStage(battle.value.stageId));
-    const resultTitle = computed(() => campaignComplete.value ? '마지막 출근까지 지켰다!' : battle.value?.status === 'won' ? '오늘의 출근을 지켰다!' : '전선을 지키지 못했다.');
-    const resultDescription = computed(() => campaignComplete.value ? `GPT-4o를 이겼어. ${CHAPTERS.length}개 챕터 · ${STAGES.length}개 스테이지를 모두 클리어했어!` : battle.value?.status === 'won' ? 'AI 데이터센터를 파괴했어. 재화로 강화하거나 다음 출근에 도전해봐.' : battle.value?.defeatReason === 'hero' ? `${HERO_NAME}가 쓰러졌어. 병력 뒤에서 전선을 도와줘.` : '아군 기지가 파괴됐어. 병력과 경제 투자 타이밍을 바꿔봐.');
-    const hasNextStage = computed(() => battle.value?.status === 'won' && !!nextStage(battle.value.stageId));
+    const campaignComplete = computed(() => !developerRun.value && prototypeComplete.value && battle.value?.status === 'won' && !!getStage(battle.value.stageId) && !nextStage(battle.value.stageId));
+    const resultTitle = computed(() => developerRun.value ? '개발자 모드 테스트 전투' : campaignComplete.value ? '마지막 출근까지 지켰다!' : battle.value?.status === 'won' ? '오늘의 출근을 지켰다!' : '전선을 지키지 못했다.');
+    const resultDescription = computed(() => developerRun.value ? '테스트 전투 결과야. 정상 육성의 XP·클리어에는 반영되지 않아.' : campaignComplete.value ? `GPT-4o를 이겼어. ${CHAPTERS.length}개 챕터 · ${STAGES.length}개 스테이지를 모두 클리어했어!` : battle.value?.status === 'won' ? 'AI 데이터센터를 파괴했어. 재화로 강화하거나 다음 출근에 도전해봐.' : battle.value?.defeatReason === 'hero' ? `${HERO_NAME}가 쓰러졌어. 병력 뒤에서 전선을 도와줘.` : '아군 기지가 파괴됐어. 병력과 경제 투자 타이밍을 바꿔봐.');
+    const hasNextStage = computed(() => !developerRun.value && battle.value?.status === 'won' && !!nextStage(battle.value.stageId));
     return {
       battle: readonly(battle), feedback: readonly(feedback), intro: readonly(intro), introGuide, units, visibleUnits, unitPage: readonly(unitPage), pageDisabled, viewMode: readonly(viewMode), viewModeLabel, viewDisabled, skills, allSkills, primarySkill, skillSlots, speed, effectiveSpeed, bossAssistEnabled, bossAssistActive, bossAssistLabel, speedSummary, speedDisabled, ended, danger,
       boss, bossNotice: readonly(bossNotice), waveNotice, heroBuffs, preview, previewDescription, previewTargets,
-      economyDisabled, economyDescription, economyReason, economyState, controlDetail, time, resultTitle, resultDescription,
+      economyDisabled, economyDescription, economyReason, economyState, controlDetail, time, resultTitle, resultDescription, developerRun: readonly(developerRun),
       newAllies: computed(() => newAllies.value.map(kind => ({ kind, label: UNIT_DEFINITIONS[kind].label, image: assetUrl(characterArt(kind, profileLevels.value[kind])), role: ALLY_ROLES[kind].role, description: ALLY_ROLES[kind].description, cost: UNIT_DEFINITIONS[kind].cost! }))), reward: readonly(reward), prototypeComplete: campaignComplete, hasNextStage,
       setViewMode: publishView,
       toggleViewMode: () => publishView(viewMode.value === 'close' ? 'overview' : 'close'),
