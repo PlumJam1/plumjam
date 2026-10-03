@@ -48,7 +48,7 @@ export const SKILLS = {
   'hello-world': { label: 'Hello World', cost: 35, cooldown: 2.5, damage: 75, speed: 240, range: 350, description: '오른쪽 첫 적에게 발사 · 레벨에 따라 피해 증가' },
   sleep: { label: 'sleep()', cost: 65, cooldown: 10, radius: 120, duration: 5, speedMultiplier: 0.4, description: '주변 적 이동속도 -60% · 5초' },
   heal: { label: '보너스', cost: 90, cooldown: 12, radius: 110, amount: 70, description: '나와 주변 아군 회복 · 레벨에 따라 회복 증가' },
-  'git-push': { label: 'git push', cost: 80, cooldown: 12, radius: 120, description: '주변 적 밀치기 · 일반 적 폭 ×3 · 보스 폭 ×1' },
+  'git-push': { label: 'git push', cost: 80, cooldown: 12, radius: 120, pushDuration: 0.45, description: '주변 적을 서서히 밀치기 · 일반 적 폭 ×3 · 보스 폭 ×1' },
   overclock: { label: 'overclock()', cost: 100, cooldown: 30, duration: 10, description: '10초간 소환·다른 스킬 준비 속도 ×2 · 수입 유지' },
 } as const;
 export const DEFAULT_UNLOCKED_SKILLS: readonly SkillKind[] = ['hello-world', 'sleep', 'heal', 'overclock'];

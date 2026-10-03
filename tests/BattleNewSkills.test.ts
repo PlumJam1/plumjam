@@ -41,11 +41,30 @@ describe('authoritative skill unlocks and git push', () => {
     const after = session.snapshot();
     for (const unit of before.units) {
       const moved = after.units.find(candidate => candidate.id === unit.id)!;
-      const inRange = unit.team === 'ai' && Math.abs(unit.x - before.hero.x) <= SKILLS['git-push'].radius;
-      expect(moved.x - unit.x).toBeCloseTo(inRange ? unit.bodyWidth * (unit.kind === 'gpt-4o' ? 1 : 3) : 0);
-      expect({ ...moved, x: unit.x }).toEqual(unit);
+      expect(moved).toEqual(unit);
     }
     expect(after.effects).toContainEqual(expect.objectContaining({ kind: 'git-push', x: before.hero.x, radius: 120 }));
+    for (const definition of Object.values(defs)) { definition.speed = 0; definition.damage = 0; }
+    session.step(SKILLS['git-push'].pushDuration / 2);
+    for (const unit of before.units) {
+      const inRange = unit.team === 'ai' && Math.abs(unit.x - before.hero.x) <= SKILLS['git-push'].radius;
+      const distance = inRange ? unit.bodyWidth * (unit.kind === 'gpt-4o' ? 1 : 3) : 0;
+      expect(session.snapshot().units.find(candidate => candidate.id === unit.id)!.x).toBeCloseTo(unit.x + distance / 2);
+    }
+    session.setPaused(true);
+    const paused = session.snapshot(); session.step(2); expect(session.snapshot()).toEqual(paused);
+    session.setPaused(false);
+    session.step(SKILLS['git-push'].pushDuration / 2);
+    for (const unit of before.units) {
+      const inRange = unit.team === 'ai' && Math.abs(unit.x - before.hero.x) <= SKILLS['git-push'].radius;
+      const distance = inRange ? unit.bodyWidth * (unit.kind === 'gpt-4o' ? 1 : 3) : 0;
+      expect(session.snapshot().units.find(candidate => candidate.id === unit.id)!.x).toBeCloseTo(unit.x + distance);
+    }
+    session.step(0.2);
+    for (const unit of before.units.filter(unit => unit.team === 'ai')) {
+      const inRange = Math.abs(unit.x - before.hero.x) <= SKILLS['git-push'].radius;
+      expect(session.snapshot().units.find(candidate => candidate.id === unit.id)!.x).toBeCloseTo(unit.x + (inRange ? unit.bodyWidth * (unit.kind === 'gpt-4o' ? 1 : 3) : 0));
+    }
   });
 
   it('clamps an enemy right edge to the AI base boundary, never pulls an already farther target left, and keeps a boss warning locked', () => {
@@ -57,12 +76,31 @@ describe('authoritative skill unlocks and git push', () => {
     session.dispatch({ type: 'move', direction: 1 }); session.step(340 / 86); session.dispatch({ type: 'move', direction: 0 });
     session.step(6 - session.snapshot().elapsed);
     const warning = session.snapshot().bossTelegraphs[0];
+    const startX = session.snapshot().units[0].x;
     session.dispatch({ type: 'skill', skill: 'git-push' });
-    expect(session.snapshot().units[0].x).toBe(553);
+    expect(session.snapshot().units[0].x).toBe(startX);
     expect(session.snapshot().bossTelegraphs[0]).toEqual(warning);
+    session.step(SKILLS['git-push'].pushDuration / 2);
+    expect(session.snapshot().units[0].x).toBeCloseTo((startX + 553) / 2);
+    session.step(SKILLS['git-push'].pushDuration / 2);
+    expect(session.snapshot().units[0].x).toBe(553);
     for (const unit of session.snapshot().units) expect(unit.x + unit.bodyWidth / 2).toBeLessThanOrEqual(session.snapshot().aiBase.x);
-    session.step(1.41);
+    session.step(1.41 - SKILLS['git-push'].pushDuration);
     expect(session.snapshot().effects).toContainEqual(expect.objectContaining({ kind: 'boss-blast', x: warning.x }));
+  });
+
+  it('resumes normal walking after the push without slowing attacks or accumulating displacement', () => {
+    const defs = definitions();
+    defs['robot-melee'] = { ...defs['robot-melee'], speed: 0, damage: 0, range: 0 };
+    const session = new BattleSession({ runId: 1, unlockedSkills: allSkills, unitDefinitions: defs, stage: quietStage({ spawns: [{ at: 0, kind: 'robot-melee' }] }) });
+    session.dispatch({ type: 'move', direction: 1 }); session.step(340 / 86); session.dispatch({ type: 'move', direction: 0 });
+    const before = session.snapshot().units[0];
+    defs['robot-melee'].speed = 80;
+    session.dispatch({ type: 'skill', skill: 'git-push' });
+    session.step(SKILLS['git-push'].pushDuration);
+    expect(session.snapshot().units[0].x).toBe(getPushDestination(before));
+    session.step(0.1);
+    expect(session.snapshot().units[0].x).toBeCloseTo(getPushDestination(before) - 8);
   });
 
   it('does not start a paid skill when funds are insufficient', () => {

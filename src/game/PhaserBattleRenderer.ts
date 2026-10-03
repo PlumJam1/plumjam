@@ -17,7 +17,8 @@ export class PhaserBattleRenderer {
   private readonly living = new Set<number>();
   constructor(private readonly scene: Phaser.Scene, theme?: 'early' | 'mid' | 'boss', stageId?: string) {
     scene.cameras.main.setBackgroundColor('#233342');
-    const useEnemyBaseImage = ['1-1', '1-2', '1-3', '1-4'].includes(stageId ?? '') && scene.textures.exists('enemy-base');
+    const enemyBaseKey = stageId === '1-5' ? 'enemy-base-3' : 'enemy-base';
+    const useEnemyBaseImage = ['1-1', '1-2', '1-3', '1-4', '1-5'].includes(stageId ?? '') && scene.textures.exists(enemyBaseKey);
     const key = backgroundArt(theme);
     if (scene.textures.exists(key)) {
       const bg = scene.add.image(320, 140, key).setDepth(-10);
@@ -40,7 +41,7 @@ export class PhaserBattleRenderer {
       }
     } else drawPlaceholder(scene, true, !useEnemyBaseImage);
     if (useEnemyBaseImage) {
-      const base = scene.add.image(FIELD.aiBaseX, FIELD.groundY, 'enemy-base').setOrigin(.5, 1).setDepth(1);
+      const base = scene.add.image(FIELD.aiBaseX, FIELD.groundY, enemyBaseKey).setOrigin(.5, 1).setDepth(1);
       base.setScale(Math.min(112 / base.width, 112 / base.height));
       this.scenery.push(base);
     }

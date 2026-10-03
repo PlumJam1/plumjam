@@ -72,6 +72,7 @@ export class BattleSession {
   private readonly humanBase: BaseState;
   private readonly aiBase: BaseState;
   private units: UnitState[] = [];
+  private pushes = new Map<number, { destination: number; speed: number }>();
   private projectiles: ProjectileState[] = [];
   private effects: EffectState[] = [];
   private bossTelegraphs: BossTelegraphState[] = [];
@@ -160,7 +161,7 @@ export class BattleSession {
     };
   }
 
-  dispose(): void { this.disposed = true; this.direction = 0; this.units = []; this.projectiles = []; this.effects = []; this.bossTelegraphs = []; this.overclockRemaining = 0; }
+  dispose(): void { this.disposed = true; this.direction = 0; this.units = []; this.pushes.clear(); this.projectiles = []; this.effects = []; this.bossTelegraphs = []; this.overclockRemaining = 0; }
 
   private tick(dt: number): void {
     this.elapsed += dt;
@@ -179,6 +180,19 @@ export class BattleSession {
     this.spawnScheduled();
     const hits: Array<{ target: Target; damage: number }> = [];
     const living = this.units.filter((unit) => unit.hp > 0);
+    const pushedThisTick = new Set<number>();
+    for (const unit of living) {
+      const push = this.pushes.get(unit.id);
+      if (!push) continue;
+      pushedThisTick.add(unit.id);
+      // Constant-speed displacement, then drop the push force at the destination.
+      // Normal walking must not counteract it; attack and warning timers still run.
+      unit.x = Math.min(push.destination, unit.x + push.speed * dt);
+      if (push.destination - unit.x < 1e-8) {
+        unit.x = push.destination;
+        this.pushes.delete(unit.id);
+      }
+    }
     const detonations: BossTelegraphState[] = [];
     this.bossTelegraphs = this.bossTelegraphs.filter((telegraph) => {
       if (!living.some((unit) => unit.id === telegraph.ownerId)) return false;
@@ -237,7 +251,7 @@ export class BattleSession {
               damage, remainingRange: definition.range + 20 });
           } else hits.push({ target, damage });
         }
-      } else {
+      } else if (!pushedThisTick.has(unit.id)) {
         const direction = target.x >= unit.x ? 1 : -1;
         unit.x += direction * Math.min(definition.speed * (unit.slowRemaining > 0 ? SKILLS.sleep.speedMultiplier : 1) * (unit.buffs.speed > 0 ? SUPPORT.speedMultiplier : 1) * dt, gap - definition.range);
       }
@@ -257,13 +271,14 @@ export class BattleSession {
     }
     this.defeatedBossCount += this.units.filter((unit) => unit.kind === 'gpt-4o' && unit.hp <= 0).length;
     this.units = this.units.filter((unit) => unit.hp > 0);
+    for (const id of this.pushes.keys()) if (!this.units.some(unit => unit.id === id)) this.pushes.delete(id);
     this.bossTelegraphs = this.bossTelegraphs.filter((telegraph) => this.units.some((unit) => unit.id === telegraph.ownerId));
     if (this.hero.hp <= 0 || this.humanBase.hp <= 0) {
       this.status = 'lost';
       this.defeatReason = this.hero.hp <= 0 ? 'hero' : 'base';
       this.direction = 0;
     } else if (this.aiBase.hp <= 0) { this.status = 'won'; this.direction = 0; }
-    if (this.status !== 'active') { this.bossTelegraphs = []; this.overclockRemaining = 0; }
+    if (this.status !== 'active') { this.bossTelegraphs = []; this.overclockRemaining = 0; this.pushes.clear(); }
   }
 
   private useSkill(skill: SkillKind): CommandResult {
@@ -288,7 +303,10 @@ export class BattleSession {
       this.effect('heal', this.hero.x, SKILLS.heal.radius);
     } else if (skill === 'git-push') {
       for (const unit of this.units) {
-        if (unit.team === 'ai' && unit.hp > 0 && Math.abs(unit.x - this.hero.x) <= values.pushRadius) unit.x = getPushDestination(unit, this.aiBase.x);
+        if (unit.team === 'ai' && unit.hp > 0 && Math.abs(unit.x - this.hero.x) <= values.pushRadius) {
+          const destination = getPushDestination(unit, this.aiBase.x);
+          if (destination > unit.x) this.pushes.set(unit.id, { destination, speed: (destination - unit.x) / SKILLS['git-push'].pushDuration });
+        }
       }
       this.effect('git-push', this.hero.x, values.pushRadius);
     } else {
