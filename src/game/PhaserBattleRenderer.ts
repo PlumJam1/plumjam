@@ -59,11 +59,16 @@ export class PhaserBattleRenderer {
     this.living.clear();
     const preview = skillPreview(snapshot, this.previewSkill);
     if (preview) {
-      const color = preview.skill === 'sleep' ? 0xd5b6ff : preview.skill === 'git-push' ? 0x89dfff : 0x9cf3ba;
-      this.groundGraphics.fillStyle(color, .1).fillCircle(preview.x, FIELD.groundY, preview.radius);
-      this.groundGraphics.lineStyle(2, color, .85).strokeCircle(preview.x, FIELD.groundY, preview.radius);
+      const color = preview.skill === 'hello-world' ? 0xffdf9c : preview.skill === 'sleep' ? 0xd5b6ff : preview.skill === 'git-push' ? 0x89dfff : 0x9cf3ba;
+      if (preview.shape === 'line') {
+        g.lineStyle(2, color, .85).lineBetween(preview.x, 244, preview.endX, 244);
+        g.fillStyle(color, .9).fillTriangle(preview.endX, 244, preview.endX - 7, 240, preview.endX - 7, 248);
+      } else {
+        this.groundGraphics.fillStyle(color, .1).fillCircle(preview.x, FIELD.groundY, preview.radius);
+        this.groundGraphics.lineStyle(2, color, .85).strokeCircle(preview.x, FIELD.groundY, preview.radius);
+      }
       for (const id of preview.targetIds) {
-        const target = id === snapshot.hero.id ? snapshot.hero : snapshot.units.find(unit => unit.id === id);
+        const target = id === snapshot.hero.id ? snapshot.hero : id === snapshot.aiBase.id ? snapshot.aiBase : snapshot.units.find(unit => unit.id === id);
         if (target) g.lineStyle(2, color).strokeEllipse(target.x, 229, 34, 10);
       }
       for (const destination of preview.destinations) {
@@ -145,11 +150,11 @@ export class PhaserBattleRenderer {
 
   destroy(): void { this.previewSkill = null; for (const actor of this.actors.values()) actor.image.destroy(); this.actors.clear(); for (const object of this.scenery) object.destroy(); this.scenery.length = 0; this.graphics.destroy(); this.groundGraphics.destroy(); for (const label of this.labels.values()) label.destroy(); this.labels.clear(); }
 
-  private label(key: string, value: string, x: number, y: number, color: number, alpha = 1): void {
+  private label(key: string, value: string, x: number, y: number, color: number, alpha = 1, fontSize = 8): void {
     this.visibleLabels.add(key);
     let label = this.labels.get(key);
     if (!label) {
-      label = this.scene.add.text(0, 0, value, { fontFamily: 'monospace', fontSize: '8px', color: `#${color.toString(16).padStart(6, '0')}`, stroke: '#13202d', strokeThickness: 2 }).setOrigin(0.5).setDepth(11);
+      label = this.scene.add.text(0, 0, value, { fontFamily: 'monospace', fontSize: `${fontSize}px`, color: `#${color.toString(16).padStart(6, '0')}`, stroke: '#13202d', strokeThickness: 2 }).setOrigin(0.5).setDepth(11);
       this.labels.set(key, label);
     }
     label.setText(value).setPosition(Math.round(x), Math.round(y)).setAlpha(alpha);
@@ -192,7 +197,12 @@ export class PhaserBattleRenderer {
     }
     this.buffs(x, y - 32, unit.buffs);
     this.healing(unit.id, x, y - (boss ? 93 : 59), unit.healFlash);
-    if (unit.slowRemaining > 0) this.label(`sleep-${unit.id}`, `감속 ${unit.slowRemaining.toFixed(1)}초`, x, y - 45, 0xc9b7fa);
+    if (unit.team === 'ai' && unit.slowRemaining > 0) {
+      this.label(`sleep-${unit.id}`, `감속 ${unit.slowRemaining.toFixed(1)}초`, x, y - 45, 0xc9b7fa);
+      // Simulation time keeps the small floating loop frozen during pause.
+      const rise = ((elapsed + unit.id * .17) % 1.2) / 1.2;
+      this.label(`sleep-zzz-${unit.id}`, 'Zzz', x - unit.bodyWidth / 2 - 12, y - (boss ? 104 : 76) - rise * 8, 0xd5c5ff, 1 - rise * .45, 10);
+    }
     else if (unit.buffs.combat > 0) this.label(`buff-${unit.id}`, `공격/방어 ${unit.buffs.combat.toFixed(1)}초`, x, y - 45, 0xffc995);
     else if (unit.buffs.speed > 0) this.label(`buff-${unit.id}`, `이동 ${unit.buffs.speed.toFixed(1)}초`, x, y - 45, 0xa7e6ff);
     this.health(x, y - (unit.kind === 'gpt-4o' ? 82 : 48), unit.hp, unit.maxHp, 19, unit.team === 'human' ? 0xdfb878 : 0x77b6c1);

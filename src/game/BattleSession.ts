@@ -12,6 +12,14 @@ export interface BattleOptions {
 }
 type Target = UnitState | HeroState | BaseState;
 
+/** Shared lane collision order: forward distance first, then stable entity ID. */
+export function getProjectileTarget<T extends { id: number; x: number }>(targets: readonly T[], projectile: Pick<ProjectileState, 'x' | 'direction' | 'source'>, travel: number): T | undefined {
+  return targets.filter(target => {
+    const distance = (target.x - projectile.x) * projectile.direction;
+    return distance >= (projectile.source === 'hero' ? 0 : -5) && distance <= travel + 5;
+  }).sort((a, b) => (a.x - b.x) * projectile.direction || a.id - b.id)[0];
+}
+
 /** Shared by the actual cast and UI preview so level/buff numbers cannot drift. */
 export function getSkillValues(hero: Pick<HeroState, 'level' | 'buffs'>) {
   return {
@@ -164,13 +172,10 @@ export class BattleSession {
     this.projectiles = this.projectiles.filter((projectile) => {
       const travel = Math.min(projectile.remainingRange, projectile.speed * dt);
       const nextX = projectile.x + projectile.direction * travel;
-      const targets = this.targets(projectile.team).filter((target) => {
-        const distance = (target.x - projectile.x) * projectile.direction;
-        return distance >= (projectile.source === 'hero' ? 0 : -5) && distance <= travel + 5;
-      }).sort((a, b) => (a.x - b.x) * projectile.direction || a.id - b.id);
-      if (targets[0]) {
-        hits.push({ target: targets[0], damage: projectile.damage });
-        if (projectile.source === 'hero') this.effect('hello-impact', targets[0].x, 36);
+      const target = getProjectileTarget(this.targets(projectile.team), projectile, travel);
+      if (target) {
+        hits.push({ target, damage: projectile.damage });
+        if (projectile.source === 'hero') this.effect('hello-impact', target.x, 36);
         return false;
       }
       projectile.x = nextX;

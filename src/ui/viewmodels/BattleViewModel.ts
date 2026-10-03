@@ -106,6 +106,7 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
     });
     const preview = computed(() => battle.value ? skillPreview(battle.value, previewSkill.value) : null);
     const previewDescription = computed(() => skills.value.find(skill => skill.kind === previewSkill.value)?.description ?? '');
+    const previewTargets = computed(() => preview.value?.shape === 'line' ? `현재 예상 대상: ${preview.value.targetLabel} · 이동 중 달라질 수 있음` : preview.value ? `대상 ${preview.value.targetIds.length}명` : '');
     const economyReason = computed(() => battle.value?.upgradeCost === null ? '최대 레벨' : availability(battle.value?.upgradeCost ?? Infinity));
     const economyDisabled = computed(() => economyReason.value !== '사용 가능');
     const economyDescription = computed(() => {
@@ -121,7 +122,7 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
     const hasNextStage = computed(() => battle.value?.status === 'won' && !!nextStage(battle.value.stageId));
     return {
       battle: readonly(battle), feedback: readonly(feedback), intro: readonly(intro), units, skills, ended, danger,
-      boss, bossNotice: readonly(bossNotice), waveNotice, heroBuffs, preview, previewDescription,
+      boss, bossNotice: readonly(bossNotice), waveNotice, heroBuffs, preview, previewDescription, previewTargets,
       economyDisabled, economyDescription, economyReason, time, resultTitle, resultDescription,
       reward: readonly(reward), prototypeComplete: readonly(prototypeComplete), hasNextStage,
       dismissIntro: () => { intro.value = false; },

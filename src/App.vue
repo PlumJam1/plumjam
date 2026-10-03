@@ -144,7 +144,7 @@ onBeforeUnmount(() => {
           </button>
         </div>
         <div class="combat-detail" aria-live="off">
-          <span v-if="screen?.previewDescription.value">{{ screen.previewDescription.value }}<template v-if="screen.preview.value"> · 대상 {{ screen.preview.value.targetIds.length }}명</template></span>
+          <span v-if="screen?.previewDescription.value">{{ screen.previewDescription.value }}<template v-if="screen.previewTargets.value"> · {{ screen.previewTargets.value }}</template></span>
           <span v-else>스킬 선택으로 범위·효과 확인 · P 밀치기 · O overclock</span>
           <span v-for="buff in screen?.heroBuffs.value" :key="buff" class="buff-chip">{{ buff }}</span>
         </div>

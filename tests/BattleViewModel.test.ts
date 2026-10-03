@@ -9,6 +9,44 @@ const fakeScene = () => ({ events: new EventEmitter() }) as unknown as Phaser.Sc
 afterEach(() => vi.useRealTimers());
 
 describe('BattleViewModel scoped MVVM', () => {
+  it('shows a moving Hello estimate without commands or spending and discards it at pause, end and restart', () => {
+    const context = new AppContext(); const scene = fakeScene(); const scope = context.lifetimes.begin(scene);
+    const model = createBattleViewModel(context, scope, false);
+    const snapshot = new BattleSession({ runId: scope.id }).snapshot();
+    const commands = vi.fn(); const previews = vi.fn();
+    const unsubscribe = context.bridge.subscribe('battle-command', commands);
+    const offPreview = context.bridge.subscribe('battle-preview', previews);
+    context.bridge.emit('battle-snapshot', snapshot);
+    model.previewSkill('hello-world', 'hover', true);
+    expect(model.previewTargets.value).toBe('현재 예상 대상: 없음 · 이동 중 달라질 수 있음');
+    model.previewSkill('hello-world', 'hover', false);
+    expect(model.preview.value).toBeNull();
+    model.previewSkill('hello-world', 'focus', true);
+    context.bridge.emit('battle-snapshot', { ...snapshot, hero: { ...snapshot.hero, x: 250 } });
+    expect(model.preview.value).toMatchObject({ x: 250, targetIds: [snapshot.aiBase.id] });
+    expect(model.previewTargets.value).toBe('현재 예상 대상: 적 기지 · 이동 중 달라질 수 있음');
+    expect(commands).not.toHaveBeenCalled();
+    expect(model.battle.value).toMatchObject({ gold: snapshot.gold, projectiles: [], skillCooldowns: snapshot.skillCooldowns });
+    context.bridge.emit('battle-snapshot', { ...snapshot, status: 'paused' });
+    expect(model.preview.value).toBeNull(); expect(model.previewTargets.value).toBe('');
+    context.bridge.emit('battle-snapshot', snapshot);
+    expect(model.preview.value).toBeNull();
+    model.previewSkill('hello-world', 'focus', true);
+    context.bridge.emit('battle-snapshot', { ...snapshot, status: 'won' });
+    expect(model.preview.value).toBeNull();
+    context.bridge.emit('battle-snapshot', snapshot);
+    model.previewSkill('hello-world', 'focus', true);
+    scene.events.emit('shutdown');
+    expect(model.preview.value).toBeNull();
+    expect(previews).toHaveBeenLastCalledWith({ runId: scope.id, skill: null });
+    model.previewSkill('hello-world', 'focus', true);
+    const nextScope = context.lifetimes.begin(scene); const next = createBattleViewModel(context, nextScope, false);
+    context.bridge.emit('battle-snapshot', new BattleSession({ runId: nextScope.id }).snapshot());
+    expect(next.preview.value).toBeNull(); expect(commands).not.toHaveBeenCalled();
+    unsubscribe(); offPreview(); context.dispose();
+    expect(context.bridge.listenerCount).toBe(0);
+  });
+
   it('previews focus and hover without casting, follows current positions, and clears across pause and disposal', () => {
     const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
     const model = createBattleViewModel(context, scope, false);
