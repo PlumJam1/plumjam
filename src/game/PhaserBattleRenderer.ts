@@ -50,6 +50,19 @@ export class PhaserBattleRenderer {
     this.visibleLabels.clear();
     this.living.clear();
     for (const effect of snapshot.effects) {
+      if (effect.kind === 'hello-impact') {
+        const progress = 1 - effect.remaining / effect.duration;
+        const distance = effect.radius * (1 - Math.pow(1 - progress, 2));
+        const characters = ['H', 'W', 'o', 'H', 'W', 'o'];
+        for (let i = 0; i < characters.length; i++) {
+          const angle = i * Math.PI * 2 / characters.length - Math.PI / 2;
+          this.label(`impact-${effect.id}-${i}`, characters[i],
+            effect.x + Math.cos(angle) * distance,
+            195 + Math.sin(angle) * distance + 12 * progress * progress,
+            0xffdf9c, 1 - progress);
+        }
+        continue;
+      }
       const color = effect.kind === 'sleep' ? 0xb4a4ed : effect.kind === 'support-combat' ? 0xefb06a : effect.kind === 'support-speed' ? 0x8fcaee : 0x91d9ad;
       const progress = 1 - effect.remaining / effect.duration;
       g.lineStyle(2, color, (1 - progress) * 0.8).strokeEllipse(Math.round(effect.x), 221, effect.radius * 2 * Math.max(0.1, progress), 38 * progress);
@@ -65,10 +78,10 @@ export class PhaserBattleRenderer {
     if (hero.hp > 0) this.actor(hero.id, characterArt('hero', hero.level), x, 230, 46, 52, hero.hitFlash > 0, 0, snapshot.elapsed, true);
     g.lineStyle(1, 0xf5d59d).strokeTriangle(x - 4, 170, x + 4, 170, x, 175);
     this.health(x, 177, hero.hp, hero.maxHp, 27, 0xf4be79);
-    this.buffs(x, 196, hero.buffs, hero.healFlash);
+    this.buffs(x, 196, hero.buffs);
+    this.healing(hero.id, x, 160, hero.healFlash);
     for (const projectile of snapshot.projectiles) {
       if (projectile.source === 'hero') {
-        g.fillStyle(0xffd887).fillRect(Math.round(projectile.x) - 7, 207, 14, 4);
         this.label(`shot-${projectile.id}`, 'Hello, World!', projectile.x, 195, 0xffdf9c);
       } else g.fillStyle(projectile.team === 'human' ? 0xf3e4cc : 0x89e6ea).fillRect(Math.round(projectile.x) - 3, 207, 7, 4);
     }
@@ -95,8 +108,23 @@ export class PhaserBattleRenderer {
     label.setPosition(Math.round(x), Math.round(y)).setAlpha(alpha);
   }
 
-  private buffs(x: number, y: number, buffs: TimedBuffs, healFlash: number): void {
-    if (healFlash > 0) this.graphics.fillStyle(0x99edba, Math.min(1, healFlash * 2)).fillRect(x - 1, y - 8, 3, 9).fillRect(x - 4, y - 5, 9, 3);
+  private healing(id: number, x: number, headY: number, remaining: number): void {
+    if (remaining <= 0) return;
+    const progress = 1 - Math.min(1, remaining / 0.5);
+    const alpha = 1 - progress;
+    const y = Math.round(headY - progress * 14);
+    const billX = Math.round(x) - 13;
+    const g = this.graphics;
+    // Draw a banknote icon rather than relying on platform-specific emoji fonts.
+    g.fillStyle(0x173f2c, alpha).fillRect(billX - 1, y - 6, 22, 12);
+    g.fillStyle(0x9de0a6, alpha).fillRect(billX, y - 5, 20, 10);
+    g.lineStyle(1, 0x397b4a, alpha).strokeRect(billX + 2, y - 3, 16, 6);
+    g.fillStyle(0xc8f3bd, alpha).fillEllipse(billX + 10, y, 8, 8);
+    this.label(`heal-dollar-${id}`, '$', billX + 10, y, 0x245b36, alpha);
+    this.label(`heal-plus-${id}`, '+', x + 13, y, 0xc8f3bd, alpha);
+  }
+
+  private buffs(x: number, y: number, buffs: TimedBuffs): void {
     if (buffs.combat > 0) this.graphics.lineStyle(1, 0xf0b67f).strokeRect(x - 11, y, 23, 33);
     if (buffs.speed > 0) this.graphics.lineStyle(1, 0x99daf0).strokeTriangle(x - 14, y + 20, x - 10, y + 23, x - 14, y + 26);
   }
@@ -109,7 +137,8 @@ export class PhaserBattleRenderer {
     g.fillStyle(0x000000, 0.25).fillEllipse(x, 231, 20, 4);
     const boss = unit.kind === 'gpt-4o';
     this.actor(unit.id, characterArt(unit.kind, unit.level), x, y, boss ? 63 : 37, boss ? 78 : 44, unit.hitFlash > 0, unit.attackFlash, elapsed);
-    this.buffs(x, y - 32, unit.buffs, unit.healFlash);
+    this.buffs(x, y - 32, unit.buffs);
+    this.healing(unit.id, x, y - (boss ? 93 : 59), unit.healFlash);
     if (unit.slowRemaining > 0) this.label(`sleep-${unit.id}`, 'Zzz', x, y - 45, 0xc9b7fa);
     this.health(x, y - (unit.kind === 'gpt-4o' ? 82 : 48), unit.hp, unit.maxHp, 19, unit.team === 'human' ? 0xdfb878 : 0x77b6c1);
   }

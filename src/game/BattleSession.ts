@@ -126,7 +126,11 @@ export class BattleSession {
         const distance = (target.x - projectile.x) * projectile.direction;
         return distance >= (projectile.source === 'hero' ? 0 : -5) && distance <= travel + 5;
       }).sort((a, b) => (a.x - b.x) * projectile.direction || a.id - b.id);
-      if (targets[0]) { hits.push({ target: targets[0], damage: projectile.damage }); return false; }
+      if (targets[0]) {
+        hits.push({ target: targets[0], damage: projectile.damage });
+        if (projectile.source === 'hero') this.effect('hello-impact', targets[0].x, 36);
+        return false;
+      }
       projectile.x = nextX;
       projectile.remainingRange -= travel;
       return projectile.remainingRange > 0 && nextX >= 0 && nextX <= FIELD.width;

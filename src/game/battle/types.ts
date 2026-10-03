@@ -38,7 +38,7 @@ export interface TimedBuffs {
   combat: number;
   speed: number;
 }
-export type EffectKind = SkillKind | 'support-heal' | 'support-combat' | 'support-speed';
+export type EffectKind = SkillKind | 'hello-impact' | 'support-heal' | 'support-combat' | 'support-speed';
 export interface EffectState { id: number; kind: EffectKind; x: number; radius: number; remaining: number; duration: number }
 export interface UnitState {
   id: number;

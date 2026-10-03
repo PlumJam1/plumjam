@@ -59,11 +59,16 @@ describe('developer skills', () => {
     expect(session.snapshot().units.map((unit) => unit.hp)).toEqual([35, 110]);
     expect(session.snapshot().aiBase.hp).toBe(750);
     expect(session.snapshot().projectiles).toHaveLength(0);
+    expect(session.snapshot().effects).toHaveLength(1);
+    expect(session.snapshot().effects[0]).toMatchObject({ kind: 'hello-impact', x: session.snapshot().units[0].x });
+    session.step(0.7);
+    expect(session.snapshot().effects).toHaveLength(0);
     const empty = new BattleSession({ runId: 2, stage: quietStage() });
     empty.dispatch({ type: 'skill', skill: 'hello-world' });
     empty.step(2);
     expect(empty.snapshot().projectiles).toHaveLength(0);
     expect(empty.snapshot().aiBase.hp).toBe(750);
+    expect(empty.snapshot().effects).toHaveLength(0);
   });
 
   it('only slows enemies in radius, including the boss, and restores movement after five seconds', () => {
