@@ -1,5 +1,6 @@
 import type { BattleViewMode } from '../game/presentation/battleCamera';
 import { nextStage } from '../game/progression/stages';
+import { battleMusic } from '../game/presentation/music';
 import Phaser from 'phaser';
 import type { AppContext } from '../core/AppContext';
 import type { SceneScope } from '../core/SceneLifetimeManager';
@@ -29,6 +30,7 @@ export class BattleScene extends Phaser.Scene {
     const stage = this.context.stageForBattle(this.stageId);
     if (!stage) { this.scene.start('Lobby'); return; }
     const scope = this.scope;
+    this.context.sound.playMusic(battleMusic(stage.id), scope.id);
     const profile = this.context.profile.snapshot();
     this.session = new BattleSession({ runId: scope.id, stage, levels: profile.levels, unlockedSkills: profile.unlockedSkills, equippedSkills: profile.equippedSkills, equippedAllies: profile.equippedAllies, unlockedAllies: profile.unlockedAllies });
     const session = this.session;
@@ -89,7 +91,7 @@ export class BattleScene extends Phaser.Scene {
     const dispatch = (command: BattleCommand) => this.context.bridge.emit('battle-command', { runId: scope.id, command });
     const movement = () => dispatch({ type: 'move', direction: (Number(pressed.has('KeyD') || pressed.has('ArrowRight')) - Number(pressed.has('KeyA') || pressed.has('ArrowLeft'))) as -1 | 0 | 1 });
     const clearMovement = () => { pressed.clear(); if (session.snapshot().status === 'active') dispatch({ type: 'move', direction: 0 }); };
-    const paused = () => { this.context.sound.stopRun(scope.id); clearMovement(); publish(); };
+    const paused = () => { this.context.sound.stopAll(); clearMovement(); publish(); };
     this.events.on(Phaser.Scenes.Events.PAUSE, paused);
     this.events.on(Phaser.Scenes.Events.RESUME, publish);
     scope.defer(() => {
@@ -155,7 +157,9 @@ export class BattleScene extends Phaser.Scene {
 
   private publishBattle(): void {
     const snapshot = this.session.snapshot();
+    this.context.sound.setMusicPaused(this.scope.id, snapshot.status !== 'active');
     if (!this.resultPublished && (snapshot.status === 'won' || snapshot.status === 'lost')) {
+      this.context.sound.stopMusic(this.scope.id);
       this.resultPublished = true;
       this.context.sound.play(snapshot.status === 'won' ? 'win' : 'lose', this.scope.id);
       const before = this.context.profile.snapshot();

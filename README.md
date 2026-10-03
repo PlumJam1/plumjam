@@ -45,7 +45,7 @@ GPT-4o는 전용 HP 바와 격파 알림을 갖고, 등장 6초 뒤부터 9초�
 
 기존 v1 저장의 XP·레벨·진행·동료 편성·음소거·스킬 소유를 보존한다. 예전 스킬 소유 필드가 없으면 당시 기본 4종을 이관한다. 장착 필드가 없으면 보유 스킬을 Hello/sleep/heal/push/overclock/foreach 순서로 최대 3개 장착하고, 잘못된 장착만 보유·중복 없는 최대 3개로 회복한다.
 
-Vue MVVM UI와 순수 TypeScript 전투 모델을 분리했다. `SceneLifetimeManager`가 씬 실행의 이벤트·ViewModel·오디오·표시 객체를 정리하고, 공용 텍스처와 저장 서비스는 앱 수명을 따른다. 짧은 원본 WebAudio 효과음은 첫 키보드/클릭 입력으로 활성화된다. 음소거는 준비실·전투 화면에서 조절하며 저장된다. 배경 음악은 이번 범위에 포함하지 않았다.
+Vue MVVM UI와 순수 TypeScript 전투 모델을 분리했다. `SceneLifetimeManager`가 씬 실행의 이벤트·ViewModel·오디오·표시 객체를 정리하고, 공용 텍스처와 저장 서비스는 앱 수명을 따른다. 짧은 원본 WebAudio 효과음은 첫 키보드/클릭 입력으로 활성화된다. 음소거는 준비실·전투 화면에서 조절하며 저장된다. 배경 음악은 준비실·편성·파워 업·스킬 상점·지도에 Quirky, 일반 전투에 Tower Defense, GPT-4o가 등장하는 1-5·2-5에 Chiptune Boss Fight Music을 반복 재생한다. 첫 입력 후 재생하며 기존 음소거 설정을 공유한다. 전투 일시정지 중에는 음악도 멈추고 복귀하면 이어서 재생한다. 전투 배속은 음악 속도에 영향을 주지 않으며 결과 화면에서는 BGM을 멈춘다. 출처와 원본 파일 해시는 [음악 크레딧](public/assets/music/CREDITS.md)에 기록했다.
 
 UI는 [냥코대전쟁 공식 안내](https://ponosgames.com/information/appli/battlecats/help/index.html)의 화면을 관찰하여 재구성했다. 초록 소용돌이 준비실, 종이 지도와 빨간 경로점, 10칸(5×2) 편성 및 중앙 캐릭터 카드, 파워 업 카드, 상단 노란 자금과 하단 소환 카드를 적용한다. 전투는 왼쪽 원형 투자·가운데 5개씩 두 페이지인 10병력 한 줄·오른쪽 Hello World 빠른 발사·우상단 최대 3장착 스킬 아이콘으로 구성하며 기존 조작·전투 규칙을 유지한다. 승리·패배 화면은 큰 표제와 경험치 보상 띠로 재구성했다. 참고 화면과 구현 대응은 [UI_REFERENCE.md](UI_REFERENCE.md)에 기록했다.
 
@@ -54,7 +54,7 @@ UI는 [냥코대전쟁 공식 안내](https://ponosgames.com/information/appli/b
 - 배경 3종과 캐릭터 이미지 23개(기본·레벨 5 외형 포함)는 ImageGen으로 생성했으며 원본 PNG를 수정 없이 사용한다. [생성 프롬프트와 목록](public/assets/generated/ASSET_PROMPTS.md), [원본 메타데이터](public/assets/generated/ASSET_METADATA.json).
 - 서울과기대 심볼은 사용자가 지정한 필수 원본이다. [공식 심볼 안내](https://www.seoultech.ac.kr/intro/symbol/logo/symbol)에서 확보했고 파일은 `public/assets/bases/seoultech-symbol.gif`다. 외부 사용 사전 문의·상업적 사용 금지 조건을 SPEC에 기록했다.
 - 팀원이 제공한 `public/assets/bases/` 정상·파괴 기지 PNG를 함께 사용한다. 기지별 HP가 0이 되면 해당 파괴 외형으로 바꾸며, 개발자 패배만으로 기지를 파괴하지 않는다.
-- 효과음은 코드로 합성한 짧은 triangle 톤이다. 외부 오디오 샘플을 포함하지 않는다.
+- 효과음은 코드로 합성한 짧은 triangle 톤이다. BGM 3곡은 사용자가 제공한 Pixabay 원본 MP3를 사용한다.
 - UI 무늬 `public/assets/ui/office-swirl.svg`, `frame-spots.svg`, `paper-map.svg`는 독립 작성한 SVG이며 버튼·프레임·경로는 CSS로 제작한다. 원작 화면 PNG·캐릭터·소리 파일을 포함하지 않는다.
 - 한국어 글꼴은 Google Fonts의 Noto Sans KR을 사용하며, 네트워크 없이도 시스템 sans-serif로 플레이할 수 있다.
 

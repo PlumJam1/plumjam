@@ -14,6 +14,8 @@ export class LobbyScene extends Phaser.Scene {
   create(): void {
     drawPlaceholder(this, false);
     const scope = this.scope;
+    this.context.sound.playMusic('lobby', scope.id);
+    scope.defer(() => this.context.sound.stopRun(scope.id));
     scope.defer(this.context.bridge.subscribe('scene-command', ({ runId, command }) => {
       if (scope.disposed || runId !== scope.id) return;
       if (command.type === 'start-battle' && this.context.stageForBattle(command.stageId)) this.scene.start('Battle', { stageId: command.stageId });
