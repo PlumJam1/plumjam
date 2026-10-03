@@ -57,8 +57,8 @@ describe('SoundService ownership', () => {
 
 describe('SoundService one-shot samples', () => {
   function sampleFixture() {
-    const elements: Array<{ play: ReturnType<typeof vi.fn>; volume: number }> = [];
-    const factory = vi.fn(() => { const element = { play: vi.fn(async () => {}), volume: 1 }; elements.push(element); return element as unknown as HTMLAudioElement; });
+    const elements: Array<{ play: ReturnType<typeof vi.fn>; pause: ReturnType<typeof vi.fn>; removeAttribute: ReturnType<typeof vi.fn>; load: ReturnType<typeof vi.fn>; volume: number; onended: (() => void) | null; onerror: (() => void) | null }> = [];
+    const factory = vi.fn(() => { const element = { play: vi.fn(async () => {}), pause: vi.fn(), removeAttribute: vi.fn(), load: vi.fn(), volume: 1, onended: null, onerror: null }; elements.push(element); return element as unknown as HTMLAudioElement; });
     const service = new SoundService(() => undefined, factory);
     return { service, elements, factory };
   }
@@ -86,5 +86,47 @@ describe('SoundService one-shot samples', () => {
     const unavailable = new SoundService(() => undefined, () => { throw new Error('media unavailable'); });
     unavailable.unlock();
     expect(() => unavailable.playSfx('punch-02')).not.toThrow();
+  });
+  it('stops samples already playing on mute, pause cleanup, and disposal', () => {
+    const { service, elements } = sampleFixture(); service.unlock();
+    service.playSfx('magic'); service.setMuted(true);
+    expect(elements[0].pause).toHaveBeenCalledTimes(1);
+    expect(elements[0].removeAttribute).toHaveBeenCalledWith('src');
+    service.setMuted(false); service.playSfx('punch'); service.stopAll();
+    expect(elements[1].pause).toHaveBeenCalledTimes(1);
+    service.playSfx('whoosh'); service.dispose(); service.dispose();
+    expect(elements[2].pause).toHaveBeenCalledTimes(1);
+  });
+  it('only releases the departing scene and stops terminal samples', () => {
+    const { service, elements } = sampleFixture(); service.unlock();
+    service.playSfx('punch', 1); service.playSfx('magic', 2);
+    service.stopRun(1); service.stopRun(1);
+    expect(elements[0].pause).toHaveBeenCalledTimes(1);
+    expect(elements[1].pause).not.toHaveBeenCalled();
+    expect(service.activeSampleCount).toBe(1);
+    service.stopSfx(2);
+    expect(service.activeSampleCount).toBe(0);
+    service.dispose();
+  });
+  it('cleans naturally ended, failed, and rejected samples exactly once', async () => {
+    const { service, elements } = sampleFixture(); service.unlock();
+    service.playSfx('punch', 1);
+    elements[0].onended?.();
+    expect(service.activeSampleCount).toBe(0);
+    expect(elements[0].onended).toBeNull();
+    service.playSfx('magic', 1); elements[1].onerror?.();
+    expect(service.activeSampleCount).toBe(0);
+    elements[0].play.mockRejectedValueOnce(new Error('autoplay blocked'));
+    const rejected = new SoundService(() => undefined, () => elements[0] as unknown as HTMLAudioElement);
+    rejected.unlock(); rejected.playSfx('punch', 3);
+    rejected.stopRun(3); await Promise.resolve();
+    expect(rejected.activeSampleCount).toBe(0);
+    expect(elements[0].pause).toHaveBeenCalledTimes(2);
+    elements[0].play.mockRejectedValueOnce(new Error('missing file'));
+    rejected.playSfx('punch', 3); await Promise.resolve();
+    expect(rejected.activeSampleCount).toBe(0);
+    expect(elements[0].pause).toHaveBeenCalledTimes(3);
+    service.dispose(); rejected.dispose();
+    expect(elements[1].pause).toHaveBeenCalledTimes(1);
   });
 });

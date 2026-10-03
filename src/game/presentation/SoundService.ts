@@ -8,10 +8,12 @@ const pitches: Record<SoundCue, number[]> = {
   invest: [220, 440, 660], win: [440, 550, 660, 880], lose: [330, 277, 220],
 };
 interface Voice { oscillator: OscillatorNode; gain: GainNode; owner: number }
+interface Sample { element: HTMLAudioElement; owner: number }
 /** One browser audio context per app, transient voices owned by scene run. No global input listeners. */
 export class SoundService {
   private context?: AudioContext;
   private voices = new Set<Voice>();
+  private samples = new Set<Sample>();
   private muted = false;
   private disposed = false;
   private unlocked = false;
@@ -67,15 +69,20 @@ export class SoundService {
       if (music.element.paused) void music.element.play().catch(() => {});
     } catch { /* Missing files and autoplay restrictions must not block gameplay. */ }
   }
-  /** Fire-and-forget sample playback; overlapping cues each get their own throwaway element. */
-  playSfx(key: SfxKey): void {
+  /** Overlapping samples remain owned by their scene until ended or explicitly stopped. */
+  playSfx(key: SfxKey, owner = 0): void {
     if (this.disposed || this.muted || !this.unlocked) return;
+    let sample: Sample | undefined;
     try {
       const element = this.musicFactory(sfxUrl(key));
       if (!element) return;
       element.volume = SFX[key].volume;
-      void element.play().catch(() => {});
-    } catch { /* Missing files and autoplay restrictions must not block gameplay. */ }
+      sample = { element, owner };
+      const playing = sample;
+      this.samples.add(playing);
+      element.onended = element.onerror = () => this.releaseSample(playing);
+      void element.play().catch(() => this.releaseSample(playing));
+    } catch { if (sample) this.releaseSample(sample); /* Audio failures must not block gameplay. */ }
   }
   play(cue: SoundCue, owner: number): void {
     const audio = this.context;
@@ -97,10 +104,18 @@ export class SoundService {
       oscillator.start(start); oscillator.stop(start + 0.08);
     });
   }
-  stopRun(owner: number): void { for (const voice of [...this.voices]) if (voice.owner === owner) this.stop(voice); this.stopMusic(owner); }
-  stopAll(): void { for (const voice of [...this.voices]) this.stop(voice); }
+  stopSfx(owner?: number): void { for (const sample of [...this.samples]) if (owner === undefined || sample.owner === owner) this.releaseSample(sample); }
+  stopRun(owner: number): void { for (const voice of [...this.voices]) if (voice.owner === owner) this.stop(voice); this.stopSfx(owner); this.stopMusic(owner); }
+  stopAll(): void { for (const voice of [...this.voices]) this.stop(voice); this.stopSfx(); }
   dispose(): void { if (this.disposed) return; this.disposed = true; this.stopAll(); this.stopMusic(); if (this.context) void this.context.close().catch(() => {}); this.context = undefined; }
   get activeVoiceCount(): number { return this.voices.size; }
+  get activeSampleCount(): number { return this.samples.size; }
+  private releaseSample(sample: Sample): void {
+    if (!this.samples.delete(sample)) return;
+    const element = sample.element;
+    element.onended = element.onerror = null;
+    try { element.pause(); element.removeAttribute('src'); element.load(); } catch { /* Media cleanup is optional. */ }
+  }
   private stop(voice: Voice): void { voice.oscillator.onended = null; try { voice.oscillator.stop(); } catch { /* Already ended. */ } this.release(voice); }
   private release(voice: Voice): void { if (!this.voices.delete(voice)) return; voice.oscillator.onended = null; voice.oscillator.disconnect(); voice.gain.disconnect(); }
 }
