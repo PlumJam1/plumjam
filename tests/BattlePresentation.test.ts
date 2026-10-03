@@ -9,13 +9,13 @@ describe('battle presentation eligibility', () => {
     const snapshot = new BattleSession({ runId: 1 }).snapshot();
     expect(STAGES).toHaveLength(10);
     for (const stage of STAGES) {
-      const expected = stage.spawns.some(spawn => spawn.kind === 'gpt-4o') ? 'enemy-base-3' : 'enemy-base';
+      const expected = stage.spawns.some(spawn => spawn.kind === 'gpt-4o') ? 'enemy-base-3' : stage.id.startsWith('2-') ? 'enemy-base-chapter-2' : 'enemy-base';
       expect(getEnemyBaseKey(stage.id)).toBe(expected);
       expect(getBaseArt({ ...snapshot, stageId: stage.id }).enemy).toBe(expected);
       expect(getBaseArt({ ...snapshot, stageId: stage.id, aiBase: { ...snapshot.aiBase, hp: 0 } }).enemy).toBe(`${expected}-destroyed`);
     }
-    expect(getEnemyBaseKey('2-3')).toBe('enemy-base');
-    expect(getEnemyBaseKey('2-4')).toBe('enemy-base');
+    expect(getEnemyBaseKey('2-3')).toBe('enemy-base-chapter-2');
+    expect(getEnemyBaseKey('2-4')).toBe('enemy-base-chapter-2');
     expect(getEnemyBaseKey('2-5')).toBe('enemy-base-3');
     expect(getEnemyBaseKey('benchmark')).toBeNull();
     expect(getEnemyBaseKey()).toBeNull();

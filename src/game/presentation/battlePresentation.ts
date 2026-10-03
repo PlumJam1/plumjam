@@ -38,8 +38,9 @@ export function getBaseArt(snapshot: Pick<BattleSnapshot, 'stageId' | 'humanBase
 }
 
 /** Unknown simulation stages keep the procedural fallback; every catalog stage uses source art. */
-export function getEnemyBaseKey(stageId?: string): 'enemy-base' | 'enemy-base-3' | null {
+export function getEnemyBaseKey(stageId?: string): 'enemy-base' | 'enemy-base-3' | 'enemy-base-chapter-2' | null {
   if (!stageId || !getStage(stageId)) return null;
+  if (['2-1', '2-2', '2-3', '2-4'].includes(stageId)) return 'enemy-base-chapter-2';
   return isBossStage(stageId) ? 'enemy-base-3' : 'enemy-base';
 }
 
