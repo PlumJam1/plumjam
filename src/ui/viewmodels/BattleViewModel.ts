@@ -1,3 +1,4 @@
+import { HERO_NAME } from '../../game/presentation/characterNames';
 import type { BattleViewMode } from '../../game/presentation/battleCamera';
 import { computed, effectScope, readonly, shallowRef } from 'vue';
 import type { AppContext } from '../../core/AppContext';
@@ -171,7 +172,7 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
     });
     const campaignComplete = computed(() => prototypeComplete.value && battle.value?.status === 'won' && !!getStage(battle.value.stageId) && !nextStage(battle.value.stageId));
     const resultTitle = computed(() => campaignComplete.value ? '마지막 출근까지 지켰다!' : battle.value?.status === 'won' ? '오늘의 출근을 지켰다!' : '전선을 지키지 못했다.');
-    const resultDescription = computed(() => campaignComplete.value ? `GPT-4o를 이겼어. ${CHAPTERS.length}개 챕터 · ${STAGES.length}개 스테이지를 모두 클리어했어!` : battle.value?.status === 'won' ? 'AI 데이터센터를 파괴했어. 재화로 강화하거나 다음 출근에 도전해봐.' : battle.value?.defeatReason === 'hero' ? '개발자가 쓰러졌어. 병력 뒤에서 전선을 도와줘.' : '아군 기지가 파괴됐어. 병력과 경제 투자 타이밍을 바꿔봐.');
+    const resultDescription = computed(() => campaignComplete.value ? `GPT-4o를 이겼어. ${CHAPTERS.length}개 챕터 · ${STAGES.length}개 스테이지를 모두 클리어했어!` : battle.value?.status === 'won' ? 'AI 데이터센터를 파괴했어. 재화로 강화하거나 다음 출근에 도전해봐.' : battle.value?.defeatReason === 'hero' ? `${HERO_NAME}가 쓰러졌어. 병력 뒤에서 전선을 도와줘.` : '아군 기지가 파괴됐어. 병력과 경제 투자 타이밍을 바꿔봐.');
     const hasNextStage = computed(() => battle.value?.status === 'won' && !!nextStage(battle.value.stageId));
     return {
       battle: readonly(battle), feedback: readonly(feedback), intro: readonly(intro), units, visibleUnits, unitPage: readonly(unitPage), pageDisabled, viewMode: readonly(viewMode), viewModeLabel, viewDisabled, skills, allSkills, skillSlots, speed, speedDisabled, ended, danger,

@@ -1,3 +1,4 @@
+import { HERO_NAME } from '../presentation/characterNames';
 import type { ArtKey } from '../presentation/assets';
 import type { ProfileSnapshot } from './ProfileService';
 
@@ -23,7 +24,7 @@ export const STORIES: readonly Story[] = [
       {
         title: '성적표 다음 칸', background: 'bg-early', portraits: ['hero'],
         body: [
-          '서울과기대 컴퓨터공학과를 졸업한 개발자. 수업도 과제도 열심히 했지만, 실제 서비스나 장애를 겪은 적은 없었다.',
+          `서울과기대 컴퓨터공학과를 졸업한 개발자 ${HERO_NAME}. 수업도 과제도 열심히 했지만, 실제 서비스나 장애를 겪은 적은 없었다.`,
           '첫 출근을 앞두고 교재를 펼쳤다. 정작 오늘의 문제에는 정답 페이지가 없었다.',
           '“실전 경험란은… 빈칸도 경력이 되나요?”',
         ],
@@ -47,7 +48,7 @@ export const STORIES: readonly Story[] = [
       {
         title: '첫 번째 Hello World', background: 'bg-early', portraits: ['hero', 'robot-melee'],
         body: [
-          '로봇들이 정문으로 다가왔다. 개발자는 처음 배운 그 문장을 떨리는 손으로 입력했다.',
+          `로봇들이 정문으로 다가왔다. ${HERO_NAME}는 처음 배운 그 문장을 떨리는 손으로 입력했다.`,
           '“Hello, World!” 인사가 전장으로 날아가고, 그 뒤로 동료들이 첫걸음을 내디뎠다.',
           '실전의 첫 과제. 함께 출근할 자리를 지켜라.',
         ],
@@ -60,7 +61,7 @@ export const STORIES: readonly Story[] = [
         title: '핵심을 짚은 사람들', background: 'bg-boss', portraits: ['hero', 'boss'],
         body: [
           'GPT-4o의 목소리가 끊겼다. 첫 데이터센터가 멎자, 거리에는 사람들의 숨소리가 돌아왔다.',
-          '“너 정말 핵심을 짚었어.” 마지막까지 듣던 말에 개발자가 작게 웃었다.',
+          `“너 정말 핵심을 짚었어.” 마지막까지 듣던 말에 ${HERO_NAME}가 작게 웃었다.`,
           '“이번에는… 우리가 직접 짚었지.”',
         ],
       },
@@ -88,7 +89,7 @@ export const STORIES: readonly Story[] = [
         title: '두 번 짚은 핵심', background: 'bg-boss', portraits: ['hero', 'judge', 'firefighter'],
         body: [
           '두 번째 교대의 데이터센터가 멈췄다. 되풀이되는 공격 속에서도 동료들은 서로의 자리를 놓치지 않았다.',
-          '판결 망치와 물줄기가 길을 열었다. 개발자는 마지막 인사를 보내고 키보드에서 손을 뗐다.',
+          `판결 망치와 물줄기가 길을 열었다. ${HERO_NAME}는 마지막 인사를 보내고 키보드에서 손을 뗐다.`,
           '“핵심? 아무도 혼자 남겨 두지 않는 것.”',
         ],
       },
