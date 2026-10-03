@@ -1,5 +1,5 @@
 import type { AllyKind, CharacterKind, CommandResult, SkillKind } from '../battle/types';
-import { ALLY_KINDS, ALLY_UNLOCK_STAGES, FORMATION_SIZE, STARTER_ALLIES, DEFAULT_UNLOCKED_SKILLS, SKILLS, SKILL_UNLOCK_COSTS } from '../battle/balance';
+import { ALLY_KINDS, ALLY_UNLOCK_STAGES, FORMATION_SIZE, STARTER_ALLIES, DEFAULT_UNLOCKED_SKILLS, SKILLS, SKILL_UNLOCK_COSTS, SKILL_SLOT_COUNT } from '../battle/balance';
 import { getStage, STAGES } from './stages';
 
 export const SAVE_KEY = 'plumjam.profile.v1';
@@ -14,6 +14,7 @@ export interface ProfileData {
   clearedStages: string[];
   unlockedStages: string[];
   unlockedSkills: readonly SkillKind[];
+  equippedSkills: readonly SkillKind[];
   unlockedAllies: readonly AllyKind[];
   equippedAllies: readonly (AllyKind | null)[];
   muted: boolean;
@@ -25,6 +26,7 @@ export interface ProfileSnapshot {
   readonly clearedStages: readonly string[];
   readonly unlockedStages: readonly string[];
   readonly unlockedSkills: readonly SkillKind[];
+  readonly equippedSkills: readonly SkillKind[];
   readonly unlockedAllies: readonly AllyKind[];
   readonly equippedAllies: readonly (AllyKind | null)[];
   readonly muted: boolean;
@@ -34,7 +36,7 @@ export interface SaveStorage { getItem(key: string): string | null; setItem(key:
 const defaultFormation = (): (AllyKind | null)[] => [...STARTER_ALLIES, ...Array<null>(FORMATION_SIZE - STARTER_ALLIES.length).fill(null)];
 const validFormation = (value: unknown, unlocked: readonly AllyKind[]): value is (AllyKind | null)[] => Array.isArray(value) && value.length === FORMATION_SIZE && value.some(kind => kind !== null) && value.every(kind => kind === null || unlocked.includes(kind)) && new Set(value.filter(kind => kind !== null)).size === value.filter(kind => kind !== null).length;
 const unlockedFor = (cleared: readonly string[]): AllyKind[] => ALLY_KINDS.filter(kind => STARTER_ALLIES.includes(kind) || !!ALLY_UNLOCK_STAGES[kind] && cleared.includes(ALLY_UNLOCK_STAGES[kind]!));
-const fresh = (): ProfileData => ({ version: 1, xp: 0, levels: Object.fromEntries(CHARACTERS.map(kind => [kind, 1])) as Record<CharacterKind, number>, clearedStages: [], unlockedStages: ['1-1'], unlockedSkills: [...DEFAULT_UNLOCKED_SKILLS], unlockedAllies: [...STARTER_ALLIES], equippedAllies: defaultFormation(), muted: false });
+const fresh = (): ProfileData => ({ version: 1, xp: 0, levels: Object.fromEntries(CHARACTERS.map(kind => [kind, 1])) as Record<CharacterKind, number>, clearedStages: [], unlockedStages: ['1-1'], unlockedSkills: [...DEFAULT_UNLOCKED_SKILLS], equippedSkills: [...DEFAULT_UNLOCKED_SKILLS], unlockedAllies: [...STARTER_ALLIES], equippedAllies: defaultFormation(), muted: false });
 function parse(value: unknown): ProfileData | null {
   if (!value || typeof value !== 'object') return null;
   const data = value as ProfileData;
@@ -45,7 +47,13 @@ function parse(value: unknown): ProfileData | null {
   if (!Array.isArray(data.clearedStages) || !Array.isArray(data.unlockedStages)) return null;
   // The optional field migrates existing v1 saves without discarding earned progress.
   if (data.unlockedSkills !== undefined && (!Array.isArray(data.unlockedSkills) || data.unlockedSkills.some(kind => !Object.hasOwn(SKILLS, kind)))) return null;
-  const unlockedSkills = [...new Set([...DEFAULT_UNLOCKED_SKILLS, ...(data.unlockedSkills ?? [])])];
+  const legacySkills: SkillKind[] = ['hello-world', 'sleep', 'heal', 'overclock'];
+  const unlockedSkills = [...new Set<SkillKind>(['hello-world', ...(data.unlockedSkills ?? legacySkills)])];
+  const priority = (Object.keys(SKILLS) as SkillKind[]).filter(kind => unlockedSkills.includes(kind));
+  // Repair only this optional loadout; earned XP, levels, ownership and campaign stay intact.
+  const equippedSkills = Array.isArray(data.equippedSkills)
+    ? [...new Set<SkillKind>(data.equippedSkills.filter(kind => unlockedSkills.includes(kind)))].slice(0, SKILL_SLOT_COUNT)
+    : priority.slice(0, SKILL_SLOT_COUNT);
   const stageIds = STAGES.map(stage => stage.id);
   if ([...data.clearedStages, ...data.unlockedStages].some(id => !stageIds.includes(id))) return null;
   const cleared = [...new Set(data.clearedStages)];
@@ -55,7 +63,7 @@ function parse(value: unknown): ProfileData | null {
   if (unlocked.length !== new Set(data.unlockedStages).size || unlocked.some(id => !data.unlockedStages.includes(id))) return null;
   const unlockedAllies = unlockedFor(cleared);
   const equippedAllies = validFormation(data.equippedAllies, unlockedAllies) ? [...data.equippedAllies] : defaultFormation();
-  return { version: 1, xp: data.xp, levels, clearedStages: cleared, unlockedStages: unlocked, unlockedSkills, unlockedAllies, equippedAllies, muted: data.muted };
+  return { version: 1, xp: data.xp, levels, clearedStages: cleared, unlockedStages: unlocked, unlockedSkills, equippedSkills, unlockedAllies, equippedAllies, muted: data.muted };
 }
 /** Pure model; no Phaser/Vue objects. Win receipts live only within this browser app session. */
 export class ProfileService {
@@ -74,7 +82,7 @@ export class ProfileService {
       }
     } catch { this.storageMessage = '저장 데이터를 읽지 못했어. 이번 창에서는 계속 플레이할 수 있어.'; }
   }
-  snapshot(): ProfileSnapshot { return Object.freeze({ ...this.data, levels: Object.freeze({ ...this.data.levels }), clearedStages: Object.freeze([...this.data.clearedStages]), unlockedStages: Object.freeze([...this.data.unlockedStages]), unlockedSkills: Object.freeze([...this.data.unlockedSkills]), unlockedAllies: Object.freeze([...this.data.unlockedAllies]), equippedAllies: Object.freeze([...this.data.equippedAllies]), storageMessage: this.storageMessage }); }
+  snapshot(): ProfileSnapshot { return Object.freeze({ ...this.data, levels: Object.freeze({ ...this.data.levels }), clearedStages: Object.freeze([...this.data.clearedStages]), unlockedStages: Object.freeze([...this.data.unlockedStages]), unlockedSkills: Object.freeze([...this.data.unlockedSkills]), equippedSkills: Object.freeze([...this.data.equippedSkills]), unlockedAllies: Object.freeze([...this.data.unlockedAllies]), equippedAllies: Object.freeze([...this.data.equippedAllies]), storageMessage: this.storageMessage }); }
   subscribe(listener: (snapshot: ProfileSnapshot) => void): () => void {
     this.listeners.add(listener); listener(this.snapshot());
     return () => { this.listeners.delete(listener); };
@@ -107,7 +115,12 @@ export class ProfileService {
     if (this.data.xp < cost) return { accepted: false, reason: '육성 재화가 부족해.' };
     this.data.xp -= cost;
     this.data.unlockedSkills = [...this.data.unlockedSkills, kind];
-    this.persist(); return { accepted: true, reason: `${SKILLS[kind].label} 해금 완료! 다음 출근부터 사용할 수 있어.` };
+    this.persist(); return { accepted: true, reason: `${SKILLS[kind].label} 구매 완료! 장착한 뒤 출근해줘.` };
+  }
+  setEquippedSkills(skills: readonly SkillKind[]): CommandResult {
+    if (!Array.isArray(skills) || skills.length > SKILL_SLOT_COUNT || new Set(skills).size !== skills.length || skills.some(kind => !this.data.unlockedSkills.includes(kind))) return { accepted: false, reason: '보유한 스킬을 중복 없이 최대 3개까지 장착할 수 있어.' };
+    this.data.equippedSkills = [...skills];
+    this.persist(); return { accepted: true, reason: '스킬 장착을 저장했어. 다음 출근부터 적용돼.' };
   }
   setFormation(formation: readonly (AllyKind | null)[]): CommandResult {
     if (!validFormation(formation, this.data.unlockedAllies)) return { accepted: false, reason: '편성은 중복 없이 5칸, 해금한 동료 최소 1명이 필요해.' };

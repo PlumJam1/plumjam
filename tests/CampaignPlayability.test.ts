@@ -10,7 +10,10 @@ describe('campaign playability with ordinary player commands', () => {
       const random = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
       const unlockedAllies = ALLY_KINDS.filter(kind => STARTER_ALLIES.includes(kind) || STAGES.findIndex(entry => entry.id === ALLY_UNLOCK_STAGES[kind]) < STAGES.findIndex(entry => entry.id === stage.id));
       const equippedAllies = (expanded ? [...unlockedAllies.filter(kind => kind !== 'support'), ...(unlockedAllies.includes('counselor') ? [] : ['support' as const])] : [...STARTER_ALLIES]).slice(0, 5);
+      // After 1-1/1-2 rewards (280 XP), a player can buy heal for 160 XP.
+      const unlockedSkills = STAGES.findIndex(entry => entry.id === stage.id) >= 2 ? ['hello-world', 'heal'] as const : ['hello-world'] as const;
       const session = new BattleSession({ runId: 1, stage, random, unlockedAllies, equippedAllies,
+        unlockedSkills, equippedSkills: unlockedSkills,
         levels: { hero: level, melee: level, ranged: level, support: level, technician: level, judge: level, counselor: level } });
       for (let tick = 0; tick < 1800 && session.snapshot().status === 'active'; tick++) {
         let state = session.snapshot();

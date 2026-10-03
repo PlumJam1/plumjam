@@ -5,7 +5,7 @@ import { characterArt } from '../src/game/presentation/assets';
 
 describe('battle presentation eligibility', () => {
   it('includes alive units at the actual area boundary and only the matching team', () => {
-    const session = new BattleSession({ runId: 1, stage: { id: 'test', label: 'test', humanBaseHp: 900, aiBaseHp: 900, initialGold: 400, spawns: [{ at: 0, kind: 'robot-melee' }] } });
+    const session = new BattleSession({ runId: 1, unlockedSkills: ['sleep', 'heal', 'git-push'], equippedSkills: ['sleep', 'heal', 'git-push'], stage: { id: 'test', label: 'test', humanBaseHp: 900, aiBaseHp: 900, initialGold: 400, spawns: [{ at: 0, kind: 'robot-melee' }] } });
     session.step(.01); session.dispatch({ type: 'summon', kind: 'melee' });
     const snapshot = session.snapshot();
     const enemy = snapshot.units.find(unit => unit.team === 'ai')!;
@@ -21,6 +21,8 @@ describe('battle presentation eligibility', () => {
     expect(skillPreview(atBase, 'git-push')?.destinations[0]?.x).toBe(snapshot.aiBase.x - enemy.bodyWidth / 2);
     expect(skillPreview({ ...value, status: 'paused' }, 'heal')).toBeNull();
     expect(skillPreview({ ...value, status: 'won' }, 'sleep')).toBeNull();
+    expect(skillPreview(value, 'hello-world')).toBeNull();
+    expect(skillPreview({ ...value, equippedSkills: [] }, 'heal')).toBeNull();
     expect(characterArt('robot-runner')).toBe('robot-melee');
   });
 

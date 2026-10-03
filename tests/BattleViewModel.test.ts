@@ -12,7 +12,7 @@ describe('BattleViewModel scoped MVVM', () => {
   it('shows a moving Hello estimate without commands or spending and discards it at pause, end and restart', () => {
     const context = new AppContext(); const scene = fakeScene(); const scope = context.lifetimes.begin(scene);
     const model = createBattleViewModel(context, scope, false);
-    const snapshot = new BattleSession({ runId: scope.id }).snapshot();
+    const snapshot = new BattleSession({ unlockedSkills: ['hello-world', 'sleep', 'heal'], equippedSkills: ['hello-world', 'sleep', 'heal'], runId: scope.id }).snapshot();
     const commands = vi.fn(); const previews = vi.fn();
     const unsubscribe = context.bridge.subscribe('battle-command', commands);
     const offPreview = context.bridge.subscribe('battle-preview', previews);
@@ -50,7 +50,7 @@ describe('BattleViewModel scoped MVVM', () => {
   it('previews focus and hover without casting, follows current positions, and clears across pause and disposal', () => {
     const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
     const model = createBattleViewModel(context, scope, false);
-    const session = new BattleSession({ runId: scope.id });
+    const session = new BattleSession({ unlockedSkills: ['hello-world', 'sleep', 'heal'], equippedSkills: ['hello-world', 'sleep', 'heal'], runId: scope.id });
     const snapshot = session.snapshot();
     const commands = vi.fn(); const previews = vi.fn();
     scope.defer(context.bridge.subscribe('battle-command', commands));
@@ -80,7 +80,7 @@ describe('BattleViewModel scoped MVVM', () => {
   it('shows actual level and buff skill values and remaining buff times', () => {
     const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
     const model = createBattleViewModel(context, scope, false);
-    const snapshot = new BattleSession({ runId: scope.id, levels: { hero: 5, melee: 1, ranged: 1, support: 1 } }).snapshot();
+    const snapshot = new BattleSession({ unlockedSkills: ['hello-world', 'sleep', 'heal'], equippedSkills: ['hello-world', 'sleep', 'heal'], runId: scope.id, levels: { hero: 5, melee: 1, ranged: 1, support: 1 } }).snapshot();
     context.bridge.emit('battle-snapshot', { ...snapshot, hero: { ...snapshot.hero, buffs: { combat: 6.2, speed: 3.1, haste: 0 } } });
     expect(model.skills.value.find(skill => skill.kind === 'hello-world')?.description).toContain('피해 156');
     expect(model.skills.value.find(skill => skill.kind === 'heal')?.description).toContain('회복 112');
@@ -95,17 +95,17 @@ describe('BattleViewModel scoped MVVM', () => {
   it('shows overclock ETA including expiry, excludes itself, and leaves locked push inspectable', () => {
     const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
     const model = createBattleViewModel(context, scope, false);
-    const snapshot = new BattleSession({ runId: scope.id }).snapshot();
+    const snapshot = new BattleSession({ unlockedSkills: ['hello-world', 'sleep', 'overclock'], equippedSkills: ['hello-world', 'sleep', 'overclock'], runId: scope.id }).snapshot();
     context.bridge.emit('battle-snapshot', { ...snapshot, overclockRemaining: 3, skillCooldowns: { ...snapshot.skillCooldowns, sleep: 10, overclock: 30 }, summonCooldowns: { ...snapshot.summonCooldowns, ranged: 5 } });
     expect(model.units.value.find(unit => unit.kind === 'ranged')?.reason).toBe('준비 2.5초');
     expect(model.skills.value.find(skill => skill.kind === 'sleep')).toMatchObject({ reason: '준비 7.0초', progress: 0 });
     expect(model.skills.value.find(skill => skill.kind === 'overclock')?.reason).toBe('준비 30.0초');
-    expect(model.skills.value.find(skill => skill.kind === 'git-push')).toMatchObject({ disabled: true, unlocked: false, reason: '상점에서 해금' });
+    expect(model.allSkills.value.find(skill => skill.kind === 'git-push')).toMatchObject({ disabled: true, unlocked: false, reason: '상점에서 구매' });
     model.previewSkill('git-push', 'focus', true);
-    expect(model.preview.value?.skill).toBe('git-push');
+    expect(model.preview.value).toBeNull();
     expect(model.heroBuffs.value).toContain('overclock 소환·스킬 쿨타임 50% 3.0초');
-    context.bridge.emit('battle-snapshot', { ...snapshot, unlockedSkills: [...snapshot.unlockedSkills, 'git-push'] });
-    expect(model.skills.value.find(skill => skill.kind === 'git-push')?.disabled).toBe(false);
+    context.bridge.emit('battle-snapshot', { ...snapshot, unlockedSkills: [...snapshot.unlockedSkills, 'git-push'], equippedSkills: ['hello-world', 'git-push', 'overclock'] });
+    expect(model.allSkills.value.find(skill => skill.kind === 'git-push')?.disabled).toBe(false);
     context.dispose();
   });
 
@@ -113,7 +113,7 @@ describe('BattleViewModel scoped MVVM', () => {
     vi.useFakeTimers();
     const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
     const model = createBattleViewModel(context, scope, false);
-    const session = new BattleSession({ runId: scope.id, stage: { id: '1-5', label: 'boss', humanBaseHp: 900, aiBaseHp: 900, initialGold: 400, spawns: [{ at: 0, kind: 'gpt-4o' }] } });
+    const session = new BattleSession({ unlockedSkills: ['hello-world', 'sleep', 'heal'], equippedSkills: ['hello-world', 'sleep', 'heal'], runId: scope.id, stage: { id: '1-5', label: 'boss', humanBaseHp: 900, aiBaseHp: 900, initialGold: 400, spawns: [{ at: 0, kind: 'gpt-4o' }] } });
     session.step(.01);
     const snapshot = session.snapshot(); const unit = snapshot.units[0]!;
     context.bridge.emit('battle-snapshot', { ...snapshot, units: [{ ...unit, hp: 750 }], bossTelegraphs: [{ ownerId: unit.id, x: 300, radius: 80, remaining: .6, duration: 1.4 }] });
@@ -136,7 +136,7 @@ describe('BattleViewModel scoped MVVM', () => {
   it('shows per-run rewards and the final completion without inventing a sixth stage', () => {
     const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
     const model = createBattleViewModel(context, scope, false);
-    const session = new BattleSession({ runId: scope.id });
+    const session = new BattleSession({ unlockedSkills: ['hello-world', 'sleep', 'heal'], equippedSkills: ['hello-world', 'sleep', 'heal'], runId: scope.id });
     context.bridge.emit('battle-result', { runId: scope.id + 1, stageId: '1-5', reward: 360, prototypeComplete: true });
     expect(model.reward.value).toBe(0);
     context.bridge.emit('battle-result', { runId: scope.id, stageId: '1-1', reward: 120, prototypeComplete: false });
@@ -152,7 +152,7 @@ describe('BattleViewModel scoped MVVM', () => {
     const context = new AppContext();
     const scope = context.lifetimes.begin(fakeScene());
     const model = createBattleViewModel(context, scope, true);
-    const session = new BattleSession({ runId: scope.id });
+    const session = new BattleSession({ unlockedSkills: ['hello-world', 'sleep', 'heal'], equippedSkills: ['hello-world', 'sleep', 'heal'], runId: scope.id });
     scope.defer(context.bridge.subscribe('battle-command', ({ command, runId }) => {
       expect(runId).toBe(scope.id);
       session.dispatch(command);
@@ -160,7 +160,8 @@ describe('BattleViewModel scoped MVVM', () => {
     }));
     context.bridge.emit('battle-snapshot', session.snapshot());
     expect(model.units.value).toHaveLength(5);
-    expect(model.skills.value).toHaveLength(5);
+    expect(model.skills.value).toHaveLength(3);
+    expect(model.skillSlots.value).toHaveLength(3);
     model.useSkill('heal');
     expect(model.skills.value.find((skill) => skill.kind === 'heal')).toMatchObject({ disabled: true, reason: '준비 12.0초' });
     expect(model.units.value.find((unit) => unit.kind === 'ranged')?.reason).toBe('자금 20 부족');
@@ -195,7 +196,7 @@ describe('BattleViewModel scoped MVVM', () => {
     const context = new AppContext();
     const scope = context.lifetimes.begin(fakeScene());
     const model = createBattleViewModel(context, scope, false);
-    const current = new BattleSession({ runId: scope.id }).snapshot();
+    const current = new BattleSession({ unlockedSkills: ['hello-world', 'sleep', 'heal'], equippedSkills: ['hello-world', 'sleep', 'heal'], runId: scope.id }).snapshot();
     context.bridge.emit('battle-snapshot', { ...current, runId: scope.id + 1 });
     expect(model.battle.value).toBeNull();
     context.bridge.emit('battle-snapshot', current);
@@ -218,7 +219,7 @@ describe('five summon slot presentation', () => {
   it('keeps empty slots and keys stable, and renders captured levels and first-clear allies', () => {
     const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
     const model = createBattleViewModel(context, scope, false);
-    const session = new BattleSession({ runId: scope.id, levels: { hero: 1, melee: 5, ranged: 1, support: 1 }, equippedAllies: ['ranged', null, 'melee', null, null] });
+    const session = new BattleSession({ unlockedSkills: ['hello-world', 'sleep', 'heal'], equippedSkills: ['hello-world', 'sleep', 'heal'], runId: scope.id, levels: { hero: 1, melee: 5, ranged: 1, support: 1 }, equippedAllies: ['ranged', null, 'melee', null, null] });
     context.bridge.emit('battle-snapshot', session.snapshot());
     expect(model.units.value.map(unit => [unit.key, unit.kind])).toEqual([['1', 'ranged'], ['2', null], ['3', 'melee'], ['4', null], ['5', null]]);
     expect(model.units.value[1]).toMatchObject({ disabled: true, reason: '준비실에서 편성' });
@@ -228,6 +229,45 @@ describe('five summon slot presentation', () => {
     model.summon('melee'); expect(commands).toHaveBeenCalledWith({ runId: scope.id, command: { type: 'summon', kind: 'melee' } });
     context.bridge.emit('battle-result', { runId: scope.id, stageId: '1-1', reward: 120, prototypeComplete: false, firstClear: true, newlyUnlockedAllies: ['technician'] });
     expect(model.newAllies.value).toEqual([{ kind: 'technician', label: '기술직' }]);
+    off(); context.dispose();
+  });
+});
+
+
+describe('three skill slots and battle speed presentation', () => {
+  it('shows only captured equipped skills with fixed keys and disables the separate Hello when removed', () => {
+    const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
+    const model = createBattleViewModel(context, scope, false);
+    const fresh = new BattleSession({ runId: scope.id }).snapshot();
+    context.bridge.emit('battle-snapshot', fresh);
+    expect(model.skills.value.map(skill => skill.kind)).toEqual(['hello-world']);
+    expect(model.skillSlots.value.map(skill => skill?.kind ?? null)).toEqual(['hello-world', null, null]);
+    context.bridge.emit('battle-snapshot', { ...fresh, unlockedSkills: ['hello-world', 'sleep', 'git-push', 'overclock'], equippedSkills: ['overclock', 'sleep', 'git-push'] });
+    expect(model.skills.value.map(skill => [skill.kind, skill.key])).toEqual([['overclock', 'O'], ['sleep', 'K'], ['git-push', 'P']]);
+    expect(model.allSkills.value.find(skill => skill.kind === 'hello-world')).toMatchObject({ disabled: true, reason: '장착 필요' });
+    model.previewSkill('hello-world', 'focus', true); expect(model.preview.value).toBeNull();
+    context.bridge.emit('battle-snapshot', { ...fresh, equippedSkills: [] });
+    expect(model.skills.value).toEqual([]); expect(model.skillSlots.value).toEqual([null, null, null]);
+    context.dispose();
+  });
+  it('sends speed changes while active or paused but blocks ended, disposed and stale runs', () => {
+    const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
+    context.bridge.emit('scene-state', { scene: 'Battle', runId: scope.id, phase: 'ready' });
+    const model = createBattleViewModel(context, scope, false); const session = new BattleSession({ runId: scope.id });
+    const commands = vi.fn(); const off = context.bridge.subscribe('battle-command', value => { commands(value); session.dispatch(value.command); context.bridge.emit('battle-snapshot', session.snapshot()); });
+    model.setSpeed(2); expect(commands).not.toHaveBeenCalled();
+    context.bridge.emit('battle-snapshot', session.snapshot()); expect(model.speed.value).toBe(1);
+    model.setSpeed(3); expect(model.speed.value).toBe(3); expect(commands).toHaveBeenLastCalledWith({ runId: scope.id, command: { type: 'set-speed', speed: 3 } });
+    session.setPaused(true); context.bridge.emit('battle-snapshot', session.snapshot());
+    const before = model.battle.value!.elapsed; model.setSpeed(2); session.step(1); context.bridge.emit('battle-snapshot', session.snapshot());
+    expect(model.speed.value).toBe(2); expect(model.battle.value!.elapsed).toBe(before);
+    const count = commands.mock.calls.length;
+    context.bridge.emit('battle-snapshot', { ...session.snapshot(), status: 'won' }); model.setSpeed(1);
+    expect(model.speedDisabled.value).toBe(true); expect(commands).toHaveBeenCalledTimes(count);
+    context.bridge.emit('battle-snapshot', session.snapshot());
+    context.bridge.emit('scene-state', { scene: 'Battle', runId: scope.id + 1, phase: 'ready' }); model.setSpeed(1); expect(commands).toHaveBeenCalledTimes(count);
+    scope.dispose(); model.setSpeed(1); expect(commands).toHaveBeenCalledTimes(count);
+    const next = new BattleSession({ runId: scope.id + 1 }); expect(next.snapshot().speed).toBe(1);
     off(); context.dispose();
   });
 });

@@ -14,7 +14,7 @@ describe('permanent progression', () => {
   it('migrates legacy v1 saves while retaining currency, character levels, campaign progress and audio settings', () => {
     const saved = { version: 1, xp: 510, levels: { hero: 5, melee: 3, ranged: 4, support: 2 }, clearedStages: ['1-1', '1-2'], unlockedStages: ['1-1', '1-2', '1-3'], muted: true };
     const profile = new ProfileService(memoryStorage(JSON.stringify(saved)));
-    expect(profile.snapshot()).toMatchObject({ ...saved, unlockedSkills: DEFAULT_UNLOCKED_SKILLS, storageMessage: '' });
+    expect(profile.snapshot()).toMatchObject({ ...saved, unlockedSkills: ['hello-world', 'sleep', 'heal', 'overclock'], equippedSkills: ['hello-world', 'sleep', 'heal'], storageMessage: '' });
     expect(profile.snapshot().unlockedSkills).toContain('overclock');
     expect(profile.snapshot().unlockedSkills).not.toContain('git-push');
   });
@@ -47,9 +47,9 @@ describe('permanent progression', () => {
     expect(profile.purchaseSkill('git-push').accepted).toBe(false);
     expect(profile.snapshot()).toEqual(owned); expect(write).not.toHaveBeenCalled();
   });
-  it('retains free skills in saved unlock lists and validates unknown skill ids', () => {
+  it('preserves explicit skill ownership and validates unknown skill ids', () => {
     const saved = { version: 1, xp: 240, levels: { hero: 1, melee: 1, ranged: 1, support: 1 }, clearedStages: [], unlockedStages: ['1-1'], muted: false, unlockedSkills: ['git-push', 'git-push'] };
-    expect(new ProfileService(memoryStorage(JSON.stringify(saved))).snapshot().unlockedSkills).toEqual([...DEFAULT_UNLOCKED_SKILLS, 'git-push']);
+    expect(new ProfileService(memoryStorage(JSON.stringify(saved))).snapshot().unlockedSkills).toEqual(['hello-world', 'git-push']);
     const invalid = new ProfileService(memoryStorage(JSON.stringify({ ...saved, unlockedSkills: ['invalid'] })));
     expect(invalid.snapshot().storageMessage).not.toBe('');
     expect(invalid.snapshot().unlockedSkills).toEqual(DEFAULT_UNLOCKED_SKILLS);
@@ -220,5 +220,45 @@ describe('five-slot roster progression', () => {
     expect(initial.equippedAllies).toEqual(['melee', 'ranged', 'support', null, null]);
     expect(new ProfileService(storage).snapshot()).toEqual(model.snapshot());
     expect(model.snapshot().xp).toBe(240);
+  });
+});
+
+
+describe('permanent skill ownership and three-slot loadout', () => {
+  it('starts with only Hello, purchases without auto-equipping and persists zero or three unique owned skills', () => {
+    const storage = memoryStorage(); const model = new ProfileService(storage);
+    expect(model.snapshot()).toMatchObject({ unlockedSkills: ['hello-world'], equippedSkills: ['hello-world'] });
+    for (let run = 0; run < 8; run++) model.rewardWin(String(run), '1-1');
+    const before = model.snapshot().xp;
+    for (const kind of ['sleep', 'heal', 'git-push', 'overclock'] as SkillKind[]) expect(model.purchaseSkill(kind).accepted).toBe(true);
+    expect(model.snapshot().xp).toBe(before - 120 - 160 - 240 - 200);
+    expect(model.snapshot().equippedSkills).toEqual(['hello-world']);
+    const loadout: SkillKind[] = ['sleep', 'git-push', 'overclock'];
+    expect(model.setEquippedSkills(loadout).accepted).toBe(true); loadout[0] = 'heal';
+    expect(model.snapshot().equippedSkills).toEqual(['sleep', 'git-push', 'overclock']);
+    expect(Object.isFrozen(model.snapshot().equippedSkills)).toBe(true);
+    expect(new ProfileService(storage).snapshot()).toEqual(model.snapshot());
+    expect(model.setEquippedSkills([]).accepted).toBe(true);
+    expect(new ProfileService(storage).snapshot().equippedSkills).toEqual([]);
+  });
+  it('rejects duplicate, fourth and unowned equipment atomically with no XP or writes', () => {
+    const storage = memoryStorage(); const write = vi.spyOn(storage, 'setItem'); const model = new ProfileService(storage);
+    const before = model.snapshot();
+    for (const loadout of [['hello-world', 'hello-world'], ['sleep'], ['hello-world', 'sleep', 'heal', 'overclock'], ['invalid']] as SkillKind[][]) expect(model.setEquippedSkills(loadout).accepted).toBe(false);
+    expect(model.snapshot()).toEqual(before); expect(write).not.toHaveBeenCalled();
+  });
+  it('repairs only malformed loadouts and backfills priority while preserving every earned field and purchase', () => {
+    const saved = { version: 1, xp: 710, levels: { hero: 5, melee: 3, ranged: 2, support: 4 }, clearedStages: ['1-1', '1-2'], unlockedStages: ['1-1', '1-2', '1-3'], muted: true, unlockedSkills: ['overclock', 'git-push', 'heal', 'sleep', 'hello-world'], equippedAllies: ['technician', 'ranged', null, null, null] };
+    const missing = new ProfileService(memoryStorage(JSON.stringify(saved))).snapshot();
+    expect(missing).toMatchObject({ xp: 710, levels: saved.levels, muted: true, clearedStages: saved.clearedStages, equippedAllies: saved.equippedAllies, unlockedSkills: ['hello-world', 'overclock', 'git-push', 'heal', 'sleep'], equippedSkills: ['hello-world', 'sleep', 'heal'], storageMessage: '' });
+    for (const equippedSkills of [['invalid', 'sleep', 'sleep', 'git-push', 'overclock', 'heal'], 'bad']) {
+      const restored = new ProfileService(memoryStorage(JSON.stringify({ ...saved, equippedSkills }))).snapshot();
+      expect(restored).toMatchObject({ xp: 710, levels: saved.levels, muted: true, clearedStages: saved.clearedStages, equippedAllies: saved.equippedAllies, storageMessage: '' });
+      expect(restored.equippedSkills.length).toBeLessThanOrEqual(3);
+      expect(restored.equippedSkills.every(kind => restored.unlockedSkills.includes(kind))).toBe(true);
+      expect(new Set(restored.equippedSkills).size).toBe(restored.equippedSkills.length);
+    }
+    const locked = new ProfileService(memoryStorage(JSON.stringify({ ...saved, unlockedSkills: ['hello-world'], equippedSkills: ['heal', 'hello-world'] })));
+    expect(locked.snapshot()).toMatchObject({ xp: 710, equippedSkills: ['hello-world'] });
   });
 });

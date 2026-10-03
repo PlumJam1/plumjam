@@ -51,8 +51,9 @@ export const SKILLS = {
   'git-push': { label: 'git push', cost: 80, cooldown: 12, radius: 120, pushDuration: 0.45, description: '주변 적을 서서히 밀치기 · 일반 적 폭 ×3 · 보스 폭 ×1' },
   overclock: { label: 'overclock()', cost: 100, cooldown: 30, duration: 10, description: '10초간 소환·다른 스킬 준비 속도 ×2 · 수입 유지' },
 } as const;
-export const DEFAULT_UNLOCKED_SKILLS: readonly SkillKind[] = ['hello-world', 'sleep', 'heal', 'overclock'];
-export const SKILL_UNLOCK_COSTS = { 'git-push': 240 } as const;
+export const DEFAULT_UNLOCKED_SKILLS: readonly SkillKind[] = ['hello-world'];
+export const SKILL_SLOT_COUNT = 3;
+export const SKILL_UNLOCK_COSTS = { sleep: 120, heal: 160, 'git-push': 240, overclock: 200 } as const;
 export const SUPPORT = {
   period: 5, radius: 100, heal: 35, duration: 7,
   hasteMultiplier: 1.3, damageMultiplier: 1.3, receivedDamageMultiplier: 0.75, speedMultiplier: 1.35,

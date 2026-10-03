@@ -5,6 +5,7 @@ export type UnitKind = AllyKind | EnemyKind;
 export type SkillKind = 'hello-world' | 'sleep' | 'heal' | 'git-push' | 'overclock';
 export type CharacterKind = 'hero' | AllyKind;
 export type BattleStatus = 'active' | 'paused' | 'won' | 'lost';
+export type BattleSpeed = 1 | 2 | 3;
 export type DefeatReason = 'hero' | 'base';
 
 export interface UnitDefinition {
@@ -78,6 +79,7 @@ export interface ProjectileState {
   source: UnitKind | 'hero';
 }
 export type BattleCommand =
+  | { type: 'set-speed'; speed: BattleSpeed }
   | { type: 'move'; direction: -1 | 0 | 1 }
   | { type: 'summon'; kind: AllyKind }
   | { type: 'upgrade-economy' }
@@ -87,6 +89,7 @@ export interface BattleSnapshot {
   runId: number;
   stageId: string;
   status: BattleStatus;
+  speed: BattleSpeed;
   defeatReason?: DefeatReason;
   elapsed: number;
   gold: number;
@@ -105,6 +108,7 @@ export interface BattleSnapshot {
   bossTelegraphs: readonly Readonly<BossTelegraphState>[];
   defeatedBossCount: number;
   unlockedSkills: readonly SkillKind[];
+  equippedSkills: readonly SkillKind[];
   levels: Readonly<Record<CharacterKind, number>>;
   equippedAllies: readonly (AllyKind | null)[];
   unlockedAllies: readonly AllyKind[];

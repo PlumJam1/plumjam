@@ -3,7 +3,7 @@ import type { AppContext } from '../core/AppContext';
 import type { SceneScope } from '../core/SceneLifetimeManager';
 import { BattleSession, getFormationCommand } from '../game/BattleSession';
 import { PhaserBattleRenderer } from '../game/PhaserBattleRenderer';
-import type { BattleCommand } from '../game/battle/types';
+import type { BattleCommand, BattleSpeed } from '../game/battle/types';
 
 export class BattleScene extends Phaser.Scene {
   private scope!: SceneScope;
@@ -27,7 +27,7 @@ export class BattleScene extends Phaser.Scene {
     if (!stage) { this.scene.start('Lobby'); return; }
     const scope = this.scope;
     const profile = this.context.profile.snapshot();
-    this.session = new BattleSession({ runId: scope.id, stage, levels: profile.levels, unlockedSkills: profile.unlockedSkills, equippedAllies: profile.equippedAllies, unlockedAllies: profile.unlockedAllies });
+    this.session = new BattleSession({ runId: scope.id, stage, levels: profile.levels, unlockedSkills: profile.unlockedSkills, equippedSkills: profile.equippedSkills, equippedAllies: profile.equippedAllies, unlockedAllies: profile.unlockedAllies });
     const session = this.session;
     this.battleRenderer = new PhaserBattleRenderer(this, stage.theme, stage.id);
     const battleRenderer = this.battleRenderer;
@@ -43,7 +43,7 @@ export class BattleScene extends Phaser.Scene {
       // Movement is continuous input, not a notice; it must not erase skill/funds feedback.
       if (command.type !== 'move') {
         this.context.bridge.emit('battle-feedback', { runId, result });
-        if (result.accepted) this.context.sound.play(command.type === 'summon' ? 'summon' : command.type === 'skill' ? command.skill : 'invest', runId);
+        if (result.accepted && command.type !== 'set-speed') this.context.sound.play(command.type === 'summon' ? 'summon' : command.type === 'skill' ? command.skill : 'invest', runId);
       }
       this.publishBattle();
     }));
@@ -79,11 +79,16 @@ export class BattleScene extends Phaser.Scene {
     });
     // DOM input can resume a paused Scene, whose Phaser input plugin stops updating.
     const keyDown = (event: KeyboardEvent) => {
-      if (scope.disposed || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.ctrlKey || event.metaKey || event.altKey) return;
+      if (scope.disposed || this.context.bridge.sceneState?.runId !== scope.id || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || (event.target instanceof HTMLElement && event.target.isContentEditable) || event.ctrlKey || event.metaKey || event.altKey) return;
       this.context.sound.unlock();
       if (event.code === 'Escape') {
         if (!event.repeat) this.context.bridge.emit('scene-command', { runId: scope.id, command: { type: 'toggle-pause' } });
         event.preventDefault(); return;
+      }
+      if (event.code === 'KeyR') {
+        event.preventDefault();
+        if (!event.repeat) dispatch({ type: 'set-speed', speed: (session.snapshot().speed % 3 + 1) as BattleSpeed });
+        return;
       }
       if (this.scene.isPaused() || session.snapshot().status !== 'active') return;
       if (['KeyA', 'KeyD', 'ArrowLeft', 'ArrowRight'].includes(event.code)) { event.preventDefault(); pressed.add(event.code); movement(); return; }

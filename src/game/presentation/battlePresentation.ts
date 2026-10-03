@@ -4,7 +4,7 @@ import type { BattleSnapshot, SkillKind } from '../battle/types';
 
 /** Current positions only: moving targets can change a projectile's eventual hit. */
 export function skillPreview(snapshot: BattleSnapshot, skill: SkillKind | null) {
-  if (snapshot.status !== 'active') return null;
+  if (snapshot.status !== 'active' || !skill || !snapshot.equippedSkills.includes(skill)) return null;
   if (skill === 'hello-world') {
     const candidates = [...snapshot.units.filter(unit => unit.hp > 0 && unit.team === 'ai'), ...(snapshot.aiBase.hp > 0 ? [snapshot.aiBase] : [])];
     const target = getProjectileTarget(candidates, { x: snapshot.hero.x, direction: 1, source: 'hero' }, SKILLS[skill].range);

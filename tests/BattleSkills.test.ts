@@ -13,7 +13,7 @@ const inertEnemies = () => {
 
 describe('shared skill funding and pause', () => {
   it('shares gold with summoning and investment, rejecting cooldown/funds without side effects', () => {
-    const session = new BattleSession({ runId: 1, stage: quietStage({ initialGold: 170 }) });
+    const session = new BattleSession({ runId: 1, unlockedSkills: ['hello-world', 'sleep', 'heal'], stage: quietStage({ initialGold: 170 }) });
     expect(session.dispatch({ type: 'skill', skill: 'hello-world' }).accepted).toBe(true);
     expect(session.snapshot().gold).toBe(135);
     const shot = session.snapshot().projectiles[0];
@@ -29,7 +29,7 @@ describe('shared skill funding and pause', () => {
   });
 
   it('freezes skill/effect/buff clocks on pause and returns isolated nested snapshots', () => {
-    const session = new BattleSession({ runId: 1, stage: quietStage(), random: () => 0.5 });
+    const session = new BattleSession({ runId: 1, unlockedSkills: ['hello-world', 'sleep', 'heal'], stage: quietStage(), random: () => 0.5 });
     session.dispatch({ type: 'summon', kind: 'support' });
     session.dispatch({ type: 'summon', kind: 'melee' });
     session.step(5.1);
@@ -50,7 +50,7 @@ describe('shared skill funding and pause', () => {
 
 describe('developer skills', () => {
   it('fires rightwards into only the first enemy even when enemies overlap, then expires', () => {
-    const session = new BattleSession({ runId: 1, stage: quietStage({ spawns: [{ at: 0, kind: 'robot-melee' }, { at: 0, kind: 'robot-melee' }] }), unitDefinitions: inertEnemies() });
+    const session = new BattleSession({ runId: 1, unlockedSkills: ['hello-world', 'sleep', 'heal'], stage: quietStage({ spawns: [{ at: 0, kind: 'robot-melee' }, { at: 0, kind: 'robot-melee' }] }), unitDefinitions: inertEnemies() });
     session.dispatch({ type: 'move', direction: 1 });
     session.step(4);
     session.dispatch({ type: 'move', direction: 0 });
@@ -77,7 +77,7 @@ describe('developer skills', () => {
     defs['robot-melee'].speed = 6; defs['robot-melee'].range = 0;
     defs['gpt-4o'].speed = 6; defs['gpt-4o'].range = 0;
     const stage = quietStage({ spawns: [{ at: 0, kind: 'robot-melee' }, { at: 0, kind: 'gpt-4o' }] });
-    const session = new BattleSession({ runId: 1, stage, unitDefinitions: defs });
+    const session = new BattleSession({ runId: 1, unlockedSkills: ['hello-world', 'sleep', 'heal'], stage, unitDefinitions: defs });
     session.dispatch({ type: 'skill', skill: 'sleep' });
     session.step(10.1);
     expect(session.snapshot().units.every((unit) => unit.slowRemaining === 0)).toBe(true);
@@ -101,7 +101,7 @@ describe('developer skills', () => {
     defs['robot-melee'] = { ...defs['robot-melee'], damage: 10, range: 1000, attackInterval: 1 };
     const stage = quietStage({ spawns: [{ at: 4, kind: 'robot-melee' }] });
     const make = (runId: number) => {
-      const session = new BattleSession({ runId, stage, unitDefinitions: defs });
+      const session = new BattleSession({ runId, unlockedSkills: ['hello-world', 'sleep', 'heal'], stage, unitDefinitions: defs });
       session.dispatch({ type: 'move', direction: 1 });
       session.step(4.05);
       session.dispatch({ type: 'move', direction: 0 });
@@ -119,7 +119,7 @@ describe('developer skills', () => {
     defs.melee = { ...defs.melee, damage: 0, speed: 20, range: 0 };
     defs.ranged = { ...defs.ranged, damage: 0, speed: 0 };
     defs['robot-melee'] = { ...defs['robot-melee'], damage: 20, range: 1000, attackInterval: 1 };
-    const session = new BattleSession({ runId: 1, stage: quietStage({ spawns: [{ at: 0, kind: 'robot-melee' }] }), unitDefinitions: defs });
+    const session = new BattleSession({ runId: 1, unlockedSkills: ['hello-world', 'sleep', 'heal'], stage: quietStage({ spawns: [{ at: 0, kind: 'robot-melee' }] }), unitDefinitions: defs });
     session.dispatch({ type: 'summon', kind: 'melee' });
     session.dispatch({ type: 'summon', kind: 'ranged' });
     session.step(8);

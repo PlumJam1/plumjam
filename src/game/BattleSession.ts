@@ -1,5 +1,5 @@
-import { ALLY_KINDS, FORMATION_SIZE, STARTER_ALLIES, BOSS, DEFAULT_STAGE, DEFAULT_UNLOCKED_SKILLS, ECONOMY, FIELD, HERO, SKILLS, SUPPORT, UNIT_DEFINITIONS } from './battle/balance';
-import type { AllyKind, BaseState, BattleCommand, BattleSnapshot, BattleStatus, BossTelegraphState, CharacterKind, CommandResult, DefeatReason, EffectKind, EffectState, HeroState, ProjectileState, SkillKind, StageDefinition, Team, UnitDefinition, UnitKind, UnitState } from './battle/types';
+import { ALLY_KINDS, FORMATION_SIZE, STARTER_ALLIES, BOSS, DEFAULT_STAGE, DEFAULT_UNLOCKED_SKILLS, ECONOMY, FIELD, HERO, SKILLS, SKILL_SLOT_COUNT, SUPPORT, UNIT_DEFINITIONS } from './battle/balance';
+import type { AllyKind, BaseState, BattleCommand, BattleSnapshot, BattleSpeed, BattleStatus, BossTelegraphState, CharacterKind, CommandResult, DefeatReason, EffectKind, EffectState, HeroState, ProjectileState, SkillKind, StageDefinition, Team, UnitDefinition, UnitKind, UnitState } from './battle/types';
 import { levelMultiplier } from './progression/ProfileService';
 
 export interface BattleOptions {
@@ -9,6 +9,7 @@ export interface BattleOptions {
   random?: () => number;
   unitDefinitions?: Record<UnitKind, UnitDefinition>;
   unlockedSkills?: readonly SkillKind[];
+  equippedSkills?: readonly SkillKind[];
   equippedAllies?: readonly (AllyKind | null)[];
   unlockedAllies?: readonly AllyKind[];
 }
@@ -33,7 +34,7 @@ export function getSkillValues(hero: Pick<HeroState, 'level' | 'buffs'>) {
   };
 }
 
-/** Converts remaining base cooldown work into wall time, accounting for buff expiry. */
+/** Converts base cooldown work into simulation seconds, accounting for buff expiry. */
 export function getCooldownEta(baseRemaining: number, overclockRemaining: number, excluded = false): number {
   if (excluded) return baseRemaining;
   return baseRemaining <= 2 * overclockRemaining ? baseRemaining / 2 : baseRemaining - overclockRemaining;
@@ -58,6 +59,8 @@ export class BattleSession {
   private readonly equippedAllies: readonly (AllyKind | null)[];
   private readonly unlockedAllies: readonly AllyKind[];
   private readonly unlockedSkills: readonly SkillKind[];
+  private readonly equippedSkills: readonly SkillKind[];
+  private speed: BattleSpeed = 1;
   private status: BattleStatus = 'active';
   private defeatReason?: DefeatReason;
   private elapsed = 0;
@@ -86,7 +89,9 @@ export class BattleSession {
     this.stage = options.stage ?? DEFAULT_STAGE;
     this.definitions = options.unitDefinitions ?? UNIT_DEFINITIONS;
     this.levels = Object.fromEntries((['hero', ...ALLY_KINDS] as CharacterKind[]).map(kind => [kind, options.levels?.[kind] ?? 1])) as Record<CharacterKind, number>;
-    this.unlockedSkills = [...new Set(options.unlockedSkills ?? DEFAULT_UNLOCKED_SKILLS)].filter(skill => skill in SKILLS);
+    this.unlockedSkills = [...new Set(options.unlockedSkills ?? DEFAULT_UNLOCKED_SKILLS)].filter(skill => Object.prototype.hasOwnProperty.call(SKILLS, skill));
+    const chosenSkills = options.equippedSkills ?? (Object.keys(SKILLS) as SkillKind[]).filter(skill => this.unlockedSkills.includes(skill));
+    this.equippedSkills = [...new Set(chosenSkills)].filter(skill => this.unlockedSkills.includes(skill)).slice(0, SKILL_SLOT_COUNT);
     this.unlockedAllies = [...new Set(options.unlockedAllies ?? STARTER_ALLIES)].filter(kind => ALLY_KINDS.includes(kind));
     const chosen = options.equippedAllies ?? [...STARTER_ALLIES, null, null];
     const seen = new Set<AllyKind>();
@@ -105,6 +110,12 @@ export class BattleSession {
   }
 
   dispatch(command: BattleCommand): CommandResult {
+    if (command.type === 'set-speed') {
+      if (this.disposed || (this.status !== 'active' && this.status !== 'paused')) return { accepted: false, reason: '전투 중에만 배속을 바꿀 수 있어.' };
+      if (command.speed !== 1 && command.speed !== 2 && command.speed !== 3) return { accepted: false, reason: '배속은 1배·2배·3배 중에서 골라줘.' };
+      this.speed = command.speed;
+      return { accepted: true, reason: `전투 ${this.speed}배속` };
+    }
     if (this.disposed || this.status !== 'active') return { accepted: false, reason: '전투가 진행 중일 때 사용할 수 있어.' };
     if (command.type === 'move') { this.direction = command.direction; return { accepted: true }; }
     if (command.type === 'skill') return this.useSkill(command.skill);
@@ -137,7 +148,8 @@ export class BattleSession {
   step(deltaSeconds: number): void {
     if (this.disposed || this.status !== 'active' || !Number.isFinite(deltaSeconds) || deltaSeconds <= 0) return;
     // Small rule steps avoid skipping collision/range checks at a low rendering frame rate.
-    let remaining = deltaSeconds;
+    let remaining = deltaSeconds * this.speed;
+    if (!Number.isFinite(remaining)) return;
     while (remaining > 1e-8 && this.status === 'active') {
       const dt = Math.min(remaining, 1 / 60);
       this.tick(dt);
@@ -148,7 +160,7 @@ export class BattleSession {
   snapshot(): BattleSnapshot {
     const economy = ECONOMY[this.economyLevel];
     return {
-      runId: this.runId, stageId: this.stage.id, status: this.status, defeatReason: this.defeatReason,
+      runId: this.runId, stageId: this.stage.id, status: this.status, speed: this.speed, defeatReason: this.defeatReason,
       elapsed: this.elapsed, gold: this.gold, economyLevel: this.economyLevel + 1,
       income: economy.income, goldCap: economy.cap, upgradeCost: economy.upgradeCost,
       hero: { ...this.hero, buffs: { ...this.hero.buffs } }, humanBase: { ...this.humanBase }, aiBase: { ...this.aiBase },
@@ -157,7 +169,7 @@ export class BattleSession {
       effects: this.effects.map((effect) => ({ ...effect })),
       bossTelegraphs: this.bossTelegraphs.map((telegraph) => ({ ...telegraph })), defeatedBossCount: this.defeatedBossCount,
       levels: { ...this.levels }, equippedAllies: [...this.equippedAllies], unlockedAllies: [...this.unlockedAllies],
-      unlockedSkills: [...this.unlockedSkills], overclockRemaining: this.overclockRemaining,
+      unlockedSkills: [...this.unlockedSkills], equippedSkills: [...this.equippedSkills], overclockRemaining: this.overclockRemaining,
     };
   }
 
@@ -282,8 +294,10 @@ export class BattleSession {
   }
 
   private useSkill(skill: SkillKind): CommandResult {
+    if (!Object.prototype.hasOwnProperty.call(SKILLS, skill)) return { accepted: false, reason: '알 수 없는 스킬이야.' };
     const definition = SKILLS[skill];
     if (!this.unlockedSkills.includes(skill)) return { accepted: false, reason: `${definition.label}은 상점에서 해금해야 해.` };
+    if (!this.equippedSkills.includes(skill)) return { accepted: false, reason: `${definition.label}은 이번 스킬 편성에 없어.` };
     if (this.skillCooldowns[skill] > 0) return { accepted: false, reason: `${definition.label} 준비 중이야.` };
     if (this.gold < definition.cost) return { accepted: false, reason: `${definition.label}에 쓸 자금이 부족해.` };
     this.gold -= definition.cost;

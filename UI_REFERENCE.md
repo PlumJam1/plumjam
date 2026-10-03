@@ -9,7 +9,7 @@
 | 지도 | [pict_050.png](https://ponosgames.com/information/appli/battlecats/help/img/pict_050.png) | 옅은 종이지도·빨간 경로점과 흰 점선·가로 스테이지 카드·오른쪽 아래 출진 | 1-1~1-5 선택·클리어/잠김 표시·기존 보상/편성 안내·출진 |
 | 편성 | [pict_027.png](https://ponosgames.com/information/appli/battlecats/help/img/pict_027.png) | 금색 5칸 줄·빈 칸 검은 바탕·중앙 캐릭터와 좌우 이웃 카드 | 기존 5칸 저장 편성·동료 살펴보기·선택 칸 장착·같은 동료 자리 교환 |
 | 육성 | [pict_005.png](https://ponosgames.com/information/appli/battlecats/help/img/pict_005.png) | 중앙 성장 카드·노랑/분홍 강화 버튼·갈색 설명판 | 한 캐릭터의 현재/다음 수치·강화 비용·Lv.5 외형, 좌우 순환 선택 |
-| 전투 | [help01.png](https://ponosgames.com/information/appli/battlecats/help/img/help01.png) | 왼쪽 위 정지·오른쪽 위 큰 노란 자금·왼쪽 아래 원형 경제·가운데 검은 테두리 소환 카드·오른쪽 원형 발사 | 왼쪽 투자 U·5병력/5스킬 2행·오른쪽 Hello World J, 비용/실패 사유/준비 막대·마우스/Tab 미리보기 |
+| 전투 | [help01.png](https://ponosgames.com/information/appli/battlecats/help/img/help01.png) | 왼쪽 위 정지·오른쪽 위 큰 노란 자금·왼쪽 아래 원형 경제·가운데 검은 테두리 소환 카드·오른쪽 원형 발사 | 왼쪽 투자 U·5병력/최대 3장착 스킬 2행·오른쪽 Hello World J, 비용/실패 사유/준비 막대·마우스/Tab 미리보기 |
 | 결과 | [공개 플레이 캡처](https://appdata.hungryapp.co.kr/data_file/data_img_m/202010/M160285562339992130.jpg) · [게시글](https://m.hungryapp.co.kr/bbs/bbs_view.php?bcode=nyangko&pid=1015751) | 검은 굵은 테두리의 흰 승리 표제·반투명 검정/보라 경험치 띠와 노란 숫자·하단 드롭 보상 상자 | 큰 승리!!/패배 표제·검은 경험치 보상 띠·신규 동료 해금 알림·금색 주 행동·준비실 이동 |
 
 ## 표현 및 동작
@@ -19,4 +19,5 @@
 - Phaser 전장은 640:280 비율을 유지한다. 화면 크기에 따라 PC 게임 프레임을 확장하고 장식 요소는 클릭을 가로막지 않는다.
 - 편성과 육성의 좌우 선택은 ViewModel의 씬 수명을 따른다. 선택만으로 XP·편성·레벨을 변경하지 않으며 장착·강화 버튼이 기존 모델 동작을 실행한다.
 - 전투의 원형 Hello World 버튼과 중앙 J 카드는 같은 `useSkill('hello-world')`를 호출한다. 별도 스킬·쿨타임·비용을 만들지 않는다. 범위와 실제 대상·피해/회복 수치·버프 잔여 시간·피드백·키보드 조작을 유지한다.
-- 일시정지와 결과 덮개는 전장과 하단 버튼 위에 놓인다. 저장 진행·해금·보상·게임 밸런스·씬 정리 규칙은 변경하지 않는다.
+- 스킬 상점은 4종 구매 카드·보유 목록·3칸 장착을 표시한다. 구매와 장착은 별도이며, Hello World 미장착 시 원형 버튼도 사용 불가다. 전투 1배·2배·3배 버튼과 R 순환을 제공하고 일시정지 덮개에서도 배속을 바꿀 수 있다.
+- 일시정지와 결과 덮개는 전장과 하단 버튼 위에 놓인다. 저장 진행·보상·씬 정리 규칙을 유지하며 스킬 보유·3칸 장착과 최대 3배속을 반영한다.

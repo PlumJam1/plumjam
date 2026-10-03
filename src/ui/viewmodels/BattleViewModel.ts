@@ -1,10 +1,10 @@
 import { computed, effectScope, readonly, shallowRef } from 'vue';
 import type { AppContext } from '../../core/AppContext';
 import type { SceneScope } from '../../core/SceneLifetimeManager';
-import { ALLY_ROLES, ECONOMY, SKILLS, SUPPORT, UNIT_DEFINITIONS } from '../../game/battle/balance';
+import { ALLY_ROLES, ECONOMY, SKILLS, SUPPORT, UNIT_DEFINITIONS, SKILL_SLOT_COUNT } from '../../game/battle/balance';
 import { getCooldownEta, getSkillValues } from '../../game/BattleSession';
 import { skillPreview } from '../../game/presentation/battlePresentation';
-import type { AllyKind, BattleCommand, BattleSnapshot, SkillKind } from '../../game/battle/types';
+import type { AllyKind, BattleCommand, BattleSnapshot, BattleSpeed, SkillKind } from '../../game/battle/types';
 import { getStage, nextStage } from '../../game/progression/stages';
 
 /** View-independent display decisions; the session remains authoritative for every command. */
@@ -23,7 +23,8 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
   scope.defer(() => { if (bossNoticeTimer) clearTimeout(bossNoticeTimer); });
   const previewSources = new Map<'hover' | 'focus', SkillKind>();
   const publishPreview = () => {
-    const skill = battle.value?.status === 'active' ? [...previewSources.values()].at(-1) ?? null : null;
+    const candidate = [...previewSources.values()].at(-1) ?? null;
+    const skill = battle.value?.status === 'active' && candidate && battle.value.equippedSkills.includes(candidate) ? candidate : null;
     if (skill === previewSkill.value) return;
     previewSkill.value = skill;
     context.bridge.emit('battle-preview', { runId: scope.id, skill });
@@ -76,20 +77,25 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
       return { kind, label: definition.label, cost: definition.cost!, key: String(index + 1), cooldown: eta,
         level: battle.value?.levels[kind] ?? 1, progress: 1 - cooldown / definition.summonCooldown!, reason, description, disabled: reason !== '사용 가능' };
     }));
-    const skills = computed(() => (['hello-world', 'sleep', 'heal', 'git-push', 'overclock'] as SkillKind[]).map((kind, index) => {
+    const allSkills = computed(() => (['hello-world', 'sleep', 'heal', 'git-push', 'overclock'] as SkillKind[]).map((kind, index) => {
       const definition = SKILLS[kind];
       const cooldown = battle.value?.skillCooldowns[kind] ?? 0;
       const eta = getCooldownEta(cooldown, battle.value?.overclockRemaining ?? 0, kind === 'overclock');
       const unlocked = battle.value?.unlockedSkills.includes(kind) ?? false;
-      const reason = unlocked ? availability(definition.cost, eta) : '상점에서 해금';
+      const equipped = battle.value?.equippedSkills.includes(kind) ?? false;
+      const reason = !unlocked ? '상점에서 구매' : !equipped ? '장착 필요' : availability(definition.cost, eta);
       const hero = battle.value?.hero ?? { level: 1, buffs: { combat: 0, speed: 0, haste: 0 } };
       const values = getSkillValues(hero);
       const amount = (value: number) => Number(value.toFixed(1));
       const description = kind === 'hello-world' ? `피해 ${amount(values.helloDamage)} · 사거리 ${values.helloRange} · 오른쪽 첫 적` : kind === 'sleep' ? `반경 ${values.sleepRadius} · 이동속도 -${Math.round((1 - values.sleepSpeedMultiplier) * 100)}% · ${values.sleepDuration}초` : kind === 'heal' ? `회복 ${amount(values.healAmount)} · 반경 ${values.healRadius} · 나와 아군` : kind === 'git-push' ? `반경 ${values.pushRadius} · 일반 적 폭×3 / 보스 폭×1 서서히 밀기 · 적 기지 경계 제한` : `${values.overclockDuration}초간 소환·다른 스킬 쿨타임 50% · 자신 제외 · 수입 유지`;
       const effectLabel = kind === 'hello-world' ? `피해 ${amount(values.helloDamage)}` : kind === 'sleep' ? `감속 ${values.sleepDuration}초` : kind === 'heal' ? `회복 ${amount(values.healAmount)}` : kind === 'git-push' ? '밀치기 폭×3 / 보스×1' : `쿨타임 50% · ${values.overclockDuration}초`;
       return { kind, label: definition.label, cost: definition.cost, key: ['J', 'K', 'L', 'P', 'O'][index], cooldown: eta, unlocked,
-        progress: 1 - cooldown / definition.cooldown, description, effectLabel, reason, disabled: reason !== '사용 가능' };
+        equipped, progress: 1 - cooldown / definition.cooldown, description, effectLabel, reason, disabled: reason !== '사용 가능' };
     }));
+    const skills = computed(() => (battle.value?.equippedSkills ?? []).flatMap(kind => allSkills.value.filter(skill => skill.kind === kind)));
+    const skillSlots = computed(() => Array.from({ length: SKILL_SLOT_COUNT }, (_, index) => skills.value[index] ?? null));
+    const speed = computed(() => battle.value?.speed ?? 1);
+    const speedDisabled = computed(() => !battle.value || ended.value);
     const boss = computed(() => {
       const unit = battle.value?.units.find(unit => unit.kind === 'gpt-4o' && unit.hp > 0);
       if (!unit) return null;
@@ -123,10 +129,15 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
     const resultDescription = computed(() => prototypeComplete.value ? 'GPT-4o를 이겼어. 프로토타입의 5개 스테이지를 모두 클리어했어!' : battle.value?.status === 'won' ? 'AI 데이터센터를 파괴했어. 재화로 강화하거나 다음 출근에 도전해봐.' : battle.value?.defeatReason === 'hero' ? '개발자가 쓰러졌어. 병력 뒤에서 전선을 도와줘.' : '아군 기지가 파괴됐어. 병력과 경제 투자 타이밍을 바꿔봐.');
     const hasNextStage = computed(() => battle.value?.status === 'won' && !!nextStage(battle.value.stageId));
     return {
-      battle: readonly(battle), feedback: readonly(feedback), intro: readonly(intro), units, skills, ended, danger,
+      battle: readonly(battle), feedback: readonly(feedback), intro: readonly(intro), units, skills, allSkills, skillSlots, speed, speedDisabled, ended, danger,
       boss, bossNotice: readonly(bossNotice), waveNotice, heroBuffs, preview, previewDescription, previewTargets,
       economyDisabled, economyDescription, economyReason, time, resultTitle, resultDescription,
       newAllies: computed(() => newAllies.value.map(kind => ({ kind, label: UNIT_DEFINITIONS[kind].label }))), reward: readonly(reward), prototypeComplete: readonly(prototypeComplete), hasNextStage,
+      setSpeed: (value: BattleSpeed) => {
+        const current = context.bridge.sceneState;
+        if (scope.disposed || !battle.value || ended.value || ![1, 2, 3].includes(value) || current && (current.scene !== 'Battle' || current.runId !== scope.id)) return;
+        command({ type: 'set-speed', speed: value });
+      },
       dismissIntro: () => { intro.value = false; },
       summon: (kind: AllyKind | null) => { if (kind !== null) command({ type: 'summon', kind }); },
       useSkill: (skill: SkillKind) => command({ type: 'skill', skill }),

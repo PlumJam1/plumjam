@@ -299,3 +299,44 @@ kbd { display: inline-block; font: inherit; font-size: 10px; line-height: 1.15; 
   .character-description { padding: 6px 10px; }
   .roster-strip { min-height: 58px; }
 }
+/* Skills are owned permanently but only three travel with the current squad. */
+.skill-shop { display: flex; flex-direction: column; align-items: stretch; justify-content: center; gap: 10px; padding: 14px 4%; }
+.skill-shop-heading { display: flex; justify-content: space-between; align-items: center; color: #fff6d1; text-shadow: 1px 1px #17130d; font-size: 17px; }
+.skill-shop-heading span { font-size: 12px; }
+.skill-loadout { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) 110px; gap: 8px; }
+.skill-loadout button { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 43px; background: #26231b; color: #ffde63; border: 3px solid #e6b857; }
+.skill-loadout button[aria-pressed=true] { outline: 3px solid var(--pink); outline-offset: -5px; }
+.skill-loadout button:last-child { background: #fff0bb; color: #392512; font-size: 12px; }
+.skill-purchase-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; min-height: 0; }
+.skill-shop .shop-card { width: auto; min-width: 0; padding: 11px 12px; border-width: 3px; outline-width: 2px; display: flex; flex-direction: column; align-items: stretch; }
+.skill-shop .shop-emblem { width: 39px; height: 39px; font-size: 22px; }
+.skill-shop .shop-card h2 { font-size: 19px; margin: 8px 0; }
+.skill-shop .shop-card p { font-size: 12px; line-height: 1.5; margin-bottom: 9px; min-height: 38px; flex: 1; }
+.skill-shop .shop-card button { font-size: 13px; padding: 8px; }
+.skill-owned-list { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; }
+.skill-owned-list button { display: flex; flex-direction: column; gap: 5px; align-items: center; font-size: 12px; padding: 8px 5px; }
+.skill-owned-list button span { font-size: 11px; }
+.skill-owned-list button[aria-pressed=true] { background: #ffd334; outline: 3px solid var(--pink); outline-offset: -5px; }
+.skill-loadout-note { color: #fff4ce; font-size: 11px; text-align: center; text-shadow: 1px 1px #17130d; }
+.skill-row { grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 5px; min-height: 0; }
+.skill-row .skill-button { grid-row: auto; }
+.empty-skill { justify-content: center; }
+.speed-controls { display: flex; align-items: center; gap: 4px; }
+.speed-controls button { min-width: 38px; font-size: 11px; padding: 5px 6px; border-width: 2px; }
+.speed-controls button[aria-pressed=true] { background: #ffd334; outline: 2px solid var(--pink); outline-offset: -4px; }
+.battle-speed { position: absolute; top: 8px; left: 285px; z-index: 14; }
+.pause-banner .pause-speed { margin: 0 0 10px; }
+.pause-banner .pause-speed button { width: auto; min-width: 56px; font-size: 15px; padding: 8px 12px; }
+@media (min-width: 1500px) and (min-height: 900px) {
+  .skill-shop { gap: 18px; padding: 24px 5%; }
+  .skill-shop-heading { font-size: 23px; }
+  .skill-loadout button { min-height: 64px; font-size: 18px; }
+  .skill-shop .shop-card { padding: 20px; }
+  .skill-shop .shop-card h2 { font-size: 25px; }
+  .skill-shop .shop-card p { font-size: 15px; min-height: 65px; }
+  .skill-shop .shop-card button { font-size: 17px; }
+  .skill-owned-list button { min-height: 70px; font-size: 15px; }
+  .skill-owned-list button span, .skill-loadout-note { font-size: 13px; }
+}
+
+.skill-shop .shop-card .purchase-price { font-size: 15px; margin: 0 0 7px; }

@@ -4,7 +4,7 @@ import type { AppContext } from '../../core/AppContext';
 import type { SceneScope } from '../../core/SceneLifetimeManager';
 import { CHARACTERS, levelMultiplier, MAX_LEVEL, upgradeCost } from '../../game/progression/ProfileService';
 import { STAGES } from '../../game/progression/stages';
-import { ALLY_KINDS, ALLY_ROLES, ALLY_UNLOCK_STAGES, FORMATION_SIZE, HERO, SKILLS, SKILL_UNLOCK_COSTS, SUPPORT, UNIT_DEFINITIONS } from '../../game/battle/balance';
+import { ALLY_KINDS, ALLY_ROLES, ALLY_UNLOCK_STAGES, FORMATION_SIZE, HERO, SKILLS, SKILL_UNLOCK_COSTS, SKILL_SLOT_COUNT, SUPPORT, UNIT_DEFINITIONS } from '../../game/battle/balance';
 import type { AllyKind, CharacterKind, SkillKind } from '../../game/battle/types';
 const growth = { hero: '맥북과 능숙해진 개발자', ...Object.fromEntries(ALLY_KINDS.map(kind => [kind, ALLY_ROLES[kind].evolution])) } as Record<CharacterKind, string>;
 export function createLobbyViewModel(context: AppContext, scope: SceneScope, initialTab: 'menu' | 'stages' | 'training' | 'shop' | 'formation') {
@@ -13,6 +13,7 @@ export function createLobbyViewModel(context: AppContext, scope: SceneScope, ini
   const tab = shallowRef(initialTab);
   const upgradeFeedback = shallowRef('');
   const selectedSlot = shallowRef(0);
+  const selectedSkillSlot = shallowRef(0);
   const selectedAllyKind = shallowRef<AllyKind>(ALLY_KINDS[0]);
   const selectedCharacterKind = shallowRef<CharacterKind>('hero');
   const shiftSelection = <T extends string>(values: readonly T[], current: T, offset: number): T => values[(values.indexOf(current) + offset % values.length + values.length) % values.length];
@@ -21,7 +22,7 @@ export function createLobbyViewModel(context: AppContext, scope: SceneScope, ini
   scope.defer(context.profile.subscribe(value => { if (!scope.disposed) profile.value = value; }));
   const model = effects.run(() => ({
     profile: readonly(profile), lobbyTab: readonly(tab), upgradeFeedback: readonly(upgradeFeedback),
-    selectedStageId: readonly(selectedStageId), selectedSlot: readonly(selectedSlot),
+    selectedStageId: readonly(selectedStageId), selectedSlot: readonly(selectedSlot), selectedSkillSlot: readonly(selectedSkillSlot),
     selectedAllyKind: readonly(selectedAllyKind), selectedCharacterKind: readonly(selectedCharacterKind),
     selectAlly: (kind: AllyKind) => { if (currentLobby() && ALLY_KINDS.includes(kind)) selectedAllyKind.value = kind; },
     shiftAlly: (offset: number) => { if (currentLobby() && Number.isInteger(offset)) selectedAllyKind.value = shiftSelection(ALLY_KINDS, selectedAllyKind.value, offset); },
@@ -50,6 +51,28 @@ export function createLobbyViewModel(context: AppContext, scope: SceneScope, ini
     selectedStage: computed(() => { const stage = STAGES.find(item => item.id === selectedStageId.value)!; return { ...stage, locked: !profile.value.unlockedStages.includes(stage.id), enemies: [...new Set(stage.spawns.map(spawn => UNIT_DEFINITIONS[spawn.kind].label))].join(' · ') }; }),
     selectStage: (id: string) => { if (!scope.disposed && STAGES.some(stage => stage.id === id)) selectedStageId.value = id; },
     stages: computed(() => STAGES.map(stage => ({ ...stage, locked: !profile.value.unlockedStages.includes(stage.id), cleared: profile.value.clearedStages.includes(stage.id) }))),
+    skillLoadout: computed(() => Array.from({ length: SKILL_SLOT_COUNT }, (_, index) => {
+      const kind = profile.value.equippedSkills[index] ?? null;
+      return { index, kind, label: kind ? SKILLS[kind].label : '빈 스킬 칸' };
+    })),
+    skillOwned: computed(() => (Object.keys(SKILLS) as SkillKind[]).map(kind => ({ kind, label: SKILLS[kind].label, description: SKILLS[kind].description, unlocked: profile.value.unlockedSkills.includes(kind), equipped: profile.value.equippedSkills.includes(kind) }))),
+    selectSkillSlot: (index: number) => { if (currentLobby() && Number.isInteger(index) && index >= 0 && index < SKILL_SLOT_COUNT) selectedSkillSlot.value = Math.min(index, profile.value.equippedSkills.length); },
+    equipSkill: (kind: SkillKind) => {
+      if (!currentLobby()) return;
+      const next = [...profile.value.equippedSkills];
+      const existing = next.indexOf(kind);
+      if (existing >= 0) next.splice(existing, 1);
+      else next[Math.min(selectedSkillSlot.value, next.length)] = kind;
+      const result = context.profile.setEquippedSkills(next);
+      upgradeFeedback.value = result.reason ?? '';
+      if (result.accepted) selectedSkillSlot.value = Math.min(selectedSkillSlot.value, next.length, SKILL_SLOT_COUNT - 1);
+    },
+    removeSkill: () => {
+      if (!currentLobby()) return;
+      const result = context.profile.setEquippedSkills(profile.value.equippedSkills.filter((_, index) => index !== selectedSkillSlot.value));
+      upgradeFeedback.value = result.reason ?? '';
+      if (result.accepted) selectedSkillSlot.value = Math.min(selectedSkillSlot.value, profile.value.equippedSkills.length, SKILL_SLOT_COUNT - 1);
+    },
     shopSkills: computed(() => (Object.keys(SKILL_UNLOCK_COSTS) as Array<keyof typeof SKILL_UNLOCK_COSTS>).map(kind => {
       const cost = SKILL_UNLOCK_COSTS[kind];
       const unlocked = profile.value.unlockedSkills.includes(kind);

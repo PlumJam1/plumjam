@@ -21,7 +21,7 @@ describe('GPT-4o locked frontal area attack', () => {
     const defs = definitions();
     defs.melee = { ...defs.melee, damage: 0, speed: 65, range: 100 };
     defs.ranged = { ...defs.ranged, damage: 0, speed: 0 };
-    const session = new BattleSession({ runId: 1, stage: quietBossStage(), unitDefinitions: defs });
+    const session = new BattleSession({ runId: 1, unlockedSkills: ['hello-world', 'sleep'], stage: quietBossStage(), unitDefinitions: defs });
     session.dispatch({ type: 'summon', kind: 'melee' });
     session.dispatch({ type: 'summon', kind: 'ranged' });
     approach(session);
@@ -49,7 +49,7 @@ describe('GPT-4o locked frontal area attack', () => {
   });
 
   it('allows a hero to dodge during the windup while sleep leaves the cast timer running', () => {
-    const session = new BattleSession({ runId: 1, stage: quietBossStage(), unitDefinitions: definitions() });
+    const session = new BattleSession({ runId: 1, unlockedSkills: ['hello-world', 'sleep'], stage: quietBossStage(), unitDefinitions: definitions() });
     approach(session);
     session.step(6 - session.snapshot().elapsed);
     session.dispatch({ type: 'skill', skill: 'sleep' });
@@ -63,7 +63,7 @@ describe('GPT-4o locked frontal area attack', () => {
   });
 
   it('freezes all boss clocks on pause, copies its DTOs, and resets casts on disposal and restart', () => {
-    const session = new BattleSession({ runId: 1, stage: quietBossStage(), unitDefinitions: definitions() });
+    const session = new BattleSession({ runId: 1, unlockedSkills: ['hello-world', 'sleep'], stage: quietBossStage(), unitDefinitions: definitions() });
     session.step(6.4);
     session.setPaused(true);
     const paused = session.snapshot();
@@ -82,7 +82,7 @@ describe('GPT-4o locked frontal area attack', () => {
 
   it('cancels a dying owner before detonation and records one defeat without a blast effect', () => {
     const defs = definitions(); defs['gpt-4o'].hp = 60;
-    const session = new BattleSession({ runId: 1, stage: quietBossStage(), unitDefinitions: defs });
+    const session = new BattleSession({ runId: 1, unlockedSkills: ['hello-world', 'sleep'], stage: quietBossStage(), unitDefinitions: defs });
     approach(session);
     session.step(6.95 - session.snapshot().elapsed);
     session.dispatch({ type: 'skill', skill: 'hello-world' });
@@ -95,7 +95,7 @@ describe('GPT-4o locked frontal area attack', () => {
   });
 
   it('clears a pending cast when a public hero shot destroys the enemy base', () => {
-    const session = new BattleSession({ runId: 1, stage: quietBossStage({ aiBaseHp: 75 }), unitDefinitions: definitions() });
+    const session = new BattleSession({ runId: 1, unlockedSkills: ['hello-world', 'sleep'], stage: quietBossStage({ aiBaseHp: 75 }), unitDefinitions: definitions() });
     approach(session);
     session.step(6 - session.snapshot().elapsed);
     session.dispatch({ type: 'move', direction: 1 });
@@ -113,7 +113,7 @@ describe('GPT-4o locked frontal area attack', () => {
   it('hits the base and the inclusive radius boundary, then clears warnings on base defeat', () => {
     const defs = definitions();
     defs['gpt-4o'] = { ...defs['gpt-4o'], speed: 100, range: 20 };
-    const session = new BattleSession({ runId: 1, stage: quietBossStage({ humanBaseHp: 60 }), unitDefinitions: defs });
+    const session = new BattleSession({ runId: 1, unlockedSkills: ['hello-world', 'sleep'], stage: quietBossStage({ humanBaseHp: 60 }), unitDefinitions: defs });
     session.dispatch({ type: 'move', direction: -1 });
     session.step(6);
     session.dispatch({ type: 'move', direction: 0 });
@@ -126,7 +126,7 @@ describe('GPT-4o locked frontal area attack', () => {
 
 describe('skill values and authored rushes', () => {
   it('uses the same hero level without service-worker attack-speed buffs affecting skills in preview and actual projectile damage', () => {
-    const session = new BattleSession({ runId: 1, stage: { ...quietBossStage(), spawns: [] }, levels: { hero: 5 }, random: () => 0.5 });
+    const session = new BattleSession({ runId: 1, unlockedSkills: ['hello-world', 'sleep'], stage: { ...quietBossStage(), spawns: [] }, levels: { hero: 5 }, random: () => 0.5 });
     session.dispatch({ type: 'summon', kind: 'support' });
     session.step(5.01);
     const values = getSkillValues(session.snapshot().hero);
@@ -138,7 +138,7 @@ describe('skill values and authored rushes', () => {
   });
 
   it('lets one starter Hello World shot defeat a runner and sleep meaningfully delays its fast advance', () => {
-    const make = () => new BattleSession({ runId: 1, stage: { ...quietBossStage(), spawns: [{ at: 0, kind: 'robot-runner' }] } });
+    const make = () => new BattleSession({ runId: 1, unlockedSkills: ['hello-world', 'sleep'], stage: { ...quietBossStage(), spawns: [{ at: 0, kind: 'robot-runner' }] } });
     const shot = make();
     shot.dispatch({ type: 'move', direction: 1 }); shot.step(2); shot.dispatch({ type: 'move', direction: 0 });
     shot.dispatch({ type: 'skill', skill: 'hello-world' }); shot.step(1);

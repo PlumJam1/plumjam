@@ -11,19 +11,20 @@ describe('lobby MVVM', () => {
     context.bridge.emit('scene-state', { scene: 'Lobby', runId: scope.id, phase: 'ready', lobbyTab: 'shop' });
     const model = createLobbyViewModel(context, scope, 'shop');
     expect(model.lobbyTab.value).toBe('shop');
-    expect(model.shopSkills.value).toEqual([expect.objectContaining({ kind: 'git-push', cost: 240, unlocked: false, disabled: true, reason: '재화 240 부족' })]);
+    expect(model.shopSkills.value).toHaveLength(4);
+    expect(model.shopSkills.value.find(skill => skill.kind === 'git-push')).toMatchObject({ cost: 240, unlocked: false, disabled: true, reason: '재화 240 부족' });
     const purchase = vi.spyOn(context.profile, 'purchaseSkill');
     context.profile.rewardWin('one', '1-1'); context.profile.rewardWin('two', '1-1');
-    expect(model.shopSkills.value[0].disabled).toBe(false);
+    expect(model.shopSkills.value.find(skill => skill.kind === 'git-push')!.disabled).toBe(false);
     context.bridge.emit('scene-state', { scene: 'Battle', runId: scope.id, phase: 'ready' });
     model.purchaseSkill('git-push'); expect(purchase).not.toHaveBeenCalled();
     context.bridge.emit('scene-state', { scene: 'Lobby', runId: scope.id + 1, phase: 'ready' });
     model.purchaseSkill('git-push'); expect(purchase).not.toHaveBeenCalled();
     context.bridge.emit('scene-state', { scene: 'Lobby', runId: scope.id, phase: 'ready', lobbyTab: 'shop' });
     model.purchaseSkill('git-push'); expect(purchase).toHaveBeenCalledTimes(1);
-    expect(model.shopSkills.value[0]).toMatchObject({ unlocked: true, disabled: true, reason: '해금 완료' });
+    expect(model.shopSkills.value.find(skill => skill.kind === 'git-push')!).toMatchObject({ unlocked: true, disabled: true, reason: '해금 완료' });
     expect(model.profile.value.xp).toBe(0);
-    expect(model.upgradeFeedback.value).toContain('해금 완료');
+    expect(model.upgradeFeedback.value).toContain('구매 완료');
     scope.dispose(); model.purchaseSkill('git-push');
     expect(purchase).toHaveBeenCalledTimes(1);
     context.dispose();
@@ -114,5 +115,34 @@ describe('lobby character browsing', () => {
     scope.dispose(); model.shiftAlly(1); model.shiftCharacter(1);
     expect(model.selectedAllyKind.value).toBe('technician'); expect(model.selectedCharacterKind.value).toBe('technician');
     expect(context.profile.snapshot()).toEqual(original); context.dispose();
+  });
+});
+
+
+describe('lobby skill equipment', () => {
+  it('browses, buys, removes, adds and replaces skills only in its current Lobby without charging for equipment', () => {
+    const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
+    context.bridge.emit('scene-state', { scene: 'Lobby', runId: scope.id, phase: 'ready' });
+    const model = createLobbyViewModel(context, scope, 'shop');
+    expect(model.skillLoadout.value.map(slot => slot.kind)).toEqual(['hello-world', null, null]);
+    for (let run = 0; run < 8; run++) context.profile.rewardWin(String(run), '1-1');
+    model.purchaseSkill('sleep'); model.purchaseSkill('heal'); model.purchaseSkill('overclock');
+    expect(context.profile.snapshot().equippedSkills).toEqual(['hello-world']);
+    const xp = context.profile.snapshot().xp;
+    model.selectSkillSlot(2); expect(model.selectedSkillSlot.value).toBe(1);
+    model.selectSkillSlot(1); model.equipSkill('sleep'); model.selectSkillSlot(2); model.equipSkill('heal');
+    expect(model.skillLoadout.value.map(slot => slot.kind)).toEqual(['hello-world', 'sleep', 'heal']);
+    model.selectSkillSlot(0); model.equipSkill('overclock');
+    expect(context.profile.snapshot().equippedSkills).toEqual(['overclock', 'sleep', 'heal']);
+    model.equipSkill('sleep'); expect(context.profile.snapshot().equippedSkills).toEqual(['overclock', 'heal']);
+    model.removeSkill(); expect(context.profile.snapshot().equippedSkills).toEqual(['heal']);
+    model.removeSkill(); expect(context.profile.snapshot().equippedSkills).toEqual([]);
+    model.selectSkillSlot(2); expect(model.selectedSkillSlot.value).toBe(0);
+    expect(context.profile.snapshot().xp).toBe(xp);
+    const set = vi.spyOn(context.profile, 'setEquippedSkills');
+    context.bridge.emit('scene-state', { scene: 'Battle', runId: scope.id, phase: 'ready' });
+    model.selectSkillSlot(2); model.equipSkill('hello-world'); model.removeSkill(); expect(set).not.toHaveBeenCalled();
+    context.bridge.emit('scene-state', { scene: 'Lobby', runId: scope.id + 1, phase: 'ready' }); model.equipSkill('hello-world'); expect(set).not.toHaveBeenCalled();
+    scope.dispose(); model.equipSkill('hello-world'); expect(set).not.toHaveBeenCalled(); context.dispose();
   });
 });
