@@ -1,14 +1,14 @@
-# 게임잼 웹 제출 준비
+# 게임잼 웹 제출 안내
 
-2026-10-04 기준: 웹 링크 중심으로 준비한다. **현재 GitHub Pages 게시·설정 변경·워크플로 실행은 하지 않았다.** 버전은 `0.1.0`이다.
+2026-10-04(KST)에 `0.1.0`의 `87c761081eb0333e6cc0f88c194e6a4364b2f7ca` 버전을 GitHub Pages로 게시했다. 제출 링크는 **[인간의 마지막 출근](https://plumjam1.github.io/plumjam/)**이다.
 
-## 나중에 GitHub Pages 게시하기
+## GitHub Pages 다시 게시하기
 
 저장소는 `PlumJam1/plumjam`, 기본 브랜치는 `dev`다(읽기 조회 확인). `.github/workflows/pages.yml`은 **Run workflow로 수동 실행할 때만** 동작하며 push로 자동 게시하지 않는다. 이 파일이 기본 브랜치에 있어야 수동 실행이 표시된다. [GitHub workflow_dispatch 안내](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#workflow_dispatch).
 
-나중에 게시할 때 저장소 관리자가 Settings → Pages의 Source를 **GitHub Actions**로 확인하고, Actions의 `Publish game to GitHub Pages (manual)`을 원하는 `dev` 커밋에서 실행한다. 테스트와 타입 검사·상대 경로 빌드를 통과한 결과만 공식 Pages artifact/deploy action으로 게시한다. GitHub Pages 환경에 별도 승인 규칙이 있으면 그 규칙을 따른다. [GitHub 공식 Pages 워크플로 안내](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
+Pages의 Source는 **GitHub Actions**로 설정되어 있다. 다시 게시할 때 Actions의 `Publish game to GitHub Pages (manual)`을 원하는 `dev` 커밋에서 실행한다. 테스트와 타입 검사·상대 경로 빌드를 통과한 결과만 공식 Pages artifact/deploy action으로 게시한다. GitHub Pages 환경에 별도 승인 규칙이 있으면 그 규칙을 따른다. [GitHub 공식 Pages 워크플로 안내](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages).
 
-예상 주소는 `https://plumjam1.github.io/plumjam/`다. **게시 성공이나 실제 접속을 확인한 주소가 아니다.** 배포 후 Actions의 실제 `page_url`을 제출 링크로 사용한다.
+실제 공개 주소는 `https://plumjam1.github.io/plumjam/`이며 HTTPS가 적용되어 있다. [첫 배포 Actions 실행](https://github.com/PlumJam1/plumjam/actions/runs/37161355168)의 빌드·배포 job 모두 성공했다. GitHub에서도 281개 테스트·타입 검사·빌드를 통과했고, 공개 파일 65개가 모두 HTTP 200이며 로컬 검증 빌드와 SHA-256이 일치했다. 실제 브라우저에서 최초 프롤로그, 타이틀, 준비실, 1-1 출진 및 키보드 소환·스킬 입력·일시정지를 확인했으며 이 확인 중 콘솔 경고·오류는 없었다. 전체 캠페인 직접 플레이를 뜻하지 않는다.
 
 워크플로는 Node 24 LTS와 공식 [checkout](https://github.com/actions/checkout), [setup-node](https://github.com/actions/setup-node), [upload-pages-artifact](https://github.com/actions/upload-pages-artifact), [deploy-pages](https://github.com/actions/deploy-pages)를 사용한다. 빌드에는 `contents: read`, 배포에는 `pages: write`·`id-token: write`만 부여한다. 버전은 각 공식 저장소의 현재 메이저 태그를 확인했다. [Node LTS 목록](https://nodejs.org/en/about/previous-releases).
 
@@ -36,7 +36,7 @@ ZIP을 풀고 해당 폴더에서 `python3 -m http.server 4174 --bind 127.0.0.1`
 
 ## 확인 범위
 
-로컬 `package:jam` 타입 검사·빌드·ZIP 루트/파일 해시·기존 `dist/` 보존 검사를 통과했다. `/web/`에서 웹 파일 59개 전부 HTTP 200 및 해시 일치, HTML 3개·CSS 7개 상대 참조를 확인했다. 수정된 산출물이 있으면 덮어쓰기를 거절하고 그대로 보존하는 경계도 확인했다. 수동 워크플로 YAML 구문·trigger·job 권한은 로컬 파서로 검사했으며 실제 Actions 실행은 하지 않았다.
+게시 전 준비 시점에 로컬 `package:jam` 타입 검사·빌드·ZIP 루트/파일 해시·기존 `dist/` 보존 검사를 통과했다. 당시 `/web/`에서 웹 파일 59개 전부 HTTP 200 및 해시 일치, HTML 3개·CSS 7개 상대 참조를 확인했다. 수정된 산출물이 있으면 덮어쓰기를 거절하고 그대로 보존하는 경계도 확인했다. 실제 Actions 실행 및 최신 공개 버전 확인은 위 배포 기록을 따른다.
 
 Guide·튜토리얼·해금 동료 편성 경로 관련 17개 테스트를 통과했다. 준비된 산출물의 실제 화면·첫 클리어 검사는 별도로 수행한다. 모델의 10단계 캠페인 검증과 실제 브라우저 플레이를 구분하며, 모든 브라우저·전체 캠페인을 직접 플레이했다고 주장하지 않는다.
 
@@ -50,7 +50,7 @@ Guide·튜토리얼·해금 동료 편성 경로 관련 17개 테스트를 통�
 
 일시정지에서 플레이 방법을 열었다가 Esc로 닫아도 전투는 정지 상태를 유지했다. 타이틀의 크레딧은 800×600에서 키보드로 하단 링크까지 이동할 때 자동 스크롤과 포커스 표시가 유지됐고, 모달은 하나만 활성화됐다. 검사 중 콘솔 경고·오류는 0이었다. 기존 4173 origin의 저장(0 XP·Hello World와 sleep() 장착)은 변경하지 않았다.
 
-이는 실제 브라우저 **첫 스테이지** 확인이다. 전체 10단계와 보스를 직접 플레이한 증거로 사용하지 않으며 캠페인 모델 검증과 구분한다. GitHub Pages는 계속 수동 배포 준비 상태이고 아직 게시하지 않았다. 이 기록 추가는 문서만 변경하며 제품 소스와 ZIP은 검사 당시 그대로다.
+이는 게시 전 로컬 산출물의 실제 브라우저 **첫 스테이지** 확인이다. 전체 10단계와 보스를 직접 플레이한 증거로 사용하지 않으며 캠페인 모델 검증과 구분한다. 현재 공개 버전과 공개 브라우저 확인 범위는 위 배포 기록을 따른다.
 
 
-개발 테스트용 Ctrl+O는 임시 XP ∞·모든 맵 출진을 제공한다. OFF/reload는 원래 저장으로 복원하며 테스트 실행은 정상 보상으로 기록하지 않는다. 새 패키지는 이 단축키를 포함하되 Pages 게시·수동 워크플로 실행은 하지 않았다.
+개발 테스트용 Ctrl+O는 임시 XP ∞·모든 맵 출진을 제공한다. OFF/reload는 원래 저장으로 복원하며 테스트 실행은 정상 보상으로 기록하지 않는다. 공개 버전에도 이 단축키가 포함되어 있다.

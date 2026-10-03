@@ -135,7 +135,7 @@ npm run balance -- --chapters --output /tmp/plumjam-chapters.json
 첫 전투 안내는 소환 → 선택적 투자 → 실제 장착 스킬 → 이동/후퇴를 한 단계씩 보여준다. 이미 한 행동을 다시 요구하지 않고 읽기만 다음으로 넘길 수도 있다. 새 동료 카드에서 편성 화면으로 이동하면 해당 동료와 기존 칸 또는 첫 빈 칸을 살펴보며, 확정하기 전에는 편성이 저장되지 않는다. 마지막 출근은 10스테이지 클리어·엔딩 열람 상태와 크레딧을 보여주고 준비실로 돌아가거나 다시 도전할 수 있다. 기존 보상·반복 클리어와 자동 저장을 유지한다.
 
 
-공개 게시 준비는 [게임잼 웹 제출 안내](docs/JAM_RELEASE.md)에 정리했다. `npm run package:jam`은 상대 경로 웹 폴더 `artifacts/gamejam/web/`와 백업 `artifacts/gamejam/plumjam-web-0.1.0.zip`을 만들며 기본 `dist/`를 유지한다. GitHub Pages 워크플로는 나중에 수동으로 실행하는 준비만 추가했으며 현재 공개 게시하지 않았다.
+공개 게임: **[인간의 마지막 출근 플레이](https://plumjam1.github.io/plumjam/)**. 2026-10-04에 `87c7610` 버전을 GitHub Pages로 배포했다. 배포 기록과 재게시 절차는 [게임잼 웹 제출 안내](docs/JAM_RELEASE.md)에 정리했다. `npm run package:jam`은 상대 경로 웹 폴더 `artifacts/gamejam/web/`와 백업 `artifacts/gamejam/plumjam-web-0.1.0.zip`을 만들며 기본 `dist/`를 유지한다. GitHub Pages는 수동 워크플로 실행으로만 갱신한다.
 
 
 상대 경로 ZIP 웹의 새 브라우저 origin `/web/`에서 프롤로그→1-1을 실제 UI로 플레이하여 전투 1:03·코딩 조 HP320·기지 HP900으로 승리하고 120 XP·기술직을 받았다. 새 동료 카드 진입은 기술직/빈 4번 칸을 미리보기만 했으며 확정한 뒤에 편성됐다. 코딩 조 1→2 강화에 60 XP를 사용한 뒤 새로고침에서도 XP60·1-1 CLEAR·1-2 해금·기술직 4번·Hello 한 스킬을 보존했다. Guide의 800px 본문/내부 스크롤·링크 포커스·닫기 복귀와 일시정지 Guide의 Escape 복귀 후 시간 정지, 콘솔 오류 없음도 확인했다. 기존 저장은 유지했으며 브라우저에서 전체 10단계·보스를 새로 플레이한 기록은 아니다. 전체 231개 테스트(31파일)·타입 검사·빌드가 통과했다.
