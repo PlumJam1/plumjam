@@ -1,5 +1,5 @@
-import { ALLY_KINDS, FORMATION_SIZE, STARTER_ALLIES, BOSS, DEFAULT_STAGE, DEFAULT_UNLOCKED_SKILLS, ECONOMY, FIELD, HERO, SKILLS, SKILL_SLOT_COUNT, SUPPORT, UNIT_DEFINITIONS } from './battle/balance';
-import type { AllyKind, BaseState, BattleCommand, BattleSnapshot, BattleSpeed, BattleStatus, BossTelegraphState, CharacterKind, CommandResult, DefeatReason, EffectKind, EffectState, HeroState, ProjectileState, SkillKind, StageDefinition, Team, UnitDefinition, UnitKind, UnitState } from './battle/types';
+import { ALLY_KINDS, FORMATION_SIZE, STARTER_ALLIES, BOSS, DEFAULT_STAGE, DEFAULT_UNLOCKED_SKILLS, ECONOMY, FIELD, HERO, JUDGE, SKILLS, SKILL_SLOT_COUNT, SONG, SUPPORT, UNIT_DEFINITIONS, WATER } from './battle/balance';
+import type { AllyKind, BaseState, BattleCommand, BattleSnapshot, BattleSpeed, BattleStatus, BossTelegraphState, CharacterKind, CommandResult, DefeatReason, EffectKind, EffectState, ForeachFlightState, HeroState, JudgeAttackState, ProjectileState, SkillKind, StageDefinition, Team, UnitDefinition, UnitKind, UnitState, WaterChannelState } from './battle/types';
 import { levelMultiplier } from './progression/ProfileService';
 
 export interface BattleOptions {
@@ -14,6 +14,10 @@ export interface BattleOptions {
   unlockedAllies?: readonly AllyKind[];
 }
 type Target = UnitState | HeroState | BaseState;
+type PendingBoss = BossTelegraphState & { damage: number };
+type PendingJudge = JudgeAttackState & { damage: number };
+type PendingWater = WaterChannelState & { damage: number; untilTick: number; ticksRemaining: number };
+type PendingForeach = ForeachFlightState & { damage: number };
 
 /** Shared lane collision order: forward distance first, then stable entity ID. */
 export function getProjectileTarget<T extends { id: number; x: number }>(targets: readonly T[], projectile: Pick<ProjectileState, 'x' | 'direction' | 'source'>, travel: number): T | undefined {
@@ -31,6 +35,8 @@ export function getSkillValues(hero: Pick<HeroState, 'level' | 'buffs'>) {
     sleepRadius: SKILLS.sleep.radius, sleepDuration: SKILLS.sleep.duration, sleepSpeedMultiplier: SKILLS.sleep.speedMultiplier,
     healAmount: SKILLS.heal.amount * levelMultiplier(hero.level), healRadius: SKILLS.heal.radius,
     pushRadius: SKILLS['git-push'].radius, overclockDuration: SKILLS.overclock.duration,
+    foreachDamage: SKILLS.foreach.damage * levelMultiplier(hero.level) * (hero.buffs.combat > 0 ? SUPPORT.damageMultiplier : 1),
+    foreachRadius: SKILLS.foreach.radius, foreachOffset: SKILLS.foreach.forwardOffset, foreachFlight: SKILLS.foreach.flightDuration,
   };
 }
 
@@ -78,10 +84,13 @@ export class BattleSession {
   private pushes = new Map<number, { destination: number; speed: number }>();
   private projectiles: ProjectileState[] = [];
   private effects: EffectState[] = [];
-  private bossTelegraphs: BossTelegraphState[] = [];
+  private bossTelegraphs: PendingBoss[] = [];
+  private judgeAttacks: PendingJudge[] = [];
+  private waterChannels: PendingWater[] = [];
+  private foreachFlights: PendingForeach[] = [];
   private defeatedBossCount = 0;
   private overclockRemaining = 0;
-  private skillCooldowns: Record<SkillKind, number> = { 'hello-world': 0, sleep: 0, heal: 0, 'git-push': 0, overclock: 0 };
+  private skillCooldowns: Record<SkillKind, number> = { 'hello-world': 0, sleep: 0, heal: 0, 'git-push': 0, overclock: 0, foreach: 0 };
   private cooldowns = Object.fromEntries(ALLY_KINDS.map(kind => [kind, 0])) as Record<AllyKind, number>;
 
   constructor(options: BattleOptions) {
@@ -167,13 +176,16 @@ export class BattleSession {
       units: this.units.map((unit) => ({ ...unit, buffs: { ...unit.buffs } })), projectiles: this.projectiles.map((projectile) => ({ ...projectile })),
       summonCooldowns: { ...this.cooldowns }, skillCooldowns: { ...this.skillCooldowns },
       effects: this.effects.map((effect) => ({ ...effect })),
-      bossTelegraphs: this.bossTelegraphs.map((telegraph) => ({ ...telegraph })), defeatedBossCount: this.defeatedBossCount,
+      bossTelegraphs: this.bossTelegraphs.map(({ damage: _damage, ...telegraph }) => ({ ...telegraph })), defeatedBossCount: this.defeatedBossCount,
+      judgeAttacks: this.judgeAttacks.map(({ damage: _damage, ...attack }) => ({ ...attack })),
+      waterChannels: this.waterChannels.map(({ damage: _damage, untilTick: _tick, ticksRemaining: _ticks, ...channel }) => ({ ...channel })),
+      foreachFlights: this.foreachFlights.map(({ damage: _damage, ...flight }) => ({ ...flight })),
       levels: { ...this.levels }, equippedAllies: [...this.equippedAllies], unlockedAllies: [...this.unlockedAllies],
       unlockedSkills: [...this.unlockedSkills], equippedSkills: [...this.equippedSkills], overclockRemaining: this.overclockRemaining,
     };
   }
 
-  dispose(): void { this.disposed = true; this.direction = 0; this.units = []; this.pushes.clear(); this.projectiles = []; this.effects = []; this.bossTelegraphs = []; this.overclockRemaining = 0; }
+  dispose(): void { this.disposed = true; this.direction = 0; this.units = []; this.pushes.clear(); this.projectiles = []; this.effects = []; this.clearPending(); this.overclockRemaining = 0; }
 
   private tick(dt: number): void {
     this.elapsed += dt;
@@ -205,7 +217,37 @@ export class BattleSession {
         this.pushes.delete(unit.id);
       }
     }
-    const detonations: BossTelegraphState[] = [];
+    const judgeImpacts: PendingJudge[] = [];
+    this.judgeAttacks = this.judgeAttacks.filter(attack => {
+      const source = this.units.find(unit => unit.id === attack.sourceId && unit.hp > 0);
+      const target = this.targetById(attack.targetId);
+      if (!source || !target || target.hp <= 0) return false;
+      attack.x = target.x;
+      attack.remaining = Math.max(0, attack.remaining - dt);
+      if (attack.remaining > 1e-8) return true;
+      judgeImpacts.push(attack); return false;
+    });
+    const channelingThisTick = new Set(this.waterChannels.map(channel => channel.sourceId));
+    const waterTicks: PendingWater[] = [];
+    this.waterChannels = this.waterChannels.filter(channel => {
+      const source = this.units.find(unit => unit.id === channel.sourceId && unit.hp > 0);
+      if (!source) return false;
+      channel.x = source.x; channel.endX = source.x + this.definitions[source.kind].range;
+      channel.remaining = Math.max(0, channel.remaining - dt);
+      channel.untilTick -= dt;
+      while (channel.ticksRemaining > 0 && channel.untilTick <= 1e-8) {
+        waterTicks.push({ ...channel }); channel.ticksRemaining--; channel.untilTick += WATER.tickInterval;
+      }
+      return channel.remaining > 1e-8;
+    });
+    const foreachImpacts: PendingForeach[] = [];
+    this.foreachFlights = this.foreachFlights.filter(flight => {
+      if (this.hero.hp <= 0) return false;
+      flight.remaining = Math.max(0, flight.remaining - dt);
+      if (flight.remaining > 1e-8) return true;
+      foreachImpacts.push(flight); return false;
+    });
+    const detonations: PendingBoss[] = [];
     this.bossTelegraphs = this.bossTelegraphs.filter((telegraph) => {
       if (!living.some((unit) => unit.id === telegraph.ownerId)) return false;
       telegraph.remaining = Math.max(0, telegraph.remaining - dt);
@@ -232,13 +274,15 @@ export class BattleSession {
       const attackWork = dt + Math.min(dt, unit.buffs.haste) * (SUPPORT.hasteMultiplier - 1);
       this.tickBuffs(unit, dt);
       unit.slowRemaining = Math.max(0, unit.slowRemaining - dt);
-      if (unit.kind === 'support' || unit.kind === 'counselor') {
+      unit.weakenRemaining = Math.max(0, unit.weakenRemaining - dt);
+      if (unit.kind === 'support' || unit.kind === 'counselor' || unit.kind === 'singer') {
         unit.supportCooldown -= dt;
-        if (unit.supportCooldown <= 1e-8) { unit.supportCooldown += SUPPORT.period; this.support(unit); }
+        if (unit.supportCooldown <= 1e-8) { unit.supportCooldown += unit.kind === 'singer' ? SONG.period : SUPPORT.period; this.support(unit); }
       }
       unit.attackCooldown = Math.max(0, unit.attackCooldown - attackWork);
       unit.hitFlash = Math.max(0, unit.hitFlash - dt);
       unit.attackFlash = Math.max(0, unit.attackFlash - dt);
+      if (channelingThisTick.has(unit.id)) continue;
       const target = this.nearestTarget(unit);
       if (unit.kind === 'gpt-4o') {
         unit.bossCooldown = Math.max(0, unit.bossCooldown - dt);
@@ -247,7 +291,7 @@ export class BattleSession {
         if (unit.bossCooldown <= 1e-8) {
           unit.bossCooldown = BOSS.cooldown;
           this.bossTelegraphs.push({ ownerId: unit.id, x: unit.x + (target.x >= unit.x ? 1 : -1) * BOSS.forwardOffset,
-            radius: BOSS.radius, remaining: BOSS.windup, duration: BOSS.windup });
+            radius: BOSS.radius, remaining: BOSS.windup, duration: BOSS.windup, damage: this.attackDamage(unit, BOSS.damage) });
           continue;
         }
       }
@@ -256,8 +300,14 @@ export class BattleSession {
         if (definition.damage > 0 && unit.attackCooldown <= 0) {
           unit.attackCooldown = definition.attackInterval;
           unit.attackFlash = 0.18;
-          const damage = definition.damage * this.levelMultiplier(unit.level) * (unit.buffs.combat > 0 ? SUPPORT.damageMultiplier : 1);
-          if (definition.projectileSpeed) {
+          const damage = this.attackDamage(unit, definition.damage);
+          if (unit.kind === 'judge') {
+            this.judgeAttacks.push({ id: this.nextId++, sourceId: unit.id, targetId: target.id, x: target.x,
+              remaining: JUDGE.windup + JUDGE.fall, duration: JUDGE.windup + JUDGE.fall, windup: JUDGE.windup, damage });
+          } else if (unit.kind === 'firefighter') {
+            this.waterChannels.push({ id: this.nextId++, sourceId: unit.id, x: unit.x, endX: unit.x + definition.range,
+              remaining: WATER.duration, duration: WATER.duration, untilTick: WATER.tickInterval, ticksRemaining: WATER.ticks, damage: damage / WATER.ticks });
+          } else if (definition.projectileSpeed) {
             this.projectiles.push({ id: this.nextId++, source: unit.kind, team: unit.team, x: unit.x,
               direction: target.x >= unit.x ? 1 : -1, speed: definition.projectileSpeed,
               damage, remainingRange: definition.range + 20 });
@@ -268,29 +318,49 @@ export class BattleSession {
         unit.x += direction * Math.min(definition.speed * (unit.slowRemaining > 0 ? SKILLS.sleep.speedMultiplier : 1) * (unit.buffs.speed > 0 ? SUPPORT.speedMultiplier : 1) * dt, gap - definition.range);
       }
     }
-    for (const hit of hits) {
-      hit.target.hp = Math.max(0, hit.target.hp - hit.damage * ('buffs' in hit.target && hit.target.buffs.combat > 0 ? SUPPORT.receivedDamageMultiplier : 1));
-      if ('hitFlash' in hit.target) hit.target.hitFlash = 0.18;
+    // Impact ties resolve ordinary attacks → judge → water → foreach → boss.
+    // Each delayed impact checks its living owner again, so earlier lethal hits cancel it.
+    for (const hit of hits) this.hit(hit.target, hit.damage);
+    for (const attack of judgeImpacts) {
+      const source = this.units.find(unit => unit.id === attack.sourceId && unit.hp > 0);
+      const target = this.targetById(attack.targetId);
+      if (!source || !target || target.hp <= 0) continue;
+      this.hit(target, attack.damage);
+      this.effect('judge-impact', target.x, 34);
+    }
+    for (const channel of waterTicks) {
+      if (!this.units.some(unit => unit.id === channel.sourceId && unit.hp > 0)) continue;
+      for (const target of this.targets('human').filter(target => target.hp > 0 && target.x >= channel.x && target.x <= channel.endX)) this.hit(target, channel.damage);
+    }
+    for (const flight of foreachImpacts) {
+      if (this.hero.hp <= 0) continue;
+      for (const unit of this.units.filter(unit => unit.team === 'ai' && unit.hp > 0 && Math.abs(unit.x - flight.x) <= flight.radius)) this.hit(unit, flight.damage);
+      this.effect('foreach-impact', flight.x, flight.radius);
     }
     // An owner killed on the final warning frame cannot leave a posthumous blast.
     for (const telegraph of detonations) {
       if (!this.units.some((unit) => unit.id === telegraph.ownerId && unit.hp > 0)) continue;
       this.effect('boss-blast', telegraph.x, telegraph.radius);
       for (const target of this.targets('ai').filter((candidate) => candidate.hp > 0 && Math.abs(candidate.x - telegraph.x) <= telegraph.radius)) {
-        target.hp = Math.max(0, target.hp - BOSS.damage * ('buffs' in target && target.buffs.combat > 0 ? SUPPORT.receivedDamageMultiplier : 1));
-        if ('hitFlash' in target) target.hitFlash = 0.18;
+        this.hit(target, telegraph.damage);
       }
     }
     this.defeatedBossCount += this.units.filter((unit) => unit.kind === 'gpt-4o' && unit.hp <= 0).length;
     this.units = this.units.filter((unit) => unit.hp > 0);
     for (const id of this.pushes.keys()) if (!this.units.some(unit => unit.id === id)) this.pushes.delete(id);
     this.bossTelegraphs = this.bossTelegraphs.filter((telegraph) => this.units.some((unit) => unit.id === telegraph.ownerId));
+    this.judgeAttacks = this.judgeAttacks.filter(attack => {
+      const target = this.targetById(attack.targetId);
+      if (!this.units.some(unit => unit.id === attack.sourceId) || !target || target.hp <= 0) return false;
+      attack.x = target.x; return true;
+    });
+    this.waterChannels = this.waterChannels.filter(channel => this.units.some(unit => unit.id === channel.sourceId));
     if (this.hero.hp <= 0 || this.humanBase.hp <= 0) {
       this.status = 'lost';
       this.defeatReason = this.hero.hp <= 0 ? 'hero' : 'base';
       this.direction = 0;
     } else if (this.aiBase.hp <= 0) { this.status = 'won'; this.direction = 0; }
-    if (this.status !== 'active') { this.bossTelegraphs = []; this.overclockRemaining = 0; this.pushes.clear(); }
+    if (this.status !== 'active') { this.clearPending(); this.overclockRemaining = 0; this.pushes.clear(); }
   }
 
   private useSkill(skill: SkillKind): CommandResult {
@@ -323,6 +393,9 @@ export class BattleSession {
         }
       }
       this.effect('git-push', this.hero.x, values.pushRadius);
+    } else if (skill === 'foreach') {
+      this.foreachFlights.push({ id: this.nextId++, sourceId: this.hero.id, startX: this.hero.x, x: this.hero.x + values.foreachOffset,
+        radius: values.foreachRadius, remaining: values.foreachFlight, duration: values.foreachFlight, damage: values.foreachDamage });
     } else {
       this.overclockRemaining = values.overclockDuration;
       this.effect('overclock', this.hero.x, 0);
@@ -340,10 +413,14 @@ export class BattleSession {
   }
 
   private support(unit: UnitState): void {
-    const targets = this.nearbyAllies(unit.x, SUPPORT.radius);
+    const targets = this.nearbyAllies(unit.x, unit.kind === 'singer' ? SONG.radius : SUPPORT.radius);
     if (unit.kind === 'counselor') {
       this.heal(targets, SUPPORT.heal * this.levelMultiplier(unit.level));
       this.effect('support-heal', unit.x, SUPPORT.radius);
+    } else if (unit.kind === 'singer') {
+      for (const target of targets) target.buffs.combat = SONG.duration;
+      for (const enemy of this.units.filter(target => target.team === 'ai' && target.hp > 0 && Math.abs(target.x - unit.x) <= SONG.radius)) enemy.weakenRemaining = SONG.duration;
+      this.effect('support-song', unit.x, SONG.radius);
     } else {
       for (const target of targets) {
         if ('kind' in target && this.definitions[target.kind].damage > 0) target.buffs.haste = SUPPORT.duration;
@@ -363,6 +440,21 @@ export class BattleSession {
   private effect(kind: EffectKind, x: number, radius: number): void {
     this.effects.push({ id: this.nextId++, kind, x, radius, remaining: 0.65, duration: 0.65 });
   }
+
+  private attackDamage(unit: UnitState, baseDamage: number): number {
+    return baseDamage * this.levelMultiplier(unit.level) * (unit.buffs.combat > 0 ? SUPPORT.damageMultiplier : 1) * (unit.weakenRemaining > 0 ? SONG.enemyDamageMultiplier : 1);
+  }
+
+  private hit(target: Target, damage: number): void {
+    target.hp = Math.max(0, target.hp - damage * ('buffs' in target && target.buffs.combat > 0 ? SUPPORT.receivedDamageMultiplier : 1));
+    if ('hitFlash' in target) target.hitFlash = .18;
+  }
+
+  private targetById(id: number): Target | undefined {
+    return id === this.hero.id ? this.hero : id === this.aiBase.id ? this.aiBase : id === this.humanBase.id ? this.humanBase : this.units.find(unit => unit.id === id);
+  }
+
+  private clearPending(): void { this.bossTelegraphs = []; this.judgeAttacks = []; this.waterChannels = []; this.foreachFlights = []; }
 
   private targets(team: Team): Target[] {
     const opposingUnits = this.units.filter((unit) => unit.team !== team && unit.hp > 0);
@@ -388,7 +480,7 @@ export class BattleSession {
       x: definition.team === 'human' ? FIELD.humanSpawnX : FIELD.aiSpawnX,
       bodyWidth: definition.bodyWidth,
       hp, maxHp: hp, attackCooldown: 0, hitFlash: 0, attackFlash: 0,
-      slowRemaining: 0, supportCooldown: SUPPORT.period, bossCooldown: kind === 'gpt-4o' ? BOSS.firstCastDelay : 0,
+      slowRemaining: 0, weakenRemaining: 0, supportCooldown: kind === 'singer' ? SONG.period : SUPPORT.period, bossCooldown: kind === 'gpt-4o' ? BOSS.firstCastDelay : 0,
       healFlash: 0, buffs: { combat: 0, speed: 0, haste: 0 } });
   }
 

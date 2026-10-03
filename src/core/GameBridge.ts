@@ -29,6 +29,8 @@ export interface GameBridgeEvents {
   'battle-command': { runId: number; command: BattleCommand };
   /** Presentation-only intent; never spends gold or dispatches a skill. */
   'battle-preview': { runId: number; skill: SkillKind | null };
+  /** Presentation-only summon-card page; authoritative battle state does not change. */
+  'battle-page': { runId: number; page: 0 | 1 };
   'battle-snapshot': BattleSnapshot;
   'battle-feedback': { runId: number; result: CommandResult };
   'battle-result': { runId: number; stageId: string; reward: number; prototypeComplete: boolean; firstClear?: boolean; newlyUnlockedAllies?: readonly AllyKind[] };

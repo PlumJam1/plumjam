@@ -3,6 +3,7 @@ import type { AppContext } from '../core/AppContext';
 import type { SceneScope } from '../core/SceneLifetimeManager';
 import { BattleSession, getFormationCommand } from '../game/BattleSession';
 import { PhaserBattleRenderer } from '../game/PhaserBattleRenderer';
+import { FORMATION_PAGE_SIZE } from '../game/battle/balance';
 import type { BattleCommand, BattleSpeed } from '../game/battle/types';
 
 export class BattleScene extends Phaser.Scene {
@@ -66,6 +67,12 @@ export class BattleScene extends Phaser.Scene {
       });
       this.publishBattle();
     };
+    let unitPage: 0 | 1 = 0;
+    scope.defer(this.context.bridge.subscribe('battle-page', ({ runId, page }) => {
+      if (scope.disposed || runId !== scope.id || this.context.bridge.sceneState?.runId !== scope.id || (page !== 0 && page !== 1)) return;
+      const status = session.snapshot().status;
+      if (status === 'active' || status === 'paused') unitPage = page;
+    }));
     const pressed = new Set<string>();
     const dispatch = (command: BattleCommand) => this.context.bridge.emit('battle-command', { runId: scope.id, command });
     const movement = () => dispatch({ type: 'move', direction: (Number(pressed.has('KeyD') || pressed.has('ArrowRight')) - Number(pressed.has('KeyA') || pressed.has('ArrowLeft'))) as -1 | 0 | 1 });
@@ -85,6 +92,12 @@ export class BattleScene extends Phaser.Scene {
         if (!event.repeat) this.context.bridge.emit('scene-command', { runId: scope.id, command: { type: 'toggle-pause' } });
         event.preventDefault(); return;
       }
+      if (event.code === 'KeyQ') {
+        event.preventDefault();
+        const status = session.snapshot().status;
+        if (!event.repeat && (status === 'active' || status === 'paused')) this.context.bridge.emit('battle-page', { runId: scope.id, page: unitPage === 0 ? 1 : 0 });
+        return;
+      }
       if (event.code === 'KeyR') {
         event.preventDefault();
         if (!event.repeat) dispatch({ type: 'set-speed', speed: (session.snapshot().speed % 3 + 1) as BattleSpeed });
@@ -94,13 +107,13 @@ export class BattleScene extends Phaser.Scene {
       if (['KeyA', 'KeyD', 'ArrowLeft', 'ArrowRight'].includes(event.code)) { event.preventDefault(); pressed.add(event.code); movement(); return; }
       const commands: Record<string, BattleCommand> = {
         KeyJ: { type: 'skill', skill: 'hello-world' }, KeyK: { type: 'skill', skill: 'sleep' }, KeyL: { type: 'skill', skill: 'heal' },
-        KeyP: { type: 'skill', skill: 'git-push' }, KeyO: { type: 'skill', skill: 'overclock' },
+        KeyP: { type: 'skill', skill: 'git-push' }, KeyO: { type: 'skill', skill: 'overclock' }, KeyI: { type: 'skill', skill: 'foreach' },
         KeyU: { type: 'upgrade-economy' },
       };
       const slot = /^Digit[1-5]$/.test(event.code) ? Number(event.code.slice(-1)) - 1 : -1;
       if (slot >= 0) {
         event.preventDefault();
-        const command = getFormationCommand(session.snapshot().equippedAllies, slot);
+        const command = getFormationCommand(session.snapshot().equippedAllies, slot + unitPage * FORMATION_PAGE_SIZE);
         if (command && !event.repeat) dispatch(command);
         return;
       }

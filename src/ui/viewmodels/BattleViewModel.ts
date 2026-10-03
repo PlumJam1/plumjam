@@ -1,7 +1,7 @@
 import { computed, effectScope, readonly, shallowRef } from 'vue';
 import type { AppContext } from '../../core/AppContext';
 import type { SceneScope } from '../../core/SceneLifetimeManager';
-import { ALLY_ROLES, ECONOMY, SKILLS, SUPPORT, UNIT_DEFINITIONS, SKILL_SLOT_COUNT } from '../../game/battle/balance';
+import { ALLY_ROLES, ECONOMY, SKILLS, SUPPORT, UNIT_DEFINITIONS, SKILL_SLOT_COUNT, FORMATION_SIZE, FORMATION_PAGE_SIZE, SKILL_KEYS } from '../../game/battle/balance';
 import { getCooldownEta, getSkillValues } from '../../game/BattleSession';
 import { skillPreview } from '../../game/presentation/battlePresentation';
 import type { AllyKind, BattleCommand, BattleSnapshot, BattleSpeed, SkillKind } from '../../game/battle/types';
@@ -12,6 +12,14 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
   const effects = effectScope(true);
   const battle = shallowRef<BattleSnapshot | null>(null);
   const feedback = shallowRef('');
+  const unitPage = shallowRef<0 | 1>(0);
+  const activePageScope = () => {
+    const current = context.bridge.sceneState;
+    return !scope.disposed && !!battle.value && (battle.value.status === 'active' || battle.value.status === 'paused') && (!current || current.scene === 'Battle' && current.runId === scope.id);
+  };
+  scope.defer(context.bridge.subscribe('battle-page', value => {
+    if (value.runId === scope.id && (value.page === 0 || value.page === 1) && activePageScope()) unitPage.value = value.page;
+  }));
   const intro = shallowRef(showIntro);
   const reward = shallowRef(0);
   const newAllies = shallowRef<readonly AllyKind[]>([]);
@@ -67,17 +75,19 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
       if (value.gold < cost) return `자금 ${Math.ceil(cost - value.gold)} 부족`;
       return '사용 가능';
     };
-    const units = computed(() => (battle.value?.equippedAllies ?? [null, null, null, null, null]).map((kind, index) => {
-      if (kind === null) return { kind, label: '빈 칸', cost: 0, key: String(index + 1), cooldown: 0, progress: 0, reason: '준비실에서 편성', description: '이 칸에는 소환할 동료가 없어', disabled: true, level: 1 };
+    const units = computed(() => (battle.value?.equippedAllies ?? Array<null>(FORMATION_SIZE).fill(null)).map((kind, index) => {
+      if (kind === null) return { kind, label: '빈 칸', cost: 0, key: String(index % FORMATION_PAGE_SIZE + 1), slotIndex: index, cooldown: 0, progress: 0, reason: '준비실에서 편성', description: '이 칸에는 소환할 동료가 없어', disabled: true, level: 1 };
       const definition = UNIT_DEFINITIONS[kind];
       const cooldown = battle.value?.summonCooldowns[kind] ?? 0;
       const eta = getCooldownEta(cooldown, battle.value?.overclockRemaining ?? 0);
       const reason = availability(definition.cost!, eta);
       const description = ALLY_ROLES[kind].description;
-      return { kind, label: definition.label, cost: definition.cost!, key: String(index + 1), cooldown: eta,
+      return { kind, label: definition.label, cost: definition.cost!, key: String(index % FORMATION_PAGE_SIZE + 1), slotIndex: index, cooldown: eta,
         level: battle.value?.levels[kind] ?? 1, progress: 1 - cooldown / definition.summonCooldown!, reason, description, disabled: reason !== '사용 가능' };
     }));
-    const allSkills = computed(() => (['hello-world', 'sleep', 'heal', 'git-push', 'overclock'] as SkillKind[]).map((kind, index) => {
+    const visibleUnits = computed(() => units.value.slice(unitPage.value * FORMATION_PAGE_SIZE, (unitPage.value + 1) * FORMATION_PAGE_SIZE));
+    const pageDisabled = computed(() => !battle.value || ended.value);
+    const allSkills = computed(() => (Object.keys(SKILLS) as SkillKind[]).map((kind) => {
       const definition = SKILLS[kind];
       const cooldown = battle.value?.skillCooldowns[kind] ?? 0;
       const eta = getCooldownEta(cooldown, battle.value?.overclockRemaining ?? 0, kind === 'overclock');
@@ -87,9 +97,9 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
       const hero = battle.value?.hero ?? { level: 1, buffs: { combat: 0, speed: 0, haste: 0 } };
       const values = getSkillValues(hero);
       const amount = (value: number) => Number(value.toFixed(1));
-      const description = kind === 'hello-world' ? `피해 ${amount(values.helloDamage)} · 사거리 ${values.helloRange} · 오른쪽 첫 적` : kind === 'sleep' ? `반경 ${values.sleepRadius} · 이동속도 -${Math.round((1 - values.sleepSpeedMultiplier) * 100)}% · ${values.sleepDuration}초` : kind === 'heal' ? `회복 ${amount(values.healAmount)} · 반경 ${values.healRadius} · 나와 아군` : kind === 'git-push' ? `반경 ${values.pushRadius} · 일반 적 폭×3 / 보스 폭×1 서서히 밀기 · 적 기지 경계 제한` : `${values.overclockDuration}초간 소환·다른 스킬 쿨타임 50% · 자신 제외 · 수입 유지`;
-      const effectLabel = kind === 'hello-world' ? `피해 ${amount(values.helloDamage)}` : kind === 'sleep' ? `감속 ${values.sleepDuration}초` : kind === 'heal' ? `회복 ${amount(values.healAmount)}` : kind === 'git-push' ? '밀치기 폭×3 / 보스×1' : `쿨타임 50% · ${values.overclockDuration}초`;
-      return { kind, label: definition.label, cost: definition.cost, key: ['J', 'K', 'L', 'P', 'O'][index], cooldown: eta, unlocked,
+      const description = kind === 'hello-world' ? `피해 ${amount(values.helloDamage)} · 사거리 ${values.helloRange} · 오른쪽 첫 적` : kind === 'sleep' ? `반경 ${values.sleepRadius} · 이동속도 -${Math.round((1 - values.sleepSpeedMultiplier) * 100)}% · ${values.sleepDuration}초` : kind === 'heal' ? `회복 ${amount(values.healAmount)} · 반경 ${values.healRadius} · 나와 아군` : kind === 'foreach' ? `피해 ${amount(values.foreachDamage)} · 전방 ${values.foreachOffset} · 반경 ${values.foreachRadius} · ${values.foreachFlight}초 뒤 착지, 적 유닛만` : kind === 'git-push' ? `반경 ${values.pushRadius} · 일반 적 폭×3 / 보스 폭×1 서서히 밀기 · 적 기지 경계 제한` : `${values.overclockDuration}초간 소환·다른 스킬 쿨타임 50% · 자신 제외 · 수입 유지`;
+      const effectLabel = kind === 'hello-world' ? `피해 ${amount(values.helloDamage)}` : kind === 'sleep' ? `감속 ${values.sleepDuration}초` : kind === 'heal' ? `회복 ${amount(values.healAmount)}` : kind === 'foreach' ? `광역 피해 ${amount(values.foreachDamage)}` : kind === 'git-push' ? '밀치기 폭×3 / 보스×1' : `쿨타임 50% · ${values.overclockDuration}초`;
+      return { kind, label: definition.label, cost: definition.cost, key: SKILL_KEYS[kind], cooldown: eta, unlocked,
         equipped, progress: 1 - cooldown / definition.cooldown, description, effectLabel, reason, disabled: reason !== '사용 가능' };
     }));
     const skills = computed(() => (battle.value?.equippedSkills ?? []).flatMap(kind => allSkills.value.filter(skill => skill.kind === kind)));
@@ -129,10 +139,11 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
     const resultDescription = computed(() => prototypeComplete.value ? 'GPT-4o를 이겼어. 프로토타입의 5개 스테이지를 모두 클리어했어!' : battle.value?.status === 'won' ? 'AI 데이터센터를 파괴했어. 재화로 강화하거나 다음 출근에 도전해봐.' : battle.value?.defeatReason === 'hero' ? '개발자가 쓰러졌어. 병력 뒤에서 전선을 도와줘.' : '아군 기지가 파괴됐어. 병력과 경제 투자 타이밍을 바꿔봐.');
     const hasNextStage = computed(() => battle.value?.status === 'won' && !!nextStage(battle.value.stageId));
     return {
-      battle: readonly(battle), feedback: readonly(feedback), intro: readonly(intro), units, skills, allSkills, skillSlots, speed, speedDisabled, ended, danger,
+      battle: readonly(battle), feedback: readonly(feedback), intro: readonly(intro), units, visibleUnits, unitPage: readonly(unitPage), pageDisabled, skills, allSkills, skillSlots, speed, speedDisabled, ended, danger,
       boss, bossNotice: readonly(bossNotice), waveNotice, heroBuffs, preview, previewDescription, previewTargets,
       economyDisabled, economyDescription, economyReason, time, resultTitle, resultDescription,
       newAllies: computed(() => newAllies.value.map(kind => ({ kind, label: UNIT_DEFINITIONS[kind].label }))), reward: readonly(reward), prototypeComplete: readonly(prototypeComplete), hasNextStage,
+      setUnitPage: (page: 0 | 1) => { if (activePageScope() && (page === 0 || page === 1)) context.bridge.emit('battle-page', { runId: scope.id, page }); },
       setSpeed: (value: BattleSpeed) => {
         const current = context.bridge.sceneState;
         if (scope.disposed || !battle.value || ended.value || ![1, 2, 3].includes(value) || current && (current.scene !== 'Battle' || current.runId !== scope.id)) return;

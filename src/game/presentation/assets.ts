@@ -5,6 +5,7 @@ export const GENERATED_ASSETS = [
   'bg-early', 'bg-mid', 'bg-boss', 'hero', 'hero-lv5', 'melee', 'melee-lv5',
   'ranged', 'ranged-lv5', 'support', 'support-lv5', 'robot-melee', 'robot-ranged', 'boss',
   'technician', 'technician-lv5', 'judge', 'judge-lv5', 'counselor', 'counselor-lv5',
+  'athlete', 'athlete-lv5', 'firefighter', 'firefighter-lv5', 'singer', 'singer-lv5',
 ] as const;
 export type ArtKey = typeof GENERATED_ASSETS[number];
 export const assetUrl = (key: ArtKey): string => {

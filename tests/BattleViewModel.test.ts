@@ -159,7 +159,7 @@ describe('BattleViewModel scoped MVVM', () => {
       context.bridge.emit('battle-snapshot', session.snapshot());
     }));
     context.bridge.emit('battle-snapshot', session.snapshot());
-    expect(model.units.value).toHaveLength(5);
+    expect(model.units.value).toHaveLength(10);
     expect(model.skills.value).toHaveLength(3);
     expect(model.skillSlots.value).toHaveLength(3);
     model.useSkill('heal');
@@ -215,13 +215,13 @@ describe('BattleViewModel scoped MVVM', () => {
 });
 
 
-describe('five summon slot presentation', () => {
+describe('ten summon slot presentation', () => {
   it('keeps empty slots and keys stable, and renders captured levels and first-clear allies', () => {
     const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
     const model = createBattleViewModel(context, scope, false);
     const session = new BattleSession({ unlockedSkills: ['hello-world', 'sleep', 'heal'], equippedSkills: ['hello-world', 'sleep', 'heal'], runId: scope.id, levels: { hero: 1, melee: 5, ranged: 1, support: 1 }, equippedAllies: ['ranged', null, 'melee', null, null] });
     context.bridge.emit('battle-snapshot', session.snapshot());
-    expect(model.units.value.map(unit => [unit.key, unit.kind])).toEqual([['1', 'ranged'], ['2', null], ['3', 'melee'], ['4', null], ['5', null]]);
+    expect(model.visibleUnits.value.map(unit => [unit.key, unit.kind])).toEqual([['1', 'ranged'], ['2', null], ['3', 'melee'], ['4', null], ['5', null]]);
     expect(model.units.value[1]).toMatchObject({ disabled: true, reason: '준비실에서 편성' });
     expect(model.units.value[2].level).toBe(5);
     const commands = vi.fn(); const off = context.bridge.subscribe('battle-command', commands);
@@ -269,5 +269,50 @@ describe('three skill slots and battle speed presentation', () => {
     scope.dispose(); model.setSpeed(1); expect(commands).toHaveBeenCalledTimes(count);
     const next = new BattleSession({ runId: scope.id + 1 }); expect(next.snapshot().speed).toBe(1);
     off(); context.dispose();
+  });
+});
+
+
+describe('scoped five-card summon paging', () => {
+  it('switches only presentation, keeps shared gold/cooldowns and maps local 1–5 keys onto the selected five', () => {
+    const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
+    context.bridge.emit('scene-state', { scene: 'Battle', runId: scope.id, phase: 'ready' });
+    const model = createBattleViewModel(context, scope, false);
+    const session = new BattleSession({ runId: scope.id, equippedAllies: ['melee', null, null, null, null, 'ranged', null, null, null, 'support'] });
+    session.dispatch({ type: 'summon', kind: 'ranged' });
+    const before = session.snapshot(); const commands = vi.fn(); const off = context.bridge.subscribe('battle-command', commands);
+    context.bridge.emit('battle-snapshot', before);
+    expect(model.unitPage.value).toBe(0); expect(model.visibleUnits.value[0].kind).toBe('melee');
+    model.setUnitPage(1);
+    expect(model.unitPage.value).toBe(1);
+    expect(model.visibleUnits.value.map(unit => [unit.key, unit.kind])).toEqual([['1', 'ranged'], ['2', null], ['3', null], ['4', null], ['5', 'support']]);
+    expect(model.visibleUnits.value[0]).toMatchObject({ slotIndex: 5, disabled: true, reason: '준비 5.0초' });
+    expect(session.snapshot()).toEqual(before); expect(commands).not.toHaveBeenCalled();
+    context.bridge.emit('battle-snapshot', { ...before, status: 'paused' }); model.setUnitPage(0); expect(model.unitPage.value).toBe(0);
+    context.bridge.emit('battle-page', { runId: scope.id + 1, page: 1 }); expect(model.unitPage.value).toBe(0);
+    context.bridge.emit('battle-snapshot', { ...before, status: 'won' }); model.setUnitPage(1); expect(model.unitPage.value).toBe(0); expect(model.pageDisabled.value).toBe(true);
+    context.bridge.emit('battle-snapshot', before); context.bridge.emit('scene-state', { scene: 'Battle', runId: scope.id + 1, phase: 'ready' }); model.setUnitPage(1); expect(model.unitPage.value).toBe(0);
+    scope.dispose(); model.setUnitPage(1); expect(model.unitPage.value).toBe(0);
+    const nextScope = context.lifetimes.begin(fakeScene()); const next = createBattleViewModel(context, nextScope, false);
+    context.bridge.emit('scene-state', { scene: 'Battle', runId: nextScope.id, phase: 'ready' });
+    context.bridge.emit('battle-snapshot', new BattleSession({ runId: nextScope.id }).snapshot());
+    expect(next.unitPage.value).toBe(0); expect(next.visibleUnits.value).toHaveLength(5);
+    off(); context.dispose();
+  });
+});
+
+
+describe('foreach equipped skill display', () => {
+  it('shares captured hero-level damage and fixed I key with only the equipped catalogue', () => {
+    const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
+    const model = createBattleViewModel(context, scope, false);
+    const session = new BattleSession({ runId: scope.id, levels: { hero: 5 }, unlockedSkills: ['hello-world', 'foreach'], equippedSkills: ['foreach'] });
+    context.bridge.emit('battle-snapshot', session.snapshot());
+    expect(model.skills.value[0]).toMatchObject({ kind: 'foreach', key: 'I', cost: 100, effectLabel: '광역 피해 152' });
+    expect(model.skills.value[0].description).toContain('피해 152 · 전방 180 · 반경 90 · 0.7초 뒤 착지');
+    const hero = session.snapshot().hero;
+    context.bridge.emit('battle-snapshot', { ...session.snapshot(), hero: { ...hero, buffs: { ...hero.buffs, combat: 7 } } });
+    expect(model.skills.value[0].effectLabel).toBe('광역 피해 197.6');
+    context.dispose();
   });
 });

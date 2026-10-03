@@ -34,7 +34,7 @@ export interface ProfileSnapshot {
 }
 export interface SaveStorage { getItem(key: string): string | null; setItem(key: string, value: string): void }
 const defaultFormation = (): (AllyKind | null)[] => [...STARTER_ALLIES, ...Array<null>(FORMATION_SIZE - STARTER_ALLIES.length).fill(null)];
-const validFormation = (value: unknown, unlocked: readonly AllyKind[]): value is (AllyKind | null)[] => Array.isArray(value) && value.length === FORMATION_SIZE && value.some(kind => kind !== null) && value.every(kind => kind === null || unlocked.includes(kind)) && new Set(value.filter(kind => kind !== null)).size === value.filter(kind => kind !== null).length;
+const validFormation = (value: unknown, unlocked: readonly AllyKind[], size = FORMATION_SIZE): value is (AllyKind | null)[] => Array.isArray(value) && value.length === size && value.some(kind => kind !== null) && value.every(kind => kind === null || unlocked.includes(kind)) && new Set(value.filter(kind => kind !== null)).size === value.filter(kind => kind !== null).length;
 const unlockedFor = (cleared: readonly string[]): AllyKind[] => ALLY_KINDS.filter(kind => STARTER_ALLIES.includes(kind) || !!ALLY_UNLOCK_STAGES[kind] && cleared.includes(ALLY_UNLOCK_STAGES[kind]!));
 const fresh = (): ProfileData => ({ version: 1, xp: 0, levels: Object.fromEntries(CHARACTERS.map(kind => [kind, 1])) as Record<CharacterKind, number>, clearedStages: [], unlockedStages: ['1-1'], unlockedSkills: [...DEFAULT_UNLOCKED_SKILLS], equippedSkills: [...DEFAULT_UNLOCKED_SKILLS], unlockedAllies: [...STARTER_ALLIES], equippedAllies: defaultFormation(), muted: false });
 function parse(value: unknown): ProfileData | null {
@@ -62,7 +62,10 @@ function parse(value: unknown): ProfileData | null {
   const unlocked = stageIds.filter((_, index) => index === 0 || cleared.includes(stageIds[index - 1]));
   if (unlocked.length !== new Set(data.unlockedStages).size || unlocked.some(id => !data.unlockedStages.includes(id))) return null;
   const unlockedAllies = unlockedFor(cleared);
-  const equippedAllies = validFormation(data.equippedAllies, unlockedAllies) ? [...data.equippedAllies] : defaultFormation();
+  const savedFormation = data.equippedAllies;
+  const equippedAllies = validFormation(savedFormation, unlockedAllies) ? [...savedFormation]
+    : validFormation(savedFormation, unlockedAllies, 5) ? [...savedFormation, ...Array<null>(FORMATION_SIZE - 5).fill(null)]
+    : defaultFormation();
   return { version: 1, xp: data.xp, levels, clearedStages: cleared, unlockedStages: unlocked, unlockedSkills, equippedSkills, unlockedAllies, equippedAllies, muted: data.muted };
 }
 /** Pure model; no Phaser/Vue objects. Win receipts live only within this browser app session. */
@@ -123,7 +126,7 @@ export class ProfileService {
     this.persist(); return { accepted: true, reason: '스킬 장착을 저장했어. 다음 출근부터 적용돼.' };
   }
   setFormation(formation: readonly (AllyKind | null)[]): CommandResult {
-    if (!validFormation(formation, this.data.unlockedAllies)) return { accepted: false, reason: '편성은 중복 없이 5칸, 해금한 동료 최소 1명이 필요해.' };
+    if (!validFormation(formation, this.data.unlockedAllies)) return { accepted: false, reason: '편성은 중복 없이 10칸, 해금한 동료 최소 1명이 필요해.' };
     this.data.equippedAllies = [...formation];
     this.persist(); return { accepted: true, reason: '출전 편성을 저장했어.' };
   }

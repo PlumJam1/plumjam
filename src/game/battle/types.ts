@@ -1,8 +1,8 @@
 export type Team = 'human' | 'ai';
-export type AllyKind = 'melee' | 'ranged' | 'support' | 'technician' | 'judge' | 'counselor';
+export type AllyKind = 'melee' | 'ranged' | 'support' | 'technician' | 'judge' | 'counselor' | 'athlete' | 'firefighter' | 'singer';
 export type EnemyKind = 'robot-melee' | 'robot-ranged' | 'robot-runner' | 'robot-heavy' | 'gpt-4o';
 export type UnitKind = AllyKind | EnemyKind;
-export type SkillKind = 'hello-world' | 'sleep' | 'heal' | 'git-push' | 'overclock';
+export type SkillKind = 'hello-world' | 'sleep' | 'heal' | 'git-push' | 'overclock' | 'foreach';
 export type CharacterKind = 'hero' | AllyKind;
 export type BattleStatus = 'active' | 'paused' | 'won' | 'lost';
 export type BattleSpeed = 1 | 2 | 3;
@@ -44,9 +44,12 @@ export interface TimedBuffs {
   speed: number;
   haste: number;
 }
-export type EffectKind = SkillKind | 'hello-impact' | 'support-heal' | 'support-combat' | 'support-speed' | 'support-haste' | 'boss-blast';
+export type EffectKind = SkillKind | 'hello-impact' | 'foreach-impact' | 'judge-impact' | 'support-heal' | 'support-combat' | 'support-speed' | 'support-haste' | 'support-song' | 'boss-blast';
 export interface EffectState { id: number; kind: EffectKind; x: number; radius: number; remaining: number; duration: number }
 export interface BossTelegraphState { ownerId: number; x: number; radius: number; remaining: number; duration: number }
+export interface JudgeAttackState { id: number; sourceId: number; targetId: number; x: number; remaining: number; duration: number; windup: number }
+export interface WaterChannelState { id: number; sourceId: number; x: number; endX: number; remaining: number; duration: number }
+export interface ForeachFlightState { id: number; sourceId: number; startX: number; x: number; radius: number; remaining: number; duration: number }
 export interface UnitState {
   id: number;
   kind: UnitKind;
@@ -61,6 +64,8 @@ export interface UnitState {
   hitFlash: number;
   attackFlash: number;
   slowRemaining: number;
+  /** Singer's outgoing attack multiplier; refreshes without stacking. */
+  weakenRemaining: number;
   supportCooldown: number;
   bossCooldown: number;
   buffs: TimedBuffs;
@@ -105,6 +110,9 @@ export interface BattleSnapshot {
   summonCooldowns: Readonly<Record<AllyKind, number>>;
   skillCooldowns: Readonly<Record<SkillKind, number>>;
   effects: readonly Readonly<EffectState>[];
+  judgeAttacks: readonly Readonly<JudgeAttackState>[];
+  waterChannels: readonly Readonly<WaterChannelState>[];
+  foreachFlights: readonly Readonly<ForeachFlightState>[];
   bossTelegraphs: readonly Readonly<BossTelegraphState>[];
   defeatedBossCount: number;
   unlockedSkills: readonly SkillKind[];

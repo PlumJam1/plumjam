@@ -4,8 +4,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { assetUrl, backgroundArt, characterArt, GENERATED_ASSETS } from '../src/game/presentation/assets';
 
 describe('generated art catalog', () => {
-  it('contains twenty distinct intact PNG source files with expected dimensions', () => {
-    expect(new Set(GENERATED_ASSETS).size).toBe(20);
+  it('contains twenty-six distinct intact PNG source files with expected dimensions', () => {
+    expect(new Set(GENERATED_ASSETS).size).toBe(26);
     for (const key of GENERATED_ASSETS) {
       const file = readFileSync(new URL(`../public/assets/generated/${key}.png`, import.meta.url));
       expect(file.subarray(0, 8).toString('hex')).toBe('89504e470d0a1a0a');
@@ -22,9 +22,9 @@ describe('generated art catalog', () => {
       expect(assetUrl('bg-early')).not.toContain('/assets/assets/');
     } finally { vi.unstubAllGlobals(); }
   });
-  it('preserves the six transparent roster originals recorded in the art manifest', () => {
+  it('preserves the twelve transparent roster originals recorded in the art manifest', () => {
     const manifest = JSON.parse(readFileSync(new URL('../public/assets/generated/ASSET_METADATA.json', import.meta.url), 'utf8'));
-    for (const key of ['technician', 'technician-lv5', 'judge', 'judge-lv5', 'counselor', 'counselor-lv5'] as const) {
+    for (const key of ['technician', 'technician-lv5', 'judge', 'judge-lv5', 'counselor', 'counselor-lv5', 'athlete', 'athlete-lv5', 'firefighter', 'firefighter-lv5', 'singer', 'singer-lv5'] as const) {
       const file = readFileSync(new URL(`../public/assets/generated/${key}.png`, import.meta.url));
       const entry = manifest.find((item: { name: string }) => item.name === `${key}.png`);
       expect(file[25]).toBe(6); // Original PNG IHDR colour type is RGBA.
@@ -34,7 +34,7 @@ describe('generated art catalog', () => {
     }
   });
   it('chooses evolved humans at level five and never substitutes a robot or boss', () => {
-    for (const kind of ['hero', 'melee', 'ranged', 'support', 'technician', 'judge', 'counselor'] as const) {
+    for (const kind of ['hero', 'melee', 'ranged', 'support', 'technician', 'judge', 'counselor', 'athlete', 'firefighter', 'singer'] as const) {
       expect(characterArt(kind, 4)).toBe(kind);
       expect(characterArt(kind, 5)).toBe(`${kind}-lv5`);
       expect(characterArt(kind, 10)).toBe(`${kind}-lv5`);

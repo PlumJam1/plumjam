@@ -3,7 +3,7 @@ import { backgroundArt, characterArt, type ArtKey } from './presentation/assets'
 import { drawPlaceholder } from '../scenes/drawPlaceholder';
 import { FIELD } from './battle/balance';
 import type { BattleSnapshot, SkillKind, TimedBuffs, UnitState } from './battle/types';
-import { skillPreview } from './presentation/battlePresentation';
+import { getBaseArt, skillPreview } from './presentation/battlePresentation';
 
 /** Scene-owned presentation; app-owned source textures survive scene shutdown. */
 export class PhaserBattleRenderer {
@@ -19,14 +19,15 @@ export class PhaserBattleRenderer {
   private readonly living = new Set<number>();
   constructor(private readonly scene: Phaser.Scene, theme?: 'early' | 'mid' | 'boss', stageId?: string) {
     scene.cameras.main.setBackgroundColor('#233342');
+    scene.cameras.main.setScroll(0, FIELD.cameraY);
     const useHumanBaseImage = scene.textures.exists('human-base');
     const enemyBaseKey = stageId === '1-5' ? 'enemy-base-3' : 'enemy-base';
     const useEnemyBaseImage = ['1-1', '1-2', '1-3', '1-4', '1-5'].includes(stageId ?? '') && scene.textures.exists(enemyBaseKey);
     const key = backgroundArt(theme);
     if (scene.textures.exists(key)) {
-      const bg = scene.add.image(320, 140, key).setDepth(-10);
-      // Full source, preserve aspect; generated backgrounds were composed for this viewport.
-      bg.setScale(Math.min(640 / bg.width, 280 / bg.height));
+      const bg = scene.add.image(FIELD.width / 2, FIELD.cameraY + FIELD.height / 2, key).setDepth(-10);
+      // Cover the taller field with the intact source image and preserve its aspect ratio.
+      bg.setScale(Math.max(FIELD.width / bg.width, FIELD.height / bg.height));
       this.scenery.push(bg);
       const bases = scene.add.graphics().setDepth(1);
       if (!useHumanBaseImage) {
@@ -64,16 +65,16 @@ export class PhaserBattleRenderer {
   setPreview(skill: SkillKind | null): void { this.previewSkill = skill; }
 
   render(snapshot: BattleSnapshot): void {
+    const baseArt = getBaseArt(snapshot);
     if (this.humanBaseImage) {
-      const key = snapshot.status === 'lost' ? 'human-base-destroyed' : 'human-base';
+      const key = baseArt.human;
       if (this.humanBaseImage.texture.key !== key && this.scene.textures.exists(key)) {
         this.humanBaseImage.setTexture(key);
         this.humanBaseImage.setScale(Math.min(104 / this.humanBaseImage.width, 112 / this.humanBaseImage.height));
       }
     }
     if (this.enemyBaseImage) {
-      const normalKey = snapshot.stageId === '1-5' ? 'enemy-base-3' : 'enemy-base';
-      const key = snapshot.status === 'won' ? `${normalKey}-destroyed` : normalKey;
+      const key = baseArt.enemy;
       if (this.enemyBaseImage.texture.key !== key && this.scene.textures.exists(key)) {
         this.enemyBaseImage.setTexture(key);
         this.enemyBaseImage.setScale(Math.min(112 / this.enemyBaseImage.width, 112 / this.enemyBaseImage.height));
@@ -105,6 +106,35 @@ export class PhaserBattleRenderer {
         g.fillStyle(color, .9).fillTriangle(destination.x, 235, destination.x - 5, 232, destination.x - 5, 238);
       }
     }
+    for (const attack of snapshot.judgeAttacks) {
+      const source = snapshot.units.find(unit => unit.id === attack.sourceId);
+      const fall = Math.max(0, Math.min(1, (attack.duration - attack.remaining - attack.windup) / (attack.duration - attack.windup)));
+      const y = -65 + fall * fall * 250;
+      const width = source && source.level >= 5 ? 46 : 38;
+      g.fillStyle(0x3b243b).fillRect(attack.x - width / 2 - 2, y - 11, width + 4, 22);
+      g.fillStyle(0xbd8053).fillRect(attack.x - width / 2, y - 9, width, 18);
+      g.fillStyle(0xecc489).fillRect(attack.x - width / 2, y - 9, width, 4);
+      g.fillStyle(0xe0b583).fillRect(attack.x - 3, y + 9, 6, 31);
+      this.groundGraphics.lineStyle(2, 0xf3bc87, .9).strokeEllipse(attack.x, 229, 34, 9);
+      this.label(`judge-${attack.id}`, fall > 0 ? '판결!' : '판결 예고', attack.x, y - 22, 0xffd6a4, 1, 10);
+    }
+    for (const channel of snapshot.waterChannels) {
+      const y = 210;
+      g.fillStyle(0x8cdfff, .25).fillTriangle(channel.x + 12, y, channel.endX, y - 15, channel.endX, y + 12);
+      for (let index = 0; index < 3; index++) {
+        const wave = Math.sin(snapshot.elapsed * 18 + index * 2) * 3;
+        g.lineStyle(index === 1 ? 3 : 1, index === 1 ? 0xd8f7ff : 0x71c7f0, .8)
+          .lineBetween(channel.x + 12, y + wave, channel.endX, y + (index - 1) * 10 + wave);
+      }
+      this.label(`water-${channel.id}`, '물분사', channel.x + 30, 182, 0xbbefff);
+    }
+    for (const flight of snapshot.foreachFlights) {
+      const progress = Math.max(0, Math.min(1, 1 - flight.remaining / flight.duration));
+      const x = flight.startX + (flight.x - flight.startX) * progress;
+      const y = 195 + 22 * progress - 95 * 4 * progress * (1 - progress);
+      this.groundGraphics.lineStyle(1, 0xffb58a, .65).strokeEllipse(flight.x, 229, flight.radius * 2, 16);
+      this.label(`foreach-${flight.id}`, 'foreach', x, y, 0xffd1ab, 1, 11);
+    }
     for (const telegraph of snapshot.bossTelegraphs) {
       const ground = this.groundGraphics;
       const progress = 1 - telegraph.remaining / telegraph.duration;
@@ -116,6 +146,17 @@ export class PhaserBattleRenderer {
       this.label(`boss-cast-${telegraph.ownerId}`, `범위 공격 ${telegraph.remaining.toFixed(1)}초`, telegraph.x, 196, 0xffdf8f);
     }
     for (const effect of snapshot.effects) {
+      if (effect.kind === 'judge-impact' || effect.kind === 'foreach-impact') {
+        const progress = 1 - effect.remaining / effect.duration;
+        const color = effect.kind === 'judge-impact' ? 0xffd397 : 0xffb894;
+        g.lineStyle(3, color, 1 - progress).strokeEllipse(effect.x, 220, effect.radius * 2 * progress, 25 * progress);
+        for (let index = 0; index < 6; index++) {
+          const angle = index * Math.PI / 3;
+          g.lineStyle(2, color, 1 - progress).lineBetween(effect.x + Math.cos(angle) * 8, 213 + Math.sin(angle) * 6,
+            effect.x + Math.cos(angle) * effect.radius * progress, 213 + Math.sin(angle) * 26 * progress);
+        }
+        continue;
+      }
       if (effect.kind === 'hello-impact') {
         const progress = 1 - effect.remaining / effect.duration;
         const distance = effect.radius * (1 - Math.pow(1 - progress, 2));
@@ -143,10 +184,10 @@ export class PhaserBattleRenderer {
         g.lineStyle(3, 0xffddb2, alpha).strokeEllipse(effect.x, 221, effect.radius * 2, 26);
         continue;
       }
-      const color = effect.kind === 'sleep' ? 0xb4a4ed : effect.kind === 'support-combat' ? 0xefb06a : effect.kind === 'support-haste' || effect.kind === 'support-speed' ? 0x8fcaee : 0x91d9ad;
+      const color = effect.kind === 'sleep' ? 0xb4a4ed : effect.kind === 'support-combat' || effect.kind === 'support-song' ? 0xefb06a : effect.kind === 'support-haste' || effect.kind === 'support-speed' ? 0x8fcaee : 0x91d9ad;
       const progress = 1 - effect.remaining / effect.duration;
       g.lineStyle(2, color, (1 - progress) * 0.8).strokeEllipse(Math.round(effect.x), 221, effect.radius * 2 * Math.max(0.1, progress), 38 * progress);
-      const text = effect.kind === 'sleep' ? 'sleep()' : effect.kind === 'support-haste' ? 'ATK SPEED UP' : effect.kind === 'support-combat' ? 'ATK / DEF UP' : effect.kind === 'support-speed' ? 'SPEED UP' : 'HP UP';
+      const text = effect.kind === 'sleep' ? 'sleep()' : effect.kind === 'support-haste' ? 'ATK SPEED UP' : effect.kind === 'support-song' ? 'ATK / DEF UP · ENEMY ATK DOWN' : effect.kind === 'support-combat' ? 'ATK / DEF UP' : effect.kind === 'support-speed' ? 'SPEED UP' : 'HP UP';
       this.label(`effect-${effect.id}`, text, effect.x, 169 - progress * 8, color, 1 - progress);
     }
     this.health(FIELD.humanBaseX, 149, snapshot.humanBase.hp, snapshot.humanBase.maxHp, 50, 0xf0c28a);
@@ -229,6 +270,7 @@ export class PhaserBattleRenderer {
       this.label(`runner-${unit.id}`, '긴급 배포', x, y - 59, 0xffbf95);
     }
     this.buffs(x, y - 32, unit.buffs);
+    if (unit.weakenRemaining > 0) this.label(`weak-${unit.id}`, `공격 -25% ${unit.weakenRemaining.toFixed(1)}초`, x, y - (boss ? 95 : 64), 0xf9b4dc);
     this.healing(unit.id, x, y - (boss ? 93 : 59), unit.healFlash);
     if (unit.team === 'ai' && unit.slowRemaining > 0) {
       this.label(`sleep-${unit.id}`, `감속 ${unit.slowRemaining.toFixed(1)}초`, x, y - 45, 0xc9b7fa);

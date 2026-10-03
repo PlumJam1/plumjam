@@ -7,7 +7,7 @@ const quiet = (patch: Partial<StageDefinition> = {}): StageDefinition => ({ ...D
 const stationary = (): Record<UnitKind, UnitDefinition> => Object.fromEntries(Object.entries(UNIT_DEFINITIONS).map(([kind, definition]) => [kind, { ...definition, speed: 0 }])) as Record<UnitKind, UnitDefinition>;
 const options = { unlockedAllies: ALLY_KINDS, equippedAllies: ['melee', 'technician', 'judge', 'support', 'counselor'] as const };
 
-describe('immutable five-slot battle formation', () => {
+describe('immutable ten-slot battle formation', () => {
   it('rejects locked and unequipped summons without charging gold or cooldown', () => {
     const session = new BattleSession({ runId: 1, stage: quiet(), unlockedAllies: ALLY_KINDS, equippedAllies: ['melee', null, null, null, null] });
     const before = session.snapshot();
@@ -17,7 +17,7 @@ describe('immutable five-slot battle formation', () => {
     const beforeLocked = locked.snapshot();
     expect(locked.dispatch({ type: 'summon', kind: 'judge' }).accepted).toBe(false);
     expect(locked.snapshot()).toEqual(beforeLocked);
-    expect(locked.snapshot().equippedAllies).toEqual([null, 'melee', null, null, null]);
+    expect(locked.snapshot().equippedAllies).toEqual([null, 'melee', null, null, null, null, null, null, null, null]);
   });
 
   it('maps all five keys including empty slots and copies input/snapshot state', () => {
@@ -110,7 +110,7 @@ describe('dedicated support roles', () => {
 });
 
 describe('new fighting roles and battle lifetime', () => {
-  it('uses the strongest human HP for a slow technician and a single-target judge projectile', () => {
+  it('uses the strongest human HP for a slow technician and a single-target tracking judge hammer', () => {
     expect(UNIT_DEFINITIONS.technician.hp).toBeGreaterThan(Math.max(...ALLY_KINDS.filter(kind => kind !== 'technician').map(kind => UNIT_DEFINITIONS[kind].hp)));
     expect(UNIT_DEFINITIONS.technician.attackInterval).toBeGreaterThan(UNIT_DEFINITIONS.melee.attackInterval);
     const defs = stationary();
@@ -119,8 +119,8 @@ describe('new fighting roles and battle lifetime', () => {
     const session = new BattleSession({ runId: 1, stage: quiet({ spawns: [{ at: 0, kind: 'robot-melee' }, { at: 0, kind: 'robot-melee' }] }), unitDefinitions: defs, ...options });
     session.dispatch({ type: 'summon', kind: 'judge' });
     session.step(.02);
-    expect(session.snapshot().projectiles).toHaveLength(1);
-    expect(session.snapshot().projectiles[0]).toMatchObject({ source: 'judge', damage: 105 });
+    expect(session.snapshot().projectiles).toHaveLength(0);
+    expect(session.snapshot().judgeAttacks).toHaveLength(1);
     session.step(2.4);
     expect(session.snapshot().units.filter(unit => unit.team === 'ai').map(unit => unit.hp)).toEqual([5, 110]);
   });

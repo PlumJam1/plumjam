@@ -1,7 +1,7 @@
-export type SoundCue = 'summon' | 'hello-world' | 'sleep' | 'heal' | 'git-push' | 'overclock' | 'invest' | 'win' | 'lose';
+export type SoundCue = 'summon' | 'hello-world' | 'sleep' | 'heal' | 'git-push' | 'overclock' | 'foreach' | 'invest' | 'win' | 'lose';
 const pitches: Record<SoundCue, number[]> = {
   summon: [330, 440], 'hello-world': [660, 880], sleep: [330, 220], heal: [440, 550, 660],
-  'git-push': [220, 330, 550], overclock: [550, 880, 1100],
+  'git-push': [220, 330, 550], overclock: [550, 880, 1100], foreach: [880, 660, 330],
   invest: [220, 440, 660], win: [440, 550, 660, 880], lose: [330, 277, 220],
 };
 interface Voice { oscillator: OscillatorNode; gain: GainNode; owner: number }

@@ -1,9 +1,23 @@
 import { describe, expect, it } from 'vitest';
 import { BattleSession } from '../src/game/BattleSession';
-import { skillPreview } from '../src/game/presentation/battlePresentation';
+import { getBaseArt, skillPreview } from '../src/game/presentation/battlePresentation';
 import { characterArt } from '../src/game/presentation/assets';
 
 describe('battle presentation eligibility', () => {
+  it('preserves standing bases on hero defeat and selects each destroyed texture by its own HP', () => {
+    const snapshot = new BattleSession({ runId: 1 }).snapshot();
+    const heroDefeat = { ...snapshot, status: 'lost' as const, hero: { ...snapshot.hero, hp: 0 } };
+    expect(getBaseArt(heroDefeat)).toEqual({ human: 'human-base', enemy: 'enemy-base' });
+    expect(getBaseArt({ ...snapshot, humanBase: { ...snapshot.humanBase, hp: 0 } })).toEqual({ human: 'human-base-destroyed', enemy: 'enemy-base' });
+    expect(getBaseArt({ ...snapshot, stageId: '1-5', humanBase: { ...snapshot.humanBase, hp: 0 }, aiBase: { ...snapshot.aiBase, hp: 0 } })).toEqual({ human: 'human-base-destroyed', enemy: 'enemy-base-3-destroyed' });
+  });
+
+  it('previews foreach at a fixed forward center, including bosses and excluding the enemy base', () => {
+    const session = new BattleSession({ runId: 1, unlockedSkills: ['foreach'], equippedSkills: ['foreach'], stage: { id: 'test', label: 'test', humanBaseHp: 900, aiBaseHp: 900, initialGold: 400, spawns: [{ at: 0, kind: 'gpt-4o' }] } });
+    const snapshot = session.snapshot(); const enemy = snapshot.units[0]!;
+    const value = { ...snapshot, hero: { ...snapshot.hero, x: 370 }, units: [{ ...enemy, x: 640 }, { ...enemy, id: 20, x: 640.01 }, { ...enemy, id: 21, x: 550, hp: 0 }, { ...enemy, id: 22, team: 'human' as const, x: 550 }] };
+    expect(skillPreview(value, 'foreach')).toMatchObject({ shape: 'area', x: 550, radius: 90, targetIds: [enemy.id] });
+  });
   it('includes alive units at the actual area boundary and only the matching team', () => {
     const session = new BattleSession({ runId: 1, unlockedSkills: ['sleep', 'heal', 'git-push'], equippedSkills: ['sleep', 'heal', 'git-push'], stage: { id: 'test', label: 'test', humanBaseHp: 900, aiBaseHp: 900, initialGold: 400, spawns: [{ at: 0, kind: 'robot-melee' }] } });
     session.step(.01); session.dispatch({ type: 'summon', kind: 'melee' });

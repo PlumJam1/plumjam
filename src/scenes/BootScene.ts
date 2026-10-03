@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { assetUrl, GENERATED_ASSETS } from '../game/presentation/assets';
 import type { AppContext } from '../core/AppContext';
 import type { SceneScope } from '../core/SceneLifetimeManager';
+import { FIELD } from '../game/battle/balance';
 
 export class BootScene extends Phaser.Scene {
   private scope!: SceneScope;
@@ -14,7 +15,7 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
-    const loading = this.add.text(320, 140, 'LOADING ART · 0%', { fontFamily: 'monospace', fontSize: '12px', color: '#edc487' }).setOrigin(.5);
+    const loading = this.add.text(FIELD.width / 2, FIELD.height / 2, 'LOADING ART · 0%', { fontFamily: 'monospace', fontSize: '12px', color: '#edc487' }).setOrigin(.5);
     const progress = (value: number) => loading.setText(`LOADING ART · ${Math.round(value * 100)}%`);
     const failed = () => this.context.bridge.emit('asset-notice', '일부 그림을 불러오지 못했어. 기본 표시로 계속 플레이할 수 있어.');
     this.load.on('progress', progress);

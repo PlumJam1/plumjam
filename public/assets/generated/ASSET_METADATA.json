@@ -346,5 +346,143 @@
     "sha256": "7e3067371a5388592b9c4d93e2771841867077f4ae85f7917dc3c565c8089b83",
     "generator": "built-in image_gen.imagegen",
     "sourcePath": "/Users/hajung/.codex/generated_images/01a101f2-e386-7e70-8707-641005a35356/exec-486cf14e-8495-48cc-966f-88e415bae113.png"
+  },
+  {
+    "name": "athlete.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 709894,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      49,
+      19,
+      1056,
+      1386
+    ],
+    "sourcePath": "/Users/hajung/.codex/generated_images/01a101f2-6c5a-7ce0-b967-9293c1dacfd8/exec-ca468d7e-6af3-4c83-88bb-4b8cfa041e57.png",
+    "sha256": "4b632e177276643b3aecee25f611ea1695106b7e56ad37e2713963ab9d7caff3",
+    "tool": "built-in image_gen",
+    "transformed": false,
+    "generator": "built-in image_gen.imagegen"
+  },
+  {
+    "name": "athlete-lv5.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 692867,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      41,
+      36,
+      1070,
+      1380
+    ],
+    "sourcePath": "/Users/hajung/.codex/generated_images/01a101f2-6c5a-7ce0-b967-9293c1dacfd8/exec-9d808429-79d9-4ce4-86aa-6612c2fcef38.png",
+    "sha256": "000cbc2639ed49b679c2615daa3b4f0d1e2c7e23c1313f148d1e29123940f6ff",
+    "tool": "built-in image_gen",
+    "transformed": false,
+    "generator": "built-in image_gen.imagegen"
+  },
+  {
+    "name": "firefighter.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 904796,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      0,
+      36,
+      1122,
+      1402
+    ],
+    "sourcePath": "/Users/hajung/.codex/generated_images/01a101f2-6c5a-7ce0-b967-9293c1dacfd8/exec-945b9874-9e58-4ddf-9544-56ab0cc1d864.png",
+    "sha256": "0bb35d1ad1738a44258fe95c16fcfacc6796a878e0dfe4b7af67d654ac97529b",
+    "tool": "built-in image_gen",
+    "transformed": false,
+    "generator": "built-in image_gen.imagegen"
+  },
+  {
+    "name": "firefighter-lv5.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 922402,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      43,
+      67,
+      1122,
+      1402
+    ],
+    "sourcePath": "/Users/hajung/.codex/generated_images/01a101f2-6c5a-7ce0-b967-9293c1dacfd8/exec-d1212394-e8e6-42e2-a842-cc4d0c5b995e.png",
+    "sha256": "379f97d1dbdd41a25b1d83175e3867236dfafbf42ea56e629b8ed38b5feeb257",
+    "tool": "built-in image_gen",
+    "transformed": false,
+    "generator": "built-in image_gen.imagegen"
+  },
+  {
+    "name": "singer.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 776397,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      49,
+      37,
+      1072,
+      1378
+    ],
+    "sourcePath": "/Users/hajung/.codex/generated_images/01a101f2-6c5a-7ce0-b967-9293c1dacfd8/exec-25260770-a44b-4686-9b58-672845507c78.png",
+    "sha256": "18ad28dfddb6213caf1b0652fed20b4b33194bc990ae63356812e8dde3c2ecb7",
+    "tool": "built-in image_gen",
+    "transformed": false,
+    "generator": "built-in image_gen.imagegen"
+  },
+  {
+    "name": "singer-lv5.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 874025,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      0,
+      19,
+      1090,
+      1382
+    ],
+    "sourcePath": "/Users/hajung/.codex/generated_images/01a101f2-6c5a-7ce0-b967-9293c1dacfd8/exec-c993429b-219c-454e-a65d-58ab957aa806.png",
+    "sha256": "ba9aea6c278d32eefdca90e7d19edd8cf157e76e435cf99d373be054d203ae37",
+    "tool": "built-in image_gen",
+    "transformed": false,
+    "generator": "built-in image_gen.imagegen"
   }
 ]

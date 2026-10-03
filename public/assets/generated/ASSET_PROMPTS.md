@@ -238,3 +238,44 @@ Style: crisp chunky low-detail pixel art, thick dark outlines, limited charcoal/
 Composition: full-body machine side profile facing LEFT, one neutral imposing combat idle pose, portrait framing with little padding, feet and whole silhouette visible.
 Constraints: genuinely transparent alpha background, no words, labels, numbers, logos, floor, shadow, checkerboard, glow haze, gradients, particles, duplicates or spritesheet.
 ```
+
+
+## 운동선수·소방관·가수 확장 (2026-10-04)
+
+Built-in image_gen 도구로 신규 이미지를 생성했다. technician.png는 스타일 참조로만 사용했으며, 원본 생성 PNG를 복사하고 픽셀·알파를 편집하지 않았다.
+
+### athlete.png
+
+```text
+Use case: stylized-concept. Asset type: single isolated game character sprite, full body. Reference image is ONLY style reference, not edit target. Create a NEW young adult track athlete, short dark hair, red-and-white track jersey and shorts, running shoes, athletic compact stance facing RIGHT with a determined friendly face. Match reference three-head-tall chibi pixel art with crisp blocky pixel clusters, dark outline, simple readable retro game shading. Full figure centered including all shoes with transparent padding, no floor, no shadow, no text, no labels, no logo, no UI, no other character. Genuine transparent background. Portrait composition, one character only.
+```
+
+### athlete-lv5.png
+
+```text
+Use case: stylized-concept. Asset type: single isolated game character sprite, full body. Reference image is ONLY style reference, not edit target. Create a NEW young adult martial artist, short dark hair, clean white taekwondo dobok with BLACK BELT, fighting shoes, one raised knee ready to kick, determined friendly face. Full figure facing RIGHT. Match reference three-head-tall chibi pixel art with crisp blocky pixel clusters, dark outline, simple readable retro game shading. Full figure centered including all shoes with transparent padding, no floor, no shadow, no text, no labels, no logo, no UI, no other character. Genuine transparent background. Portrait composition, one character only.
+```
+
+### firefighter.png
+
+```text
+Use case: stylized-concept. Asset type: single isolated game character sprite, full body. Reference image is ONLY style reference, not edit target. Create a NEW young adult firefighter, YELLOW turnout coat and pants with reflective bands, YELLOW fire helmet, heavy boots, holding a compact WATER HOSE nozzle pointed right, determined friendly face. Full figure facing RIGHT. Match reference three-head-tall chibi pixel art with crisp blocky pixel clusters, dark outline, simple readable retro game shading. Full figure centered including all shoes with transparent padding, no floor, no shadow, no text, no labels, no logo, no UI, no other character. Genuine transparent background. Portrait composition, one character only.
+```
+
+### firefighter-lv5.png
+
+```text
+Use case: stylized-concept. Asset type: single isolated game character sprite, full body. Reference image is ONLY style reference, not edit target. Create a NEW experienced firefighter, SILVER fire resistant turnout suit with orange reflective trim, silver fire helmet, visible OXYGEN TANK on back, heavy boots, WATER HOSE nozzle held pointing right. Full figure facing RIGHT. Match reference three-head-tall chibi pixel art with crisp blocky pixel clusters, dark outline, simple readable retro game shading. Full figure centered including all shoes with transparent padding, no floor, no shadow, no text, no labels, no logo, no UI, no other character. Genuine transparent background. Portrait composition, one character only.
+```
+
+### singer.png
+
+```text
+Use case: stylized-concept. Asset type: single isolated game character sprite, full body. Reference image is ONLY style reference, not edit target. Create a NEW young adult street singer, short brown hair, casual teal jacket over simple shirt and jeans, holding a MICROPHONE toward the right, friendly confident smile. Full figure facing RIGHT. Match reference three-head-tall chibi pixel art with crisp blocky pixel clusters, dark outline, simple readable retro game shading. Full figure centered including all shoes with transparent padding, no floor, no shadow, no text, no labels, no logo, no UI, no other character. Genuine transparent background. Portrait composition, one character only.
+```
+
+### singer-lv5.png
+
+```text
+Use case: stylized-concept. Asset type: single isolated game character sprite, full body. Reference image is ONLY style reference, not edit target. Create a NEW world star stage singer, short brown hair, glamorous purple and gold stage jacket over black stage outfit and polished boots, holding a MICROPHONE toward the right, warm confident smile. Full figure facing RIGHT. Match reference three-head-tall chibi pixel art with crisp blocky pixel clusters, dark outline, simple readable retro game shading. Full figure centered including all shoes with transparent padding, no floor, no shadow, no text, no labels, no logo, no UI, no other character. Genuine transparent background. Portrait composition, one character only.
+```
