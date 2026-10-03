@@ -88,7 +88,7 @@ kbd { display: inline-block; font: inherit; font-size: 9px; border: 1px solid #8
 .result-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 7px; }
 .result-actions button + button { margin-left: 0; }
 .field-wrapper { position: relative; }
-.title-screen { position: absolute; inset: 0; background: linear-gradient(90deg, #121f30f2 15%, #121f3070), url('/assets/generated/bg-early.png') center / cover; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 30px 9%; }
+.title-screen { position: absolute; inset: 0; background: linear-gradient(90deg, #121f30f2 15%, #121f3070), var(--early-bg) center / cover; display: flex; flex-direction: column; align-items: flex-start; justify-content: center; padding: 30px 9%; }
 .title-screen h2 { position: relative; z-index: 1; font-size: clamp(28px, 4vw, 64px); line-height: 1.15; letter-spacing: -2px; margin: 14px 0; }
 .title-screen h2 em { font-style: normal; color: #f1bd7d; }
 .title-screen p { position: relative; z-index: 1; font-size: 12px; color: #d3dfeb; }
@@ -110,13 +110,13 @@ kbd { display: inline-block; font: inherit; font-size: 9px; border: 1px solid #8
 .result-banner .reward-line { font-size: 16px; }
 .result-actions .primary { font-size: 14px; padding: 11px 23px; }
 .lobby-home, .stage-map-ui { position: absolute; inset: 0; }
-.lobby-home { background: linear-gradient(90deg,#152337dd,#15233766),url('/assets/generated/bg-early.png') center/cover; }
+.lobby-home { background: linear-gradient(90deg,#152337dd,#15233766),var(--early-bg) center/cover; }
 .mission-nav { position: absolute; left: 6%; top: 25%; display: flex; flex-direction: column; gap: 15px; width: 38%; }
 .mission-nav button { font-size: clamp(18px, 2vw, 30px); padding: 18px 20px; border: 3px solid #503d31; border-radius: 8px; box-shadow: inset 0 2px #ffdeb0, 0 4px #10172288; }
 .hero-welcome { position: absolute; inset: 9% 5% 0 52%; display: flex; flex-direction: column; align-items: center; }
 .hero-welcome p { background: #1c2c3be8; border: 2px solid #becbd6; border-radius: 15px; text-align: center; padding: 15px 20px; font-size: 14px; line-height: 1.6; margin: 0; }
 .hero-welcome img { height: 64%; width: 55%; object-fit: contain; image-rendering: pixelated; }
-.stage-map-ui { background: linear-gradient(#142337b0,#172337bb),url('/assets/generated/bg-early.png') center/cover; }
+.stage-map-ui { background: linear-gradient(#142337b0,#172337bb),var(--early-bg) center/cover; }
 .stage-map-ui .selected-stage-preview { top: 28%; padding: 12px 25px; }
 .stage-route { position: absolute; left: 8%; right: 8%; top: 64%; }
 .stage-route::before { content: ''; position: absolute; left: 7%; right: 7%; top: 30px; height: 3px; background: #c8a36b; z-index: 0; }
@@ -129,7 +129,7 @@ kbd { display: inline-block; font: inherit; font-size: 9px; border: 1px solid #8
 .result-banner .reward-line strong { font-size: 25px; }
 .result-banner > p:not(.reward-line) { background: #142034c0; padding: 4px 15px; margin-bottom: 9px; }
 .lobby-top .mute-toggle { margin-left: auto; }
-.training-overlay { position: absolute; inset: 0; padding: 20px 3%; align-items: center; background: linear-gradient(#152337ed,#182537dd),url('/assets/generated/bg-early.png') center/cover; }
+.training-overlay { position: absolute; inset: 0; padding: 20px 3%; align-items: center; background: linear-gradient(#152337ed,#182537dd),var(--early-bg) center/cover; }
 .training-overlay .training-card { padding: 12px 9px; min-height: 245px; border-top: 3px solid #d9b07e; }
 .training-overlay .character-heading { flex-direction: column; text-align: center; }
 .training-overlay .character-heading img { width: 70px; height: 70px; }
@@ -138,3 +138,19 @@ kbd { display: inline-block; font: inherit; font-size: 9px; border: 1px solid #8
 .training-overlay .training-card p { text-align: center; margin: 9px 0; line-height: 1.7; }
 .training-overlay .growth-preview { height: 34px; }
 .training-overlay .training-card button { font-size: 11px; padding: 8px 5px; }
+
+/* Game-title composition: prominent central start and a battle cast along the ground. */
+.title-screen { align-items: center; justify-content: flex-start; text-align: center; padding: 5% 4% 0; background: linear-gradient(#111b29b0,#111b2940), var(--early-bg) center / cover; }
+.title-screen h2 { font-size: clamp(28px, 4vw, 59px); margin: 12px 0 4px; letter-spacing: -2px; color: #fff0d5; text-shadow: 3px 3px #192234, -2px -2px #192234, 2px -2px #192234, -2px 2px #192234; }
+.title-screen p { margin: 4px 0 13px; font-size: clamp(11px,1vw,14px); }
+.title-screen small { position: absolute; bottom: 5px; z-index: 2; padding: 2px 10px; background: #142034c9; }
+.title-start { z-index: 3; border: 3px solid #614632; border-radius: 7px; padding: 10px 42px; font-size: clamp(19px,2vw,27px); min-width: 260px; }
+.title-cast { position: absolute; left: 6%; right: 6%; bottom: 4%; height: 32%; display: flex; align-items: flex-end; justify-content: center; pointer-events: none; }
+.title-cast img { width: 13%; height: 100%; object-fit: contain; image-rendering: pixelated; filter: drop-shadow(2px 3px 0 #12203788); }
+.title-cast img:nth-child(2) { height: 114%; } .title-cast img:last-child { height: 125%; margin-left: 3%; }
+.unit-portrait { position: absolute; right: 4px; top: 26px; height: 37px; width: 27px; object-fit: contain; image-rendering: pixelated; opacity: .95; pointer-events: none; }
+.unit-button strong, .unit-button small { position: relative; z-index: 1; }
+.unit-button small { max-width: calc(100% - 20px); }
+.asset-notice { margin: 0; padding: 5px 12px; font-size: 10px; color: #f3c586; background: #152337; }
+.boss-quote { position: absolute; left: 50%; top: 95px; transform: translateX(-50%); z-index: 15; background: #142034ef; border: 1px solid #9ca3db; padding: 9px 18px; color: #e9dcff; font-size: 13px; white-space: nowrap; pointer-events: none; }
+.boss-quote strong { color: #a3eef2; margin-right: 8px; }

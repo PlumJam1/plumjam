@@ -1,0 +1,224 @@
+[
+  {
+    "name": "bg-boss.png",
+    "width": 1891,
+    "height": 831,
+    "bitDepth": 8,
+    "colorType": 2,
+    "fileBytes": 1776655
+  },
+  {
+    "name": "bg-early.png",
+    "width": 1896,
+    "height": 830,
+    "bitDepth": 8,
+    "colorType": 2,
+    "fileBytes": 1260941
+  },
+  {
+    "name": "bg-mid.png",
+    "width": 1895,
+    "height": 830,
+    "bitDepth": 8,
+    "colorType": 2,
+    "fileBytes": 1735578
+  },
+  {
+    "name": "boss.png",
+    "width": 1135,
+    "height": 1386,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 1265710,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      0,
+      9,
+      1135,
+      1386
+    ]
+  },
+  {
+    "name": "hero-lv5.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 634560,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      65,
+      38,
+      942,
+      1384
+    ]
+  },
+  {
+    "name": "hero.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 665836,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      51,
+      19,
+      1056,
+      1370
+    ]
+  },
+  {
+    "name": "melee-lv5.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 709875,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      0,
+      19,
+      1068,
+      1356
+    ]
+  },
+  {
+    "name": "melee.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 776506,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      31,
+      19,
+      1105,
+      1402
+    ]
+  },
+  {
+    "name": "ranged-lv5.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 815510,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      0,
+      23,
+      1070,
+      1374
+    ]
+  },
+  {
+    "name": "ranged.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 637183,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      81,
+      27,
+      1070,
+      1402
+    ]
+  },
+  {
+    "name": "robot-melee.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 854773,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      25,
+      30,
+      1100,
+      1402
+    ]
+  },
+  {
+    "name": "robot-ranged.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 496001,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      37,
+      19,
+      1038,
+      1402
+    ]
+  },
+  {
+    "name": "support-lv5.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 673859,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      25,
+      30,
+      1104,
+      1386
+    ]
+  },
+  {
+    "name": "support.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 501041,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      49,
+      19,
+      928,
+      1402
+    ]
+  }
+]

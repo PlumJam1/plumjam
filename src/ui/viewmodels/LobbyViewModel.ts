@@ -1,3 +1,4 @@
+import { assetUrl, characterArt } from '../../game/presentation/assets';
 import { computed, effectScope, readonly, shallowRef } from 'vue';
 import type { AppContext } from '../../core/AppContext';
 import type { SceneScope } from '../../core/SceneLifetimeManager';
@@ -27,7 +28,7 @@ export function createLobbyViewModel(context: AppContext, scope: SceneScope, ini
       const damage = kind === 'hero' ? SKILLS['hello-world'].damage : kind === 'support' ? SUPPORT.heal : UNIT_DEFINITIONS[kind].damage;
       const cost = upgradeCost(level);
       return { kind, label: kind === 'hero' ? '주인공 개발자' : UNIT_DEFINITIONS[kind].label, level, cost,
-        evolved: level >= 5, growth: growth[kind], image: `/assets/generated/${kind}${level >= 5 ? '-lv5' : ''}.png`, preview: `/assets/generated/${kind}-lv5.png`,
+        evolved: level >= 5, growth: growth[kind], image: assetUrl(characterArt(kind, level)), preview: assetUrl(characterArt(kind, 5)),
         hp: Math.round(hp * multiplier), nextHp: Math.round(hp * nextMultiplier),
         statLabel: kind === 'support' ? '회복' : kind === 'hero' ? '스킬 피해' : '공격', stat: Math.round(damage * multiplier), nextStat: Math.round(damage * nextMultiplier),
         disabled: cost === null || profile.value.xp < cost,

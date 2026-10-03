@@ -39,6 +39,8 @@ function createScreenViewModel(context: AppContext, scope: SceneScope, initial: 
 
 export function createShellViewModel(context: AppContext) {
   let seenBattleIntro = false;
+  const assetNotice = shallowRef('');
+  const unsubscribeAssets = context.bridge.subscribe('asset-notice', notice => { assetNotice.value = notice; });
   const titleVisible = shallowRef(true);
   const screen = shallowRef<ReturnType<typeof createScreenViewModel> | null>(null);
   const receive = (state: SceneState) => {
@@ -53,5 +55,5 @@ export function createShellViewModel(context: AppContext) {
   };
   const unsubscribe = context.bridge.subscribe('scene-state', receive);
   if (context.bridge.sceneState) receive(context.bridge.sceneState);
-  return { screen: shallowReadonly(screen), titleVisible: readonly(titleVisible), enterLobby: () => { titleVisible.value = false; }, showTitle: () => { titleVisible.value = true; }, dispose: unsubscribe };
+  return { assetNotice: readonly(assetNotice), screen: shallowReadonly(screen), titleVisible: readonly(titleVisible), enterLobby: () => { titleVisible.value = false; }, showTitle: () => { titleVisible.value = true; }, dispose: () => { unsubscribe(); unsubscribeAssets(); } };
 }

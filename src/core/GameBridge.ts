@@ -23,6 +23,7 @@ export interface SceneCommandEnvelope {
 }
 
 export interface GameBridgeEvents {
+  'asset-notice': string;
   'scene-state': SceneState;
   'scene-command': SceneCommandEnvelope;
   'battle-command': { runId: number; command: BattleCommand };

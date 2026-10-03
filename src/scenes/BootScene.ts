@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import { assetUrl, GENERATED_ASSETS } from '../game/presentation/assets';
 import type { AppContext } from '../core/AppContext';
 import type { SceneScope } from '../core/SceneLifetimeManager';
 
@@ -13,7 +14,14 @@ export class BootScene extends Phaser.Scene {
   }
 
   preload(): void {
-    this.load.image('seoultech-symbol', `${import.meta.env.BASE_URL}assets/bases/seoultech-symbol.gif`);
+    const loading = this.add.text(320, 140, 'LOADING ART · 0%', { fontFamily: 'monospace', fontSize: '12px', color: '#edc487' }).setOrigin(.5);
+    const progress = (value: number) => loading.setText(`LOADING ART · ${Math.round(value * 100)}%`);
+    const failed = () => this.context.bridge.emit('asset-notice', '일부 그림을 불러오지 못했어. 기본 표시로 계속 플레이할 수 있어.');
+    this.load.on('progress', progress);
+    this.load.on('loaderror', failed);
+    this.scope.defer(() => { this.load.off('progress', progress); this.load.off('loaderror', failed); });
+    for (const key of GENERATED_ASSETS) if (!this.textures.exists(key)) this.load.image(key, assetUrl(key));
+    if (!this.textures.exists('seoultech-symbol')) this.load.image('seoultech-symbol', `${import.meta.env.BASE_URL}assets/bases/seoultech-symbol.gif`);
   }
 
   create(): void { this.scene.start('Lobby'); }

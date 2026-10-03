@@ -1,18 +1,46 @@
-import type Phaser from 'phaser';
+import Phaser from 'phaser';
+import { backgroundArt, characterArt, type ArtKey } from './presentation/assets';
+import { drawPlaceholder } from '../scenes/drawPlaceholder';
 import { FIELD } from './battle/balance';
 import type { BattleSnapshot, TimedBuffs, UnitState } from './battle/types';
 
-/** Presentation only. All rectangles can be replaced by sprites without changing the rules. */
+/** Scene-owned presentation; app-owned source textures survive scene shutdown. */
 export class PhaserBattleRenderer {
   private readonly graphics: Phaser.GameObjects.Graphics;
   private readonly labels = new Map<string, Phaser.GameObjects.Text>();
   private readonly visibleLabels = new Set<string>();
-  constructor(private readonly scene: Phaser.Scene) { this.graphics = scene.add.graphics().setDepth(10); }
+  private readonly actors = new Map<number, { image: Phaser.GameObjects.Image; scale: number; lastX: number; dyingAt?: number }>();
+  private readonly scenery: Phaser.GameObjects.GameObject[] = [];
+  private readonly living = new Set<number>();
+  constructor(private readonly scene: Phaser.Scene, theme?: 'early' | 'mid' | 'boss') {
+    scene.cameras.main.setBackgroundColor('#233342');
+    const key = backgroundArt(theme);
+    if (scene.textures.exists(key)) {
+      const bg = scene.add.image(320, 140, key).setDepth(-10);
+      // Full source, preserve aspect; generated backgrounds were composed for this viewport.
+      bg.setScale(Math.min(640 / bg.width, 280 / bg.height));
+      this.scenery.push(bg);
+      const bases = scene.add.graphics().setDepth(1);
+      bases.fillStyle(0xd0a86b).fillRect(25, 167, 57, 63);
+      bases.fillStyle(0x77614f).fillRect(20, 159, 67, 9);
+      bases.fillStyle(0x453c40).fillRect(46, 197, 18, 33);
+      bases.fillStyle(0x131e2b).fillRect(552, 130, 65, 100);
+      bases.fillStyle(0x547386).fillRect(548, 122, 73, 8);
+      for (let y = 142; y < 215; y += 17) bases.fillStyle(0x75d7db).fillRect(562, y, 45, 3);
+      this.scenery.push(bases);
+      if (scene.textures.exists('seoultech-symbol')) {
+        const logo = scene.add.image(54, 182, 'seoultech-symbol').setDepth(2);
+        logo.setScale(Math.min(30 / logo.width, 28 / logo.height)); this.scenery.push(logo);
+      }
+    } else drawPlaceholder(scene, true);
+    this.graphics = scene.add.graphics().setDepth(10);
+  }
 
   render(snapshot: BattleSnapshot): void {
     const g = this.graphics;
     g.clear();
     this.visibleLabels.clear();
+    this.living.clear();
     for (const effect of snapshot.effects) {
       const color = effect.kind === 'sleep' ? 0xb4a4ed : effect.kind === 'support-combat' ? 0xefb06a : effect.kind === 'support-speed' ? 0x8fcaee : 0x91d9ad;
       const progress = 1 - effect.remaining / effect.duration;
@@ -26,12 +54,9 @@ export class PhaserBattleRenderer {
     const hero = snapshot.hero;
     const x = Math.round(hero.x);
     g.fillStyle(0x000000, 0.3).fillEllipse(x, FIELD.groundY + 1, 23, 5);
-    g.fillStyle(hero.hitFlash > 0 ? 0xffffff : 0xf5cba2).fillRect(x - 5, 190, 11, 12);
-    g.fillStyle(hero.hitFlash > 0 ? 0xffffff : 0xdf886c).fillRect(x - 7, 202, 16, 17);
-    g.fillStyle(0x34415a).fillRect(x - 6, 219, 5, 11).fillRect(x + 4, 219, 5, 11);
-    g.fillStyle(0x243044).fillRect(x + 7, 209, 14, 9);
-    g.lineStyle(1, 0xf5d59d).strokeTriangle(x - 4, 181, x + 4, 181, x, 186);
-    this.health(x, 184, hero.hp, hero.maxHp, 24, 0xf4be79);
+    if (hero.hp > 0) this.actor(hero.id, characterArt('hero', hero.level), x, 230, 46, 52, hero.hitFlash > 0, 0, snapshot.elapsed, true);
+    g.lineStyle(1, 0xf5d59d).strokeTriangle(x - 4, 170, x + 4, 170, x, 175);
+    this.health(x, 177, hero.hp, hero.maxHp, 27, 0xf4be79);
     this.buffs(x, 196, hero.buffs, hero.healFlash);
     for (const projectile of snapshot.projectiles) {
       if (projectile.source === 'hero') {
@@ -39,10 +64,18 @@ export class PhaserBattleRenderer {
         this.label(`shot-${projectile.id}`, 'Hello, World!', projectile.x, 195, 0xffdf9c);
       } else g.fillStyle(projectile.team === 'human' ? 0xf3e4cc : 0x89e6ea).fillRect(Math.round(projectile.x) - 3, 207, 7, 4);
     }
+    for (const [id, actor] of this.actors) {
+      if (this.living.has(id)) continue;
+      actor.dyingAt ??= this.scene.time.now / 1000;
+      actor.image.setTintMode(Phaser.TintModes.MULTIPLY);
+      const fraction = Math.max(0, 1 - (this.scene.time.now / 1000 - actor.dyingAt) / 0.25);
+      actor.image.setAlpha(fraction).setScale(actor.scale * fraction);
+      if (fraction === 0) { actor.image.destroy(); this.actors.delete(id); }
+    }
     for (const [key, label] of this.labels) if (!this.visibleLabels.has(key)) { label.destroy(); this.labels.delete(key); }
   }
 
-  destroy(): void { this.graphics.destroy(); for (const label of this.labels.values()) label.destroy(); this.labels.clear(); }
+  destroy(): void { for (const actor of this.actors.values()) actor.image.destroy(); this.actors.clear(); for (const object of this.scenery) object.destroy(); this.scenery.length = 0; this.graphics.destroy(); for (const label of this.labels.values()) label.destroy(); this.labels.clear(); }
 
   private label(key: string, value: string, x: number, y: number, color: number, alpha = 1): void {
     this.visibleLabels.add(key);
@@ -66,23 +99,30 @@ export class PhaserBattleRenderer {
     const bob = unit.attackCooldown === 0 ? Math.round(Math.sin(elapsed * 9 + unit.id) * 1.5) : 0;
     const y = 230 + bob;
     g.fillStyle(0x000000, 0.25).fillEllipse(x, 231, 20, 4);
-    if (unit.team === 'human') {
-      const color = unit.kind === 'melee' ? 0xe2bb80 : unit.kind === 'ranged' ? 0x8fbbbf : 0xcba4cc;
-      g.fillStyle(unit.hitFlash > 0 ? 0xffffff : 0xf0c9a8).fillRect(x - 5, y - 32, 10, 10);
-      g.fillStyle(unit.hitFlash > 0 ? 0xffffff : color).fillRect(x - 7, y - 22, 15, 14);
-      g.fillStyle(0x334052).fillRect(x - 6, y - 8, 5, 8).fillRect(x + 3, y - 8, 5, 8);
-      g.fillStyle(unit.kind === 'melee' ? 0x73543b : 0xf0e4cf).fillRect(x + 7, y - 17, 7, 8);
-    } else {
-      const color = unit.kind === 'robot-ranged' ? 0x7f81b5 : 0x7399a5;
-      g.fillStyle(unit.hitFlash > 0 ? 0xffffff : color).fillRect(x - 9, y - 29, 18, 19);
-      g.fillStyle(0x132331).fillRect(x - 7, y - 26, 14, 5);
-      g.fillStyle(0x89edeb).fillRect(x - 5, y - 24, 3, 2).fillRect(x + 2, y - 24, 3, 2);
-      g.fillStyle(0x425b6d).fillRect(x - 7, y - 10, 5, 10).fillRect(x + 2, y - 10, 5, 10);
-      if (unit.kind === 'robot-ranged') g.fillStyle(0x485d7d).fillRect(x - 17, y - 19, 9, 5);
-    }
+    const boss = unit.kind === 'gpt-4o';
+    this.actor(unit.id, characterArt(unit.kind, unit.level), x, y, boss ? 63 : 37, boss ? 78 : 44, unit.hitFlash > 0, unit.attackFlash, elapsed);
     this.buffs(x, y - 32, unit.buffs, unit.healFlash);
     if (unit.slowRemaining > 0) this.label(`sleep-${unit.id}`, 'Zzz', x, y - 45, 0xc9b7fa);
-    this.health(x, y - 36, unit.hp, unit.maxHp, 19, unit.team === 'human' ? 0xdfb878 : 0x77b6c1);
+    this.health(x, y - (unit.kind === 'gpt-4o' ? 82 : 48), unit.hp, unit.maxHp, 19, unit.team === 'human' ? 0xdfb878 : 0x77b6c1);
+  }
+
+  private actor(id: number, key: ArtKey, x: number, y: number, width: number, height: number, hit: boolean, attack: number, elapsed: number, hero = false): void {
+    this.living.add(id);
+    if (!this.scene.textures.exists(key)) {
+      this.graphics.fillStyle(hero ? 0xedb97b : 0x7eb5bd).fillRect(x - 9, y - height, 18, height); return;
+    }
+    let actor = this.actors.get(id);
+    if (!actor) {
+      const image = this.scene.add.image(x, y, key).setOrigin(.5, 1);
+      const scale = Math.min(width / image.width, height / image.height);
+      actor = { image, scale, lastX: x }; this.actors.set(id, actor);
+    }
+    const moving = Math.abs(x - actor.lastX) > .03;
+    if (hero && moving) actor.image.setFlipX(x < actor.lastX);
+    const bob = moving ? Math.sin(elapsed * 10 + id) * 1.2 : 0;
+    actor.lastX = x;
+    actor.image.setPosition(x, y + bob).setScale(actor.scale).setAngle(attack > 0 ? (key.startsWith('robot') || key === 'boss' ? -5 : 5) : 0).setDepth(hero ? 9 : 4 + x / 1000);
+    actor.image.setTint(0xffffff).setTintMode(hit ? Phaser.TintModes.FILL : Phaser.TintModes.MULTIPLY);
   }
 
   private health(x: number, y: number, hp: number, maxHp: number, width: number, color: number): void {

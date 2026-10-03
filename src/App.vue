@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { assetUrl, backgroundArt, characterArt, type ArtKey } from './game/presentation/assets';
 import { computed, markRaw, onBeforeUnmount, onMounted, shallowRef } from 'vue';
 import type Phaser from 'phaser';
 import { AppContext } from './core/AppContext';
@@ -19,6 +20,8 @@ const economyDisabled = computed(() => screen.value?.economyDisabled.value ?? tr
 const danger = computed(() => screen.value?.danger.value ?? false);
 const statusLabel = computed(() => screen.value?.statusLabel.value ?? '로딩 중');
 const titleVisible = viewModel.titleVisible;
+const titleCast: ArtKey[] = ['melee', 'hero', 'ranged', 'support', 'robot-melee', 'boss'];
+const unlockAudio = () => context.sound.unlock();
 
 onMounted(() => { if (gameParent.value) game.value = markRaw(createGame(gameParent.value, context)); });
 onBeforeUnmount(() => {
@@ -30,7 +33,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <main class="app-shell">
+  <main class="app-shell" :style="{ '--early-bg': `url(${assetUrl('bg-early')})` }" @pointerdown.capture="unlockAudio" @keydown.capture="unlockAudio">
     <header class="masthead">
       <div><span class="eyebrow">HUMAN RESOURCES / LAST STAND</span><h1>인간의 마지막 출근</h1></div>
       <span class="build-label">PLUMJAM · PROTOTYPE</span>
@@ -52,17 +55,17 @@ onBeforeUnmount(() => {
         <div ref="gameParent" class="game-canvas" aria-label="게임 전장"></div>
         <div v-if="!isBattle && titleVisible" class="title-screen">
           <span class="eyebrow">HUMANS VS AUTOMATION</span>
-          <h2>인간의<br /><em>마지막 출근</em></h2>
+          <h2>인간의 <em>마지막 출근</em></h2>
           <p>졸업은 했는데, 세상이 업데이트됐다.</p>
-          <img class="title-hero" src="/assets/generated/hero.png" alt="실전이 낯선 컴공 졸업생" />
-          <button class="primary title-start" :disabled="state?.scene !== 'Lobby'" @click="viewModel.enterLobby()">출근 시작</button>
+          <div class="title-cast" aria-label="인간 병력과 AI 침공군"><img v-for="key in titleCast" :key="key" :src="assetUrl(key)" alt="" /></div>
+          <button class="primary title-start" :disabled="state?.scene !== 'Lobby'" @click="viewModel.enterLobby()">{{ state?.scene === 'Lobby' ? '출근 시작' : '그림 불러오는 중...' }}</button>
           <small>PC · A/D 이동 · 숫자키 병력 · J/K/L 스킬</small>
         </div>
         <div v-else-if="!isBattle && screen?.lobbyTab.value === 'menu'" class="lobby-home">
           <div class="mission-nav"><button class="primary" @click="screen?.setLobbyTab('stages')">전투 시작!</button><button class="primary" @click="screen?.setLobbyTab('training')">캐릭터 강화</button></div>
-          <div class="hero-welcome"><p>수업은 열심히 들었는데...<br />실전도 출근도 지금부터다!</p><img :src="screen.profile.value.levels.hero >= 5 ? '/assets/generated/hero-lv5.png' : '/assets/generated/hero.png'" alt="주인공 개발자" /></div>
+          <div class="hero-welcome"><p>수업은 열심히 들었는데...<br />실전도 출근도 지금부터다!</p><img :src="assetUrl(characterArt('hero', screen.profile.value.levels.hero))" alt="주인공 개발자" /></div>
         </div>
-        <div v-else-if="!isBattle && screen?.lobbyTab.value === 'stages'" class="stage-map-ui" :style="{ backgroundImage: `linear-gradient(#142337b0,#172337bb),url('/assets/generated/bg-${screen.selectedStage.value.theme}.png')` }">
+        <div v-else-if="!isBattle && screen?.lobbyTab.value === 'stages'" class="stage-map-ui" :style="{ backgroundImage: `linear-gradient(#142337b0,#172337bb),url(${assetUrl(backgroundArt(screen.selectedStage.value.theme))})` }">
         <div class="selected-stage-preview">
           <span class="eyebrow">{{ screen.selectedStage.value.theme === 'boss' ? 'BOSS INCOMING' : 'NEXT SHIFT' }}</span>
           <h2>{{ screen.selectedStage.value.id }} · {{ screen.selectedStage.value.label }}</h2>
@@ -85,6 +88,8 @@ onBeforeUnmount(() => {
           </article>
         </div>
       </div>
+      <p v-if="viewModel.assetNotice.value" class="asset-notice" role="status">{{ viewModel.assetNotice.value }}</p>
+      <div v-if="isBattle && battle?.stageId === '1-5' && battle.elapsed < 7 && !ended" class="boss-quote"><strong>GPT-4o</strong> “너 정말 핵심을 짚었어”</div>
       <div v-if="paused" class="pause-banner" role="dialog" aria-label="일시정지">
         <span class="eyebrow">COFFEE BREAK</span><h2>숨 고르고 다시 출근하자.</h2>
         <p>시간 · 자금 · 스킬 준비가 모두 멈췄어.</p>
@@ -106,7 +111,7 @@ onBeforeUnmount(() => {
       <section v-if="isBattle && battle" class="battle-controls">
         <div class="action-grid">
           <button v-for="unit in screen?.units.value" :key="unit.kind" class="action-card unit-button" :disabled="unit.disabled" :title="unit.description" @click="screen?.summon(unit.kind)">
-            <span class="card-label"><kbd>{{ unit.key }}</kbd> {{ unit.label }}</span>
+            <img class="unit-portrait" :src="assetUrl(characterArt(unit.kind, screen?.profile.value.levels[unit.kind]))" alt="" /><span class="card-label"><kbd>{{ unit.key }}</kbd> {{ unit.label }}</span>
             <strong>{{ unit.cost }} 자금</strong><small>{{ unit.reason }}</small>
             <span class="ready-bar" aria-hidden="true"><i :style="{ width: `${unit.progress * 100}%` }"></i></span>
           </button>
@@ -131,6 +136,7 @@ onBeforeUnmount(() => {
         <div class="battle-menu">
           <span>소환 · 스킬 · 투자 = 공유 자금. 기본 공격은 없어.</span>
           <div class="actions">
+            <button @click="screen?.toggleMuted()">{{ screen?.profile.value.muted ? '음소거 중' : '소리 켜짐' }}</button>
             <button :disabled="ended" @click="screen?.togglePause()">{{ paused ? '전투 계속' : '일시정지' }} <kbd>Esc</kbd></button>
             <button @click="screen?.restartBattle()">다시 시작</button>
             <button @click="screen?.returnLobby()">준비실로</button>

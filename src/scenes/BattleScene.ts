@@ -4,7 +4,6 @@ import type { SceneScope } from '../core/SceneLifetimeManager';
 import { BattleSession } from '../game/BattleSession';
 import { PhaserBattleRenderer } from '../game/PhaserBattleRenderer';
 import type { BattleCommand } from '../game/battle/types';
-import { drawPlaceholder } from './drawPlaceholder';
 
 export class BattleScene extends Phaser.Scene {
   private scope!: SceneScope;
@@ -26,18 +25,20 @@ export class BattleScene extends Phaser.Scene {
   create(): void {
     const stage = this.context.stageForBattle(this.stageId);
     if (!stage) { this.scene.start('Lobby'); return; }
-    drawPlaceholder(this, true);
     const scope = this.scope;
     this.session = new BattleSession({ runId: scope.id, stage, levels: this.context.profile.snapshot().levels });
     const session = this.session;
-    this.battleRenderer = new PhaserBattleRenderer(this);
+    this.battleRenderer = new PhaserBattleRenderer(this, stage.theme);
     const battleRenderer = this.battleRenderer;
-    scope.defer(() => { session.dispose(); battleRenderer.destroy(); });
+    scope.defer(() => { this.context.sound.stopRun(scope.id); session.dispose(); battleRenderer.destroy(); });
     scope.defer(this.context.bridge.subscribe('battle-command', ({ runId, command }) => {
       if (scope.disposed || runId !== scope.id) return;
       const result = session.dispatch(command);
       // Movement is continuous input, not a notice; it must not erase skill/funds feedback.
-      if (command.type !== 'move') this.context.bridge.emit('battle-feedback', { runId, result });
+      if (command.type !== 'move') {
+        this.context.bridge.emit('battle-feedback', { runId, result });
+        if (result.accepted) this.context.sound.play(command.type === 'summon' ? 'summon' : command.type === 'skill' ? command.skill : 'invest', runId);
+      }
       this.publishBattle();
     }));
     scope.defer(this.context.bridge.subscribe('scene-command', ({ runId, command }) => {
@@ -63,7 +64,7 @@ export class BattleScene extends Phaser.Scene {
     const dispatch = (command: BattleCommand) => this.context.bridge.emit('battle-command', { runId: scope.id, command });
     const movement = () => dispatch({ type: 'move', direction: (Number(pressed.has('KeyD') || pressed.has('ArrowRight')) - Number(pressed.has('KeyA') || pressed.has('ArrowLeft'))) as -1 | 0 | 1 });
     const clearMovement = () => { pressed.clear(); if (session.snapshot().status === 'active') dispatch({ type: 'move', direction: 0 }); };
-    const paused = () => { clearMovement(); publish(); };
+    const paused = () => { this.context.sound.stopRun(scope.id); clearMovement(); publish(); };
     this.events.on(Phaser.Scenes.Events.PAUSE, paused);
     this.events.on(Phaser.Scenes.Events.RESUME, publish);
     scope.defer(() => {
@@ -73,6 +74,7 @@ export class BattleScene extends Phaser.Scene {
     // DOM input can resume a paused Scene, whose Phaser input plugin stops updating.
     const keyDown = (event: KeyboardEvent) => {
       if (scope.disposed || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.ctrlKey || event.metaKey || event.altKey) return;
+      this.context.sound.unlock();
       if (event.code === 'Escape') {
         if (!event.repeat) this.context.bridge.emit('scene-command', { runId: scope.id, command: { type: 'toggle-pause' } });
         event.preventDefault(); return;
@@ -106,6 +108,7 @@ export class BattleScene extends Phaser.Scene {
     const snapshot = this.session.snapshot();
     if (!this.resultPublished && (snapshot.status === 'won' || snapshot.status === 'lost')) {
       this.resultPublished = true;
+      this.context.sound.play(snapshot.status === 'won' ? 'win' : 'lose', this.scope.id);
       const reward = snapshot.status === 'won' ? this.context.profile.rewardWin(this.receipt, this.stageId) : 0;
       this.context.bridge.emit('battle-result', { runId: this.scope.id, stageId: this.stageId, reward, prototypeComplete: snapshot.status === 'won' && this.stageId === '1-5' });
     }
