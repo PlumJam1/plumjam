@@ -1,4 +1,4 @@
-import type { BattleCommand, BattleSnapshot, CommandResult } from '../game/battle/types';
+import type { BattleCommand, BattleSnapshot, CommandResult, SkillKind } from '../game/battle/types';
 
 export type SceneKey = 'Boot' | 'Lobby' | 'Battle';
 export type ScenePhase = 'loading' | 'ready' | 'paused';
@@ -8,12 +8,12 @@ export interface SceneState {
   readonly runId: number;
   readonly phase: ScenePhase;
   readonly stageId?: string;
-  readonly lobbyTab?: 'menu' | 'stages' | 'training';
+  readonly lobbyTab?: 'menu' | 'stages' | 'training' | 'shop';
 }
 
 export type SceneCommand =
   | { type: 'start-battle'; stageId: string }
-  | { type: 'return-lobby'; tab?: 'menu' | 'stages' | 'training' }
+  | { type: 'return-lobby'; tab?: 'menu' | 'stages' | 'training' | 'shop' }
   | { type: 'restart-battle' }
   | { type: 'toggle-pause' };
 
@@ -27,6 +27,8 @@ export interface GameBridgeEvents {
   'scene-state': SceneState;
   'scene-command': SceneCommandEnvelope;
   'battle-command': { runId: number; command: BattleCommand };
+  /** Presentation-only intent; never spends gold or dispatches a skill. */
+  'battle-preview': { runId: number; skill: SkillKind | null };
   'battle-snapshot': BattleSnapshot;
   'battle-feedback': { runId: number; result: CommandResult };
   'battle-result': { runId: number; stageId: string; reward: number; prototypeComplete: boolean };

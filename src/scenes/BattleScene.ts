@@ -26,10 +26,16 @@ export class BattleScene extends Phaser.Scene {
     const stage = this.context.stageForBattle(this.stageId);
     if (!stage) { this.scene.start('Lobby'); return; }
     const scope = this.scope;
-    this.session = new BattleSession({ runId: scope.id, stage, levels: this.context.profile.snapshot().levels });
+    const profile = this.context.profile.snapshot();
+    this.session = new BattleSession({ runId: scope.id, stage, levels: profile.levels, unlockedSkills: profile.unlockedSkills });
     const session = this.session;
     this.battleRenderer = new PhaserBattleRenderer(this, stage.theme, stage.id);
     const battleRenderer = this.battleRenderer;
+    scope.defer(this.context.bridge.subscribe('battle-preview', ({ runId, skill }) => {
+      if (scope.disposed || runId !== scope.id) return;
+      battleRenderer.setPreview(session.snapshot().status === 'active' ? skill : null);
+      battleRenderer.render(session.snapshot());
+    }));
     scope.defer(() => { this.context.sound.stopRun(scope.id); session.dispose(); battleRenderer.destroy(); });
     scope.defer(this.context.bridge.subscribe('battle-command', ({ runId, command }) => {
       if (scope.disposed || runId !== scope.id) return;
@@ -84,6 +90,7 @@ export class BattleScene extends Phaser.Scene {
       const commands: Record<string, BattleCommand> = {
         Digit1: { type: 'summon', kind: 'melee' }, Digit2: { type: 'summon', kind: 'ranged' }, Digit3: { type: 'summon', kind: 'support' },
         KeyJ: { type: 'skill', skill: 'hello-world' }, KeyK: { type: 'skill', skill: 'sleep' }, KeyL: { type: 'skill', skill: 'heal' },
+        KeyP: { type: 'skill', skill: 'git-push' }, KeyO: { type: 'skill', skill: 'overclock' },
         KeyU: { type: 'upgrade-economy' },
       };
       if (commands[event.code]) { event.preventDefault(); if (!event.repeat) dispatch(commands[event.code]); }

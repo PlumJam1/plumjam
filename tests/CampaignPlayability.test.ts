@@ -12,17 +12,26 @@ describe('campaign playability with ordinary player commands', () => {
       for (let tick = 0; tick < 1800 && session.snapshot().status === 'active'; tick++) {
         let state = session.snapshot();
         const enemy = state.units.filter(unit => unit.team === 'ai').sort((a, b) => a.x - b.x)[0];
-        const destination = enemy ? Math.max(80, Math.min(465, enemy.x - 140)) : 420;
+        let destination = enemy ? Math.max(80, Math.min(465, enemy.x - 140)) : 420;
+        const hazard = state.bossTelegraphs.find(zone => Math.abs(state.hero.x - zone.x) <= zone.radius + 12);
+        if (hazard) {
+          const leftExit = hazard.x - hazard.radius - 16, rightExit = hazard.x + hazard.radius + 16;
+          destination = leftExit >= 80 && (rightExit > 560 || state.hero.x - leftExit <= rightExit - state.hero.x) ? leftExit : rightExit;
+        }
         session.dispatch({ type: 'move', direction: Math.abs(destination - state.hero.x) < 5 ? 0 : destination > state.hero.x ? 1 : -1 });
-        if (state.elapsed < 50 && state.economyLevel < 3 && state.upgradeCost !== null && state.gold >= state.upgradeCost && (!enemy || enemy.x > 340)) {
+        if (state.elapsed < 35 && state.economyLevel < 4 && state.upgradeCost !== null && state.gold >= state.upgradeCost && (!enemy || enemy.x > 340)) {
           session.dispatch({ type: 'upgrade-economy' });
         }
-        session.dispatch({ type: 'summon', kind: 'melee' });
-        session.dispatch({ type: 'summon', kind: 'ranged' });
-        if (state.units.filter(unit => unit.kind === 'support').length < 2) session.dispatch({ type: 'summon', kind: 'support' });
-        state = session.snapshot();
-        if (enemy && enemy.x > state.hero.x && enemy.x - state.hero.x < 340) session.dispatch({ type: 'skill', skill: 'hello-world' });
-        if (state.hero.hp < state.hero.maxHp * 0.7) session.dispatch({ type: 'skill', skill: 'heal' });
+        // Save for investment while the front is distant, then fund the army and skills.
+        const saveForEconomy = state.elapsed < 35 && state.economyLevel < 4 && (!enemy || enemy.x > 340);
+        if (!saveForEconomy) {
+          session.dispatch({ type: 'summon', kind: 'melee' });
+          session.dispatch({ type: 'summon', kind: 'ranged' });
+          if (state.units.filter(unit => unit.kind === 'support').length < 2) session.dispatch({ type: 'summon', kind: 'support' });
+          state = session.snapshot();
+          if (enemy && enemy.x > state.hero.x && enemy.x - state.hero.x < 340) session.dispatch({ type: 'skill', skill: 'hello-world' });
+          if (state.hero.hp < state.hero.maxHp * 0.7) session.dispatch({ type: 'skill', skill: 'heal' });
+        }
         session.step(0.2);
         expect(session.snapshot().gold).toBeGreaterThanOrEqual(0);
       }

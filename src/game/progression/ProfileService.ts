@@ -1,4 +1,5 @@
-import type { CharacterKind, CommandResult } from '../battle/types';
+import type { CharacterKind, CommandResult, SkillKind } from '../battle/types';
+import { DEFAULT_UNLOCKED_SKILLS, SKILLS, SKILL_UNLOCK_COSTS } from '../battle/balance';
 import { getStage, STAGES } from './stages';
 
 export const SAVE_KEY = 'plumjam.profile.v1';
@@ -12,6 +13,7 @@ export interface ProfileData {
   levels: Record<CharacterKind, number>;
   clearedStages: string[];
   unlockedStages: string[];
+  unlockedSkills: readonly SkillKind[];
   muted: boolean;
 }
 export interface ProfileSnapshot {
@@ -20,17 +22,21 @@ export interface ProfileSnapshot {
   readonly levels: Readonly<Record<CharacterKind, number>>;
   readonly clearedStages: readonly string[];
   readonly unlockedStages: readonly string[];
+  readonly unlockedSkills: readonly SkillKind[];
   readonly muted: boolean;
   readonly storageMessage: string;
 }
 export interface SaveStorage { getItem(key: string): string | null; setItem(key: string, value: string): void }
-const fresh = (): ProfileData => ({ version: 1, xp: 0, levels: { hero: 1, melee: 1, ranged: 1, support: 1 }, clearedStages: [], unlockedStages: ['1-1'], muted: false });
+const fresh = (): ProfileData => ({ version: 1, xp: 0, levels: { hero: 1, melee: 1, ranged: 1, support: 1 }, clearedStages: [], unlockedStages: ['1-1'], unlockedSkills: [...DEFAULT_UNLOCKED_SKILLS], muted: false });
 function parse(value: unknown): ProfileData | null {
   if (!value || typeof value !== 'object') return null;
   const data = value as ProfileData;
   if (data.version !== 1 || !Number.isSafeInteger(data.xp) || data.xp < 0 || !data.levels || typeof data.muted !== 'boolean') return null;
   if (CHARACTERS.some(kind => !Number.isInteger(data.levels[kind]) || data.levels[kind] < 1 || data.levels[kind] > MAX_LEVEL)) return null;
   if (!Array.isArray(data.clearedStages) || !Array.isArray(data.unlockedStages)) return null;
+  // The optional field migrates existing v1 saves without discarding earned progress.
+  if (data.unlockedSkills !== undefined && (!Array.isArray(data.unlockedSkills) || data.unlockedSkills.some(kind => !Object.hasOwn(SKILLS, kind)))) return null;
+  const unlockedSkills = [...new Set([...DEFAULT_UNLOCKED_SKILLS, ...(data.unlockedSkills ?? [])])];
   const stageIds = STAGES.map(stage => stage.id);
   if ([...data.clearedStages, ...data.unlockedStages].some(id => !stageIds.includes(id))) return null;
   const cleared = [...new Set(data.clearedStages)];
@@ -38,7 +44,7 @@ function parse(value: unknown): ProfileData | null {
   if (cleared.some(id => stageIds.slice(0, stageIds.indexOf(id)).some(previous => !cleared.includes(previous)))) return null;
   const unlocked = stageIds.filter((_, index) => index === 0 || cleared.includes(stageIds[index - 1]));
   if (unlocked.length !== new Set(data.unlockedStages).size || unlocked.some(id => !data.unlockedStages.includes(id))) return null;
-  return { version: 1, xp: data.xp, levels: { ...data.levels }, clearedStages: cleared, unlockedStages: unlocked, muted: data.muted };
+  return { version: 1, xp: data.xp, levels: { ...data.levels }, clearedStages: cleared, unlockedStages: unlocked, unlockedSkills, muted: data.muted };
 }
 /** Pure model; no Phaser/Vue objects. Win receipts live only within this browser app session. */
 export class ProfileService {
@@ -57,7 +63,7 @@ export class ProfileService {
       }
     } catch { this.storageMessage = '저장 데이터를 읽지 못했어. 이번 창에서는 계속 플레이할 수 있어.'; }
   }
-  snapshot(): ProfileSnapshot { return Object.freeze({ ...this.data, levels: Object.freeze({ ...this.data.levels }), clearedStages: Object.freeze([...this.data.clearedStages]), unlockedStages: Object.freeze([...this.data.unlockedStages]), storageMessage: this.storageMessage }); }
+  snapshot(): ProfileSnapshot { return Object.freeze({ ...this.data, levels: Object.freeze({ ...this.data.levels }), clearedStages: Object.freeze([...this.data.clearedStages]), unlockedStages: Object.freeze([...this.data.unlockedStages]), unlockedSkills: Object.freeze([...this.data.unlockedSkills]), storageMessage: this.storageMessage }); }
   subscribe(listener: (snapshot: ProfileSnapshot) => void): () => void {
     this.listeners.add(listener); listener(this.snapshot());
     return () => { this.listeners.delete(listener); };
@@ -80,6 +86,15 @@ export class ProfileService {
     if (this.data.xp < cost) return { accepted: false, reason: '육성 재화가 부족해.' };
     this.data.xp -= cost; this.data.levels[kind]++;
     this.persist(); return { accepted: true, reason: '강화했어! 다음 출근부터 적용돼.' };
+  }
+  purchaseSkill(kind: SkillKind): CommandResult {
+    if (!Object.hasOwn(SKILL_UNLOCK_COSTS, kind)) return { accepted: false, reason: '상점에서 해금할 수 없는 스킬이야.' };
+    if (this.data.unlockedSkills.includes(kind)) return { accepted: false, reason: '이미 해금한 스킬이야.' };
+    const cost = SKILL_UNLOCK_COSTS[kind as keyof typeof SKILL_UNLOCK_COSTS];
+    if (this.data.xp < cost) return { accepted: false, reason: '육성 재화가 부족해.' };
+    this.data.xp -= cost;
+    this.data.unlockedSkills = [...this.data.unlockedSkills, kind];
+    this.persist(); return { accepted: true, reason: `${SKILLS[kind].label} 해금 완료! 다음 출근부터 사용할 수 있어.` };
   }
   setMuted(muted: boolean): void { this.data.muted = muted; this.persist(); }
   dispose(): void { this.listeners.clear(); this.receipts.clear(); }

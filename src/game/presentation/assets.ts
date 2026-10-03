@@ -12,5 +12,5 @@ export const assetUrl = (key: ArtKey): string => {
   return typeof document === 'undefined' ? path : new URL(path, document.baseURI).href;
 };
 export const characterArt = (kind: CharacterKind | UnitKind, level = 1): ArtKey =>
-  kind === 'gpt-4o' ? 'boss' : kind === 'robot-melee' || kind === 'robot-ranged' ? kind : `${kind}${level >= 5 ? '-lv5' : ''}` as ArtKey;
+  kind === 'gpt-4o' ? 'boss' : kind === 'robot-runner' ? 'robot-melee' : kind === 'robot-melee' || kind === 'robot-ranged' ? kind : `${kind}${level >= 5 ? '-lv5' : ''}` as ArtKey;
 export const backgroundArt = (theme?: 'early' | 'mid' | 'boss'): ArtKey => `bg-${theme ?? 'early'}`;

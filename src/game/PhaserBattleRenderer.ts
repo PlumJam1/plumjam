@@ -2,11 +2,14 @@ import Phaser from 'phaser';
 import { backgroundArt, characterArt, type ArtKey } from './presentation/assets';
 import { drawPlaceholder } from '../scenes/drawPlaceholder';
 import { FIELD } from './battle/balance';
-import type { BattleSnapshot, TimedBuffs, UnitState } from './battle/types';
+import type { BattleSnapshot, SkillKind, TimedBuffs, UnitState } from './battle/types';
+import { skillPreview } from './presentation/battlePresentation';
 
 /** Scene-owned presentation; app-owned source textures survive scene shutdown. */
 export class PhaserBattleRenderer {
   private readonly graphics: Phaser.GameObjects.Graphics;
+  private readonly groundGraphics: Phaser.GameObjects.Graphics;
+  private previewSkill: SkillKind | null = null;
   private readonly labels = new Map<string, Phaser.GameObjects.Text>();
   private readonly visibleLabels = new Set<string>();
   private readonly actors = new Map<number, { image: Phaser.GameObjects.Image; scale: number; lastX: number; dyingAt?: number }>();
@@ -42,13 +45,43 @@ export class PhaserBattleRenderer {
       this.scenery.push(base);
     }
     this.graphics = scene.add.graphics().setDepth(10);
+    this.groundGraphics = scene.add.graphics().setDepth(2);
   }
+
+  setPreview(skill: SkillKind | null): void { this.previewSkill = skill; }
 
   render(snapshot: BattleSnapshot): void {
     const g = this.graphics;
     g.clear();
+    this.groundGraphics.clear();
+    if (snapshot.status !== 'active') this.previewSkill = null;
     this.visibleLabels.clear();
     this.living.clear();
+    const preview = skillPreview(snapshot, this.previewSkill);
+    if (preview) {
+      const color = preview.skill === 'sleep' ? 0xd5b6ff : preview.skill === 'git-push' ? 0x89dfff : 0x9cf3ba;
+      this.groundGraphics.fillStyle(color, .1).fillCircle(preview.x, FIELD.groundY, preview.radius);
+      this.groundGraphics.lineStyle(2, color, .85).strokeCircle(preview.x, FIELD.groundY, preview.radius);
+      for (const id of preview.targetIds) {
+        const target = id === snapshot.hero.id ? snapshot.hero : snapshot.units.find(unit => unit.id === id);
+        if (target) g.lineStyle(2, color).strokeEllipse(target.x, 229, 34, 10);
+      }
+      for (const destination of preview.destinations) {
+        g.lineStyle(1, color, .9).lineBetween(destination.from, 235, destination.x, 235);
+        g.lineStyle(2, color, .9).strokeRect(destination.x - destination.bodyWidth / 2, 213, destination.bodyWidth, 20);
+        g.fillStyle(color, .9).fillTriangle(destination.x, 235, destination.x - 5, 232, destination.x - 5, 238);
+      }
+    }
+    for (const telegraph of snapshot.bossTelegraphs) {
+      const ground = this.groundGraphics;
+      const progress = 1 - telegraph.remaining / telegraph.duration;
+      ground.fillStyle(0xff6a45, .2 + progress * .2).fillRect(telegraph.x - telegraph.radius, 216, telegraph.radius * 2, 17);
+      ground.lineStyle(2, 0xffcb73).strokeRect(telegraph.x - telegraph.radius, 216, telegraph.radius * 2, 17);
+      for (let x = telegraph.x - telegraph.radius + 5; x < telegraph.x + telegraph.radius; x += 16) ground.lineStyle(1, 0xffcb73, .65).lineBetween(x, 232, x + 12, 217);
+      g.fillStyle(0x291e27).fillRect(telegraph.x - 28, 203, 56, 3);
+      g.fillStyle(0xffae6b).fillRect(telegraph.x - 28, 203, 56 * progress, 3);
+      this.label(`boss-cast-${telegraph.ownerId}`, `범위 공격 ${telegraph.remaining.toFixed(1)}초`, telegraph.x, 196, 0xffdf8f);
+    }
     for (const effect of snapshot.effects) {
       if (effect.kind === 'hello-impact') {
         const progress = 1 - effect.remaining / effect.duration;
@@ -61,6 +94,20 @@ export class PhaserBattleRenderer {
             195 + Math.sin(angle) * distance + 12 * progress * progress,
             0xffdf9c, 1 - progress);
         }
+        continue;
+      }
+      if (effect.kind === 'git-push' || effect.kind === 'overclock') {
+        const alpha = effect.remaining / effect.duration;
+        const radius = effect.kind === 'git-push' ? effect.radius : 30 + (1 - alpha) * 20;
+        const color = effect.kind === 'git-push' ? 0x89dfff : 0xffda79;
+        g.lineStyle(2, color, alpha).strokeEllipse(effect.x, 216, radius * 2 * (1 - alpha * .5), 26);
+        this.label(`effect-${effect.id}`, effect.kind === 'git-push' ? 'git push >>' : 'overclock()', effect.x, 166, color, alpha);
+        continue;
+      }
+      if (effect.kind === 'boss-blast') {
+        const alpha = effect.remaining / effect.duration;
+        this.groundGraphics.fillStyle(0xff6a45, alpha * .65).fillRect(effect.x - effect.radius, 216, effect.radius * 2, 17);
+        g.lineStyle(3, 0xffddb2, alpha).strokeEllipse(effect.x, 221, effect.radius * 2, 26);
         continue;
       }
       const color = effect.kind === 'sleep' ? 0xb4a4ed : effect.kind === 'support-combat' ? 0xefb06a : effect.kind === 'support-speed' ? 0x8fcaee : 0x91d9ad;
@@ -96,7 +143,7 @@ export class PhaserBattleRenderer {
     for (const [key, label] of this.labels) if (!this.visibleLabels.has(key)) { label.destroy(); this.labels.delete(key); }
   }
 
-  destroy(): void { for (const actor of this.actors.values()) actor.image.destroy(); this.actors.clear(); for (const object of this.scenery) object.destroy(); this.scenery.length = 0; this.graphics.destroy(); for (const label of this.labels.values()) label.destroy(); this.labels.clear(); }
+  destroy(): void { this.previewSkill = null; for (const actor of this.actors.values()) actor.image.destroy(); this.actors.clear(); for (const object of this.scenery) object.destroy(); this.scenery.length = 0; this.graphics.destroy(); this.groundGraphics.destroy(); for (const label of this.labels.values()) label.destroy(); this.labels.clear(); }
 
   private label(key: string, value: string, x: number, y: number, color: number, alpha = 1): void {
     this.visibleLabels.add(key);
@@ -105,7 +152,7 @@ export class PhaserBattleRenderer {
       label = this.scene.add.text(0, 0, value, { fontFamily: 'monospace', fontSize: '8px', color: `#${color.toString(16).padStart(6, '0')}`, stroke: '#13202d', strokeThickness: 2 }).setOrigin(0.5).setDepth(11);
       this.labels.set(key, label);
     }
-    label.setPosition(Math.round(x), Math.round(y)).setAlpha(alpha);
+    label.setText(value).setPosition(Math.round(x), Math.round(y)).setAlpha(alpha);
   }
 
   private healing(id: number, x: number, headY: number, remaining: number): void {
@@ -136,22 +183,31 @@ export class PhaserBattleRenderer {
     const y = 230 + bob;
     g.fillStyle(0x000000, 0.25).fillEllipse(x, 231, 20, 4);
     const boss = unit.kind === 'gpt-4o';
-    this.actor(unit.id, characterArt(unit.kind, unit.level), x, y, boss ? 63 : 37, boss ? 78 : 44, unit.hitFlash > 0, unit.attackFlash, elapsed);
+    this.actor(unit.id, characterArt(unit.kind, unit.level), x, y, unit.bodyWidth, boss ? 78 : 44, unit.hitFlash > 0, unit.attackFlash, elapsed, false, true);
+    if (unit.kind === 'robot-runner') {
+      const image = this.actors.get(unit.id)?.image;
+      if (unit.hitFlash <= 0) image?.setTint(0xffaa86);
+      g.lineStyle(1, 0xffb18a, .85).lineBetween(x + 14, y - 18, x + 25, y - 18).lineBetween(x + 15, y - 12, x + 30, y - 12);
+      this.label(`runner-${unit.id}`, '긴급 배포', x, y - 59, 0xffbf95);
+    }
     this.buffs(x, y - 32, unit.buffs);
     this.healing(unit.id, x, y - (boss ? 93 : 59), unit.healFlash);
-    if (unit.slowRemaining > 0) this.label(`sleep-${unit.id}`, 'Zzz', x, y - 45, 0xc9b7fa);
+    if (unit.slowRemaining > 0) this.label(`sleep-${unit.id}`, `감속 ${unit.slowRemaining.toFixed(1)}초`, x, y - 45, 0xc9b7fa);
+    else if (unit.buffs.combat > 0) this.label(`buff-${unit.id}`, `공격/방어 ${unit.buffs.combat.toFixed(1)}초`, x, y - 45, 0xffc995);
+    else if (unit.buffs.speed > 0) this.label(`buff-${unit.id}`, `이동 ${unit.buffs.speed.toFixed(1)}초`, x, y - 45, 0xa7e6ff);
     this.health(x, y - (unit.kind === 'gpt-4o' ? 82 : 48), unit.hp, unit.maxHp, 19, unit.team === 'human' ? 0xdfb878 : 0x77b6c1);
   }
 
-  private actor(id: number, key: ArtKey, x: number, y: number, width: number, height: number, hit: boolean, attack: number, elapsed: number, hero = false): void {
+  private actor(id: number, key: ArtKey, x: number, y: number, width: number, height: number, hit: boolean, attack: number, elapsed: number, hero = false, exactWidth = false): void {
     this.living.add(id);
     if (!this.scene.textures.exists(key)) {
-      this.graphics.fillStyle(hero ? 0xedb97b : 0x7eb5bd).fillRect(x - 9, y - height, 18, height); return;
+      const placeholderWidth = exactWidth ? width : 18;
+      this.graphics.fillStyle(hero ? 0xedb97b : 0x7eb5bd).fillRect(x - placeholderWidth / 2, y - height, placeholderWidth, height); return;
     }
     let actor = this.actors.get(id);
     if (!actor) {
       const image = this.scene.add.image(x, y, key).setOrigin(.5, 1);
-      const scale = Math.min(width / image.width, height / image.height);
+      const scale = exactWidth ? width / image.width : Math.min(width / image.width, height / image.height);
       actor = { image, scale, lastX: x }; this.actors.set(id, actor);
     }
     const moving = Math.abs(x - actor.lastX) > .03;

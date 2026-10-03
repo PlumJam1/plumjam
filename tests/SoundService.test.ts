@@ -12,6 +12,17 @@ function fixture() {
   return { service: new SoundService(factory), audio, voices, gains, factory };
 }
 describe('SoundService ownership', () => {
+  it('plays both additional skills and releases their tones with the owning run', () => {
+    const { service, voices } = fixture(); service.unlock();
+    service.play('git-push', 1); service.play('overclock', 2);
+    expect(service.activeVoiceCount).toBe(6);
+    service.stopRun(1);
+    expect(service.activeVoiceCount).toBe(3);
+    expect(voices[0].disconnect).toHaveBeenCalledTimes(1);
+    expect(voices[3].disconnect).not.toHaveBeenCalled();
+    service.dispose();
+    expect(service.activeVoiceCount).toBe(0);
+  });
   it('creates only one context after a gesture and keeps sound optional before unlock', () => {
     const { service, factory } = fixture();
     service.play('summon', 1); expect(service.activeVoiceCount).toBe(0);

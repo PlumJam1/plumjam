@@ -1,8 +1,8 @@
 export type Team = 'human' | 'ai';
 export type AllyKind = 'melee' | 'ranged' | 'support';
-export type EnemyKind = 'robot-melee' | 'robot-ranged' | 'gpt-4o';
+export type EnemyKind = 'robot-melee' | 'robot-ranged' | 'robot-runner' | 'gpt-4o';
 export type UnitKind = AllyKind | EnemyKind;
-export type SkillKind = 'hello-world' | 'sleep' | 'heal';
+export type SkillKind = 'hello-world' | 'sleep' | 'heal' | 'git-push' | 'overclock';
 export type CharacterKind = 'hero' | AllyKind;
 export type BattleStatus = 'active' | 'paused' | 'won' | 'lost';
 export type DefeatReason = 'hero' | 'base';
@@ -10,6 +10,8 @@ export type DefeatReason = 'hero' | 'base';
 export interface UnitDefinition {
   label: string;
   team: Team;
+  /** Logical displayed body width; knockback uses this same width. */
+  bodyWidth: number;
   hp: number;
   damage: number;
   speed: number;
@@ -30,6 +32,8 @@ export interface StageDefinition {
   clearReward?: number;
   theme?: 'early' | 'mid' | 'boss';
   spawns: readonly SpawnEvent[];
+  /** Fixed simulation-time warning windows, announced before authored rushes. */
+  waveNotices?: readonly { at: number; label: string; duration: number }[];
   /** Optional repeating pressure after authored introductory waves. */
   repeat?: { startAt: number; interval: number; kinds: readonly EnemyKind[] };
 }
@@ -38,13 +42,15 @@ export interface TimedBuffs {
   combat: number;
   speed: number;
 }
-export type EffectKind = SkillKind | 'hello-impact' | 'support-heal' | 'support-combat' | 'support-speed';
+export type EffectKind = SkillKind | 'hello-impact' | 'support-heal' | 'support-combat' | 'support-speed' | 'boss-blast';
 export interface EffectState { id: number; kind: EffectKind; x: number; radius: number; remaining: number; duration: number }
+export interface BossTelegraphState { ownerId: number; x: number; radius: number; remaining: number; duration: number }
 export interface UnitState {
   id: number;
   kind: UnitKind;
   team: Team;
   x: number;
+  bodyWidth: number;
   hp: number;
   maxHp: number;
   level: number;
@@ -54,6 +60,7 @@ export interface UnitState {
   attackFlash: number;
   slowRemaining: number;
   supportCooldown: number;
+  bossCooldown: number;
   buffs: TimedBuffs;
   healFlash: number;
 }
@@ -94,4 +101,8 @@ export interface BattleSnapshot {
   summonCooldowns: Readonly<Record<AllyKind, number>>;
   skillCooldowns: Readonly<Record<SkillKind, number>>;
   effects: readonly Readonly<EffectState>[];
+  bossTelegraphs: readonly Readonly<BossTelegraphState>[];
+  defeatedBossCount: number;
+  unlockedSkills: readonly SkillKind[];
+  overclockRemaining: number;
 }

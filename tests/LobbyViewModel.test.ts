@@ -1,11 +1,33 @@
 import { EventEmitter } from 'node:events';
 import type Phaser from 'phaser';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { AppContext } from '../src/core/AppContext';
 import { createLobbyViewModel } from '../src/ui/viewmodels/LobbyViewModel';
 import { createShellViewModel } from '../src/ui/viewmodels/ShellViewModel';
 const fakeScene = () => ({ events: new EventEmitter() }) as unknown as Phaser.Scene;
 describe('lobby MVVM', () => {
+  it('shows shop ownership and affordability, purchases only in its active Lobby run and expires on disposal', () => {
+    const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
+    context.bridge.emit('scene-state', { scene: 'Lobby', runId: scope.id, phase: 'ready', lobbyTab: 'shop' });
+    const model = createLobbyViewModel(context, scope, 'shop');
+    expect(model.lobbyTab.value).toBe('shop');
+    expect(model.shopSkills.value).toEqual([expect.objectContaining({ kind: 'git-push', cost: 240, unlocked: false, disabled: true, reason: '재화 240 부족' })]);
+    const purchase = vi.spyOn(context.profile, 'purchaseSkill');
+    context.profile.rewardWin('one', '1-1'); context.profile.rewardWin('two', '1-1');
+    expect(model.shopSkills.value[0].disabled).toBe(false);
+    context.bridge.emit('scene-state', { scene: 'Battle', runId: scope.id, phase: 'ready' });
+    model.purchaseSkill('git-push'); expect(purchase).not.toHaveBeenCalled();
+    context.bridge.emit('scene-state', { scene: 'Lobby', runId: scope.id + 1, phase: 'ready' });
+    model.purchaseSkill('git-push'); expect(purchase).not.toHaveBeenCalled();
+    context.bridge.emit('scene-state', { scene: 'Lobby', runId: scope.id, phase: 'ready', lobbyTab: 'shop' });
+    model.purchaseSkill('git-push'); expect(purchase).toHaveBeenCalledTimes(1);
+    expect(model.shopSkills.value[0]).toMatchObject({ unlocked: true, disabled: true, reason: '해금 완료' });
+    expect(model.profile.value.xp).toBe(0);
+    expect(model.upgradeFeedback.value).toContain('해금 완료');
+    scope.dispose(); model.purchaseSkill('git-push');
+    expect(purchase).toHaveBeenCalledTimes(1);
+    context.dispose();
+  });
   it('previews locked stages without authorizing deployment, and starts through title presentation', () => {
     const context = new AppContext();
     const shell = createShellViewModel(context);

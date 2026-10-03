@@ -1,5 +1,5 @@
-import { DEFAULT_STAGE, ECONOMY, FIELD, HERO, SKILLS, SUPPORT, UNIT_DEFINITIONS } from './battle/balance';
-import type { AllyKind, BaseState, BattleCommand, BattleSnapshot, BattleStatus, CharacterKind, CommandResult, DefeatReason, EffectKind, EffectState, HeroState, ProjectileState, SkillKind, StageDefinition, Team, UnitDefinition, UnitKind, UnitState } from './battle/types';
+import { BOSS, DEFAULT_STAGE, DEFAULT_UNLOCKED_SKILLS, ECONOMY, FIELD, HERO, SKILLS, SUPPORT, UNIT_DEFINITIONS } from './battle/balance';
+import type { AllyKind, BaseState, BattleCommand, BattleSnapshot, BattleStatus, BossTelegraphState, CharacterKind, CommandResult, DefeatReason, EffectKind, EffectState, HeroState, ProjectileState, SkillKind, StageDefinition, Team, UnitDefinition, UnitKind, UnitState } from './battle/types';
 import { levelMultiplier } from './progression/ProfileService';
 
 export interface BattleOptions {
@@ -8,8 +8,30 @@ export interface BattleOptions {
   levels?: Partial<Record<CharacterKind, number>>;
   random?: () => number;
   unitDefinitions?: Record<UnitKind, UnitDefinition>;
+  unlockedSkills?: readonly SkillKind[];
 }
 type Target = UnitState | HeroState | BaseState;
+
+/** Shared by the actual cast and UI preview so level/buff numbers cannot drift. */
+export function getSkillValues(hero: Pick<HeroState, 'level' | 'buffs'>) {
+  return {
+    helloDamage: SKILLS['hello-world'].damage * levelMultiplier(hero.level) * (hero.buffs.combat > 0 ? SUPPORT.damageMultiplier : 1),
+    helloRange: SKILLS['hello-world'].range,
+    sleepRadius: SKILLS.sleep.radius, sleepDuration: SKILLS.sleep.duration, sleepSpeedMultiplier: SKILLS.sleep.speedMultiplier,
+    healAmount: SKILLS.heal.amount * levelMultiplier(hero.level), healRadius: SKILLS.heal.radius,
+    pushRadius: SKILLS['git-push'].radius, overclockDuration: SKILLS.overclock.duration,
+  };
+}
+
+/** Converts remaining base cooldown work into wall time, accounting for buff expiry. */
+export function getCooldownEta(baseRemaining: number, overclockRemaining: number, excluded = false): number {
+  if (excluded) return baseRemaining;
+  return baseRemaining <= 2 * overclockRemaining ? baseRemaining / 2 : baseRemaining - overclockRemaining;
+}
+
+export function getPushDestination(unit: Pick<UnitState, 'x' | 'kind' | 'bodyWidth'>, boundaryX: number = FIELD.aiBaseX): number {
+  return Math.max(unit.x, Math.min(boundaryX - unit.bodyWidth / 2, unit.x + unit.bodyWidth * (unit.kind === 'gpt-4o' ? 1 : 3)));
+}
 
 /** Phaser/Vue-free rules. A Scene owns one session and drops it at shutdown. */
 export class BattleSession {
@@ -18,6 +40,7 @@ export class BattleSession {
   private readonly random: () => number;
   private readonly definitions: Record<UnitKind, UnitDefinition>;
   private readonly levels: Partial<Record<CharacterKind, number>>;
+  private readonly unlockedSkills: readonly SkillKind[];
   private status: BattleStatus = 'active';
   private defeatReason?: DefeatReason;
   private elapsed = 0;
@@ -34,7 +57,10 @@ export class BattleSession {
   private units: UnitState[] = [];
   private projectiles: ProjectileState[] = [];
   private effects: EffectState[] = [];
-  private skillCooldowns: Record<SkillKind, number> = { 'hello-world': 0, sleep: 0, heal: 0 };
+  private bossTelegraphs: BossTelegraphState[] = [];
+  private defeatedBossCount = 0;
+  private overclockRemaining = 0;
+  private skillCooldowns: Record<SkillKind, number> = { 'hello-world': 0, sleep: 0, heal: 0, 'git-push': 0, overclock: 0 };
   private cooldowns: Record<AllyKind, number> = { melee: 0, ranged: 0, support: 0 };
 
   constructor(options: BattleOptions) {
@@ -43,6 +69,7 @@ export class BattleSession {
     this.stage = options.stage ?? DEFAULT_STAGE;
     this.definitions = options.unitDefinitions ?? UNIT_DEFINITIONS;
     this.levels = { ...options.levels };
+    this.unlockedSkills = [...new Set(options.unlockedSkills ?? DEFAULT_UNLOCKED_SKILLS)].filter(skill => skill in SKILLS);
     this.gold = Math.min(this.stage.initialGold, ECONOMY[0].cap);
     const heroLevel = this.levels.hero ?? 1;
     const hp = HERO.hp * this.levelMultiplier(heroLevel);
@@ -101,16 +128,23 @@ export class BattleSession {
       units: this.units.map((unit) => ({ ...unit, buffs: { ...unit.buffs } })), projectiles: this.projectiles.map((projectile) => ({ ...projectile })),
       summonCooldowns: { ...this.cooldowns }, skillCooldowns: { ...this.skillCooldowns },
       effects: this.effects.map((effect) => ({ ...effect })),
+      bossTelegraphs: this.bossTelegraphs.map((telegraph) => ({ ...telegraph })), defeatedBossCount: this.defeatedBossCount,
+      unlockedSkills: [...this.unlockedSkills], overclockRemaining: this.overclockRemaining,
     };
   }
 
-  dispose(): void { this.disposed = true; this.direction = 0; this.units = []; this.projectiles = []; this.effects = []; }
+  dispose(): void { this.disposed = true; this.direction = 0; this.units = []; this.projectiles = []; this.effects = []; this.bossTelegraphs = []; this.overclockRemaining = 0; }
 
   private tick(dt: number): void {
     this.elapsed += dt;
     this.gold = Math.min(ECONOMY[this.economyLevel].cap, this.gold + ECONOMY[this.economyLevel].income * dt);
-    for (const kind of ['melee', 'ranged', 'support'] as const) this.cooldowns[kind] = Math.max(0, this.cooldowns[kind] - dt);
-    for (const skill of ['hello-world', 'sleep', 'heal'] as const) this.skillCooldowns[skill] = Math.max(0, this.skillCooldowns[skill] - dt);
+    // Cooldowns store base work. Split the last buff frame so expiry never earns extra work.
+    const cooldownWork = dt + Math.min(dt, this.overclockRemaining);
+    this.overclockRemaining = Math.max(0, this.overclockRemaining - dt);
+    if (this.overclockRemaining < 1e-8) this.overclockRemaining = 0;
+    const drainCooldown = (remaining: number, work: number) => remaining - work < 1e-8 ? 0 : remaining - work;
+    for (const kind of ['melee', 'ranged', 'support'] as const) this.cooldowns[kind] = drainCooldown(this.cooldowns[kind], cooldownWork);
+    for (const skill of Object.keys(SKILLS) as SkillKind[]) this.skillCooldowns[skill] = drainCooldown(this.skillCooldowns[skill], skill === 'overclock' ? dt : cooldownWork);
     this.effects = this.effects.filter((effect) => { effect.remaining -= dt; return effect.remaining > 0; });
     this.tickBuffs(this.hero, dt);
     this.hero.x = Math.max(FIELD.heroMinX, Math.min(FIELD.heroMaxX, this.hero.x + this.direction * HERO.speed * (this.hero.buffs.speed > 0 ? SUPPORT.speedMultiplier : 1) * dt));
@@ -118,6 +152,14 @@ export class BattleSession {
     this.spawnScheduled();
     const hits: Array<{ target: Target; damage: number }> = [];
     const living = this.units.filter((unit) => unit.hp > 0);
+    const detonations: BossTelegraphState[] = [];
+    this.bossTelegraphs = this.bossTelegraphs.filter((telegraph) => {
+      if (!living.some((unit) => unit.id === telegraph.ownerId)) return false;
+      telegraph.remaining = Math.max(0, telegraph.remaining - dt);
+      if (telegraph.remaining > 1e-8) return true;
+      detonations.push(telegraph);
+      return false;
+    });
     // Collect all same-step damage before applying it; defeat takes priority over a simultaneous win.
     this.projectiles = this.projectiles.filter((projectile) => {
       const travel = Math.min(projectile.remainingRange, projectile.speed * dt);
@@ -147,6 +189,17 @@ export class BattleSession {
       unit.hitFlash = Math.max(0, unit.hitFlash - dt);
       unit.attackFlash = Math.max(0, unit.attackFlash - dt);
       const target = this.nearestTarget(unit);
+      if (unit.kind === 'gpt-4o') {
+        unit.bossCooldown = Math.max(0, unit.bossCooldown - dt);
+        // The locked warning area stays put even when its target moves or changes.
+        if (this.bossTelegraphs.some((telegraph) => telegraph.ownerId === unit.id) || detonations.some((telegraph) => telegraph.ownerId === unit.id)) continue;
+        if (unit.bossCooldown <= 1e-8) {
+          unit.bossCooldown = BOSS.cooldown;
+          this.bossTelegraphs.push({ ownerId: unit.id, x: unit.x + (target.x >= unit.x ? 1 : -1) * BOSS.forwardOffset,
+            radius: BOSS.radius, remaining: BOSS.windup, duration: BOSS.windup });
+          continue;
+        }
+      }
       const gap = Math.abs(target.x - unit.x);
       if (gap <= definition.range) {
         if (definition.damage > 0 && unit.attackCooldown <= 0) {
@@ -168,34 +221,54 @@ export class BattleSession {
       hit.target.hp = Math.max(0, hit.target.hp - hit.damage * ('buffs' in hit.target && hit.target.buffs.combat > 0 ? SUPPORT.receivedDamageMultiplier : 1));
       if ('hitFlash' in hit.target) hit.target.hitFlash = 0.18;
     }
+    // An owner killed on the final warning frame cannot leave a posthumous blast.
+    for (const telegraph of detonations) {
+      if (!this.units.some((unit) => unit.id === telegraph.ownerId && unit.hp > 0)) continue;
+      this.effect('boss-blast', telegraph.x, telegraph.radius);
+      for (const target of this.targets('ai').filter((candidate) => candidate.hp > 0 && Math.abs(candidate.x - telegraph.x) <= telegraph.radius)) {
+        target.hp = Math.max(0, target.hp - BOSS.damage * ('buffs' in target && target.buffs.combat > 0 ? SUPPORT.receivedDamageMultiplier : 1));
+        if ('hitFlash' in target) target.hitFlash = 0.18;
+      }
+    }
+    this.defeatedBossCount += this.units.filter((unit) => unit.kind === 'gpt-4o' && unit.hp <= 0).length;
     this.units = this.units.filter((unit) => unit.hp > 0);
+    this.bossTelegraphs = this.bossTelegraphs.filter((telegraph) => this.units.some((unit) => unit.id === telegraph.ownerId));
     if (this.hero.hp <= 0 || this.humanBase.hp <= 0) {
       this.status = 'lost';
       this.defeatReason = this.hero.hp <= 0 ? 'hero' : 'base';
       this.direction = 0;
     } else if (this.aiBase.hp <= 0) { this.status = 'won'; this.direction = 0; }
+    if (this.status !== 'active') { this.bossTelegraphs = []; this.overclockRemaining = 0; }
   }
 
   private useSkill(skill: SkillKind): CommandResult {
     const definition = SKILLS[skill];
+    if (!this.unlockedSkills.includes(skill)) return { accepted: false, reason: `${definition.label}은 상점에서 해금해야 해.` };
     if (this.skillCooldowns[skill] > 0) return { accepted: false, reason: `${definition.label} 준비 중이야.` };
     if (this.gold < definition.cost) return { accepted: false, reason: `${definition.label}에 쓸 자금이 부족해.` };
     this.gold -= definition.cost;
     this.skillCooldowns[skill] = definition.cooldown;
-    const level = this.levelMultiplier(this.hero.level);
+    const values = getSkillValues(this.hero);
     if (skill === 'hello-world') {
       this.projectiles.push({ id: this.nextId++, source: 'hero', team: 'human', x: this.hero.x,
         direction: 1, speed: SKILLS['hello-world'].speed,
-        damage: SKILLS['hello-world'].damage * level * (this.hero.buffs.combat > 0 ? SUPPORT.damageMultiplier : 1),
-        remainingRange: SKILLS['hello-world'].range });
+        damage: values.helloDamage, remainingRange: values.helloRange });
     } else if (skill === 'sleep') {
       for (const unit of this.units) {
-        if (unit.team === 'ai' && Math.abs(unit.x - this.hero.x) <= SKILLS.sleep.radius) unit.slowRemaining = SKILLS.sleep.duration;
+        if (unit.team === 'ai' && Math.abs(unit.x - this.hero.x) <= values.sleepRadius) unit.slowRemaining = values.sleepDuration;
       }
       this.effect('sleep', this.hero.x, SKILLS.sleep.radius);
-    } else {
-      this.heal(this.nearbyAllies(this.hero.x, SKILLS.heal.radius), SKILLS.heal.amount * level);
+    } else if (skill === 'heal') {
+      this.heal(this.nearbyAllies(this.hero.x, values.healRadius), values.healAmount);
       this.effect('heal', this.hero.x, SKILLS.heal.radius);
+    } else if (skill === 'git-push') {
+      for (const unit of this.units) {
+        if (unit.team === 'ai' && unit.hp > 0 && Math.abs(unit.x - this.hero.x) <= values.pushRadius) unit.x = getPushDestination(unit, this.aiBase.x);
+      }
+      this.effect('git-push', this.hero.x, values.pushRadius);
+    } else {
+      this.overclockRemaining = values.overclockDuration;
+      this.effect('overclock', this.hero.x, 0);
     }
     return { accepted: true, reason: `${definition.label} 발동!` };
   }
@@ -251,8 +324,10 @@ export class BattleSession {
     const hp = definition.hp * this.levelMultiplier(level);
     this.units.push({ id: this.nextId++, kind, team: definition.team, level,
       x: definition.team === 'human' ? FIELD.humanSpawnX : FIELD.aiSpawnX,
+      bodyWidth: definition.bodyWidth,
       hp, maxHp: hp, attackCooldown: 0, hitFlash: 0, attackFlash: 0,
-      slowRemaining: 0, supportCooldown: SUPPORT.period, healFlash: 0, buffs: { combat: 0, speed: 0 } });
+      slowRemaining: 0, supportCooldown: SUPPORT.period, bossCooldown: kind === 'gpt-4o' ? BOSS.firstCastDelay : 0,
+      healFlash: 0, buffs: { combat: 0, speed: 0 } });
   }
 
   private spawnScheduled(): void {
