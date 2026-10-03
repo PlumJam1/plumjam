@@ -85,6 +85,7 @@ export interface ProjectileState {
 }
 export type BattleCommand =
   | { type: 'set-speed'; speed: BattleSpeed }
+  | { type: 'set-boss-assist'; enabled: boolean }
   | { type: 'move'; direction: -1 | 0 | 1 }
   | { type: 'summon'; kind: AllyKind }
   | { type: 'upgrade-economy' }
@@ -95,6 +96,9 @@ export interface BattleSnapshot {
   stageId: string;
   status: BattleStatus;
   speed: BattleSpeed;
+  effectiveSpeed: BattleSpeed;
+  bossAssistEnabled: boolean;
+  bossAssistActive: boolean;
   defeatReason?: DefeatReason;
   elapsed: number;
   gold: number;

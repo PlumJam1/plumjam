@@ -64,7 +64,7 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
   const previewSources = new Map<'hover' | 'focus', SkillKind>();
   const publishPreview = () => {
     const candidate = [...previewSources.values()].at(-1) ?? null;
-    const skill = battle.value?.status === 'active' && candidate && battle.value.equippedSkills.includes(candidate) ? candidate : null;
+    const skill = activePageScope() && battle.value?.status === 'active' && candidate && battle.value.equippedSkills.includes(candidate) ? candidate : null;
     if (skill === previewSkill.value) return;
     previewSkill.value = skill;
     context.bridge.emit('battle-preview', { runId: scope.id, skill });
@@ -130,8 +130,14 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
         equipped, progress: 1 - cooldown / definition.cooldown, description, effectLabel, ...presentation };
     }));
     const skills = computed(() => (battle.value?.equippedSkills ?? []).flatMap(kind => allSkills.value.filter(skill => skill.kind === kind)));
+    const primarySkill = computed(() => skills.value[0] ?? null);
     const skillSlots = computed(() => Array.from({ length: SKILL_SLOT_COUNT }, (_, index) => skills.value[index] ?? null));
     const speed = computed(() => battle.value?.speed ?? 1);
+    const effectiveSpeed = computed(() => battle.value?.effectiveSpeed ?? speed.value);
+    const bossAssistEnabled = computed(() => battle.value?.bossAssistEnabled ?? true);
+    const bossAssistActive = computed(() => battle.value?.bossAssistActive ?? false);
+    const bossAssistLabel = computed(() => bossAssistActive.value ? `예고 보호 1배 · 선택 ${speed.value}배` : '');
+    const speedSummary = computed(() => `선택 ${speed.value}배 · 현재 ${effectiveSpeed.value}배`);
     const speedDisabled = computed(() => !battle.value || ended.value);
     const boss = computed(() => battle.value ? getBossHud(battle.value) : null);
     const waveNotice = computed(() => {
@@ -175,7 +181,7 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
     const resultDescription = computed(() => campaignComplete.value ? `GPT-4o를 이겼어. ${CHAPTERS.length}개 챕터 · ${STAGES.length}개 스테이지를 모두 클리어했어!` : battle.value?.status === 'won' ? 'AI 데이터센터를 파괴했어. 재화로 강화하거나 다음 출근에 도전해봐.' : battle.value?.defeatReason === 'hero' ? `${HERO_NAME}가 쓰러졌어. 병력 뒤에서 전선을 도와줘.` : '아군 기지가 파괴됐어. 병력과 경제 투자 타이밍을 바꿔봐.');
     const hasNextStage = computed(() => battle.value?.status === 'won' && !!nextStage(battle.value.stageId));
     return {
-      battle: readonly(battle), feedback: readonly(feedback), intro: readonly(intro), units, visibleUnits, unitPage: readonly(unitPage), pageDisabled, viewMode: readonly(viewMode), viewModeLabel, viewDisabled, skills, allSkills, skillSlots, speed, speedDisabled, ended, danger,
+      battle: readonly(battle), feedback: readonly(feedback), intro: readonly(intro), units, visibleUnits, unitPage: readonly(unitPage), pageDisabled, viewMode: readonly(viewMode), viewModeLabel, viewDisabled, skills, allSkills, primarySkill, skillSlots, speed, effectiveSpeed, bossAssistEnabled, bossAssistActive, bossAssistLabel, speedSummary, speedDisabled, ended, danger,
       boss, bossNotice: readonly(bossNotice), waveNotice, heroBuffs, preview, previewDescription, previewTargets,
       economyDisabled, economyDescription, economyReason, economyState, controlDetail, time, resultTitle, resultDescription,
       newAllies: computed(() => newAllies.value.map(kind => ({ kind, label: UNIT_DEFINITIONS[kind].label }))), reward: readonly(reward), prototypeComplete: campaignComplete, hasNextStage,
@@ -186,6 +192,12 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
         const current = context.bridge.sceneState;
         if (scope.disposed || !battle.value || ended.value || ![1, 2, 3].includes(value) || current && (current.scene !== 'Battle' || current.runId !== scope.id)) return;
         command({ type: 'set-speed', speed: value });
+      },
+      setBossAssist: (enabled: boolean) => {
+        if (typeof enabled === 'boolean' && activePageScope()) command({ type: 'set-boss-assist', enabled });
+      },
+      toggleBossAssist: () => {
+        if (activePageScope()) command({ type: 'set-boss-assist', enabled: !bossAssistEnabled.value });
       },
       setDetailRegionActive: (source: 'hover' | 'focus', enabled: boolean) => {
         if (scope.disposed) return;
@@ -207,14 +219,14 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
       },
       dismissIntro: () => { intro.value = false; },
       summon: (kind: AllyKind | null) => { if (kind !== null) command({ type: 'summon', kind }); },
-      useSkill: (skill: SkillKind) => command({ type: 'skill', skill }),
+      useSkill: (skill: SkillKind) => { const entry = allSkills.value.find(value => value.kind === skill); if (activePageScope() && entry && !entry.disabled) command({ type: 'skill', skill }); },
       upgradeEconomy: () => command({ type: 'upgrade-economy' }),
       move: (direction: -1 | 0 | 1) => command({ type: 'move', direction }),
       previewSkill: (skill: SkillKind, source: 'hover' | 'focus', enabled: boolean) => {
         if (scope.disposed) return;
         if (enabled) previewSources.set(source, skill);
         else if (previewSources.get(source) === skill) previewSources.delete(source);
-        if (enabled && battle.value?.status === 'active') detailSources.set(source, { type: 'skill', kind: skill });
+        if (enabled && activePageScope() && battle.value?.status === 'active') detailSources.set(source, { type: 'skill', kind: skill });
         else if (detailSources.get(source)?.type === 'skill' && (detailSources.get(source) as { kind: SkillKind }).kind === skill) detailSources.delete(source);
         publishDetail();
         publishPreview();

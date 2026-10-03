@@ -48,7 +48,7 @@ export class BattleScene extends Phaser.Scene {
       // Movement is continuous input, not a notice; it must not erase skill/funds feedback.
       if (command.type !== 'move') {
         this.context.bridge.emit('battle-feedback', { runId, result });
-        if (result.accepted && command.type !== 'set-speed') this.context.sound.play(command.type === 'summon' ? 'summon' : command.type === 'skill' ? command.skill : 'invest', runId);
+        if (result.accepted && command.type !== 'set-speed' && command.type !== 'set-boss-assist') this.context.sound.play(command.type === 'summon' ? 'summon' : command.type === 'skill' ? command.skill : 'invest', runId);
       }
       this.publishBattle();
     }));

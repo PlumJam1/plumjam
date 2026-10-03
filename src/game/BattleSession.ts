@@ -4,6 +4,7 @@ import { levelMultiplier } from './progression/ProfileService';
 
 export interface BattleOptions {
   runId: number;
+  bossAssistEnabled?: boolean;
   stage?: StageDefinition;
   levels?: Partial<Record<CharacterKind, number>>;
   random?: () => number;
@@ -67,6 +68,7 @@ export class BattleSession {
   private readonly unlockedSkills: readonly SkillKind[];
   private readonly equippedSkills: readonly SkillKind[];
   private speed: BattleSpeed = 1;
+  private bossAssistEnabled: boolean;
   private status: BattleStatus = 'active';
   private defeatReason?: DefeatReason;
   private elapsed = 0;
@@ -95,6 +97,7 @@ export class BattleSession {
 
   constructor(options: BattleOptions) {
     this.runId = options.runId;
+    this.bossAssistEnabled = options.bossAssistEnabled ?? true;
     this.stage = options.stage ?? DEFAULT_STAGE;
     this.definitions = options.unitDefinitions ?? UNIT_DEFINITIONS;
     this.levels = Object.fromEntries((['hero', ...ALLY_KINDS] as CharacterKind[]).map(kind => [kind, options.levels?.[kind] ?? 1])) as Record<CharacterKind, number>;
@@ -119,6 +122,12 @@ export class BattleSession {
   }
 
   dispatch(command: BattleCommand): CommandResult {
+    if (command.type === 'set-boss-assist') {
+      if (this.disposed || (this.status !== 'active' && this.status !== 'paused')) return { accepted: false, reason: '전투 중에만 예고 보호를 바꿀 수 있어.' };
+      if (typeof command.enabled !== 'boolean') return { accepted: false, reason: '예고 보호 설정을 확인해줘.' };
+      this.bossAssistEnabled = command.enabled;
+      return { accepted: true };
+    }
     if (command.type === 'set-speed') {
       if (this.disposed || (this.status !== 'active' && this.status !== 'paused')) return { accepted: false, reason: '전투 중에만 배속을 바꿀 수 있어.' };
       if (command.speed !== 1 && command.speed !== 2 && command.speed !== 3) return { accepted: false, reason: '배속은 1배·2배·3배 중에서 골라줘.' };
@@ -157,19 +166,23 @@ export class BattleSession {
   step(deltaSeconds: number): void {
     if (this.disposed || this.status !== 'active' || !Number.isFinite(deltaSeconds) || deltaSeconds <= 0) return;
     // Small rule steps avoid skipping collision/range checks at a low rendering frame rate.
-    let remaining = deltaSeconds * this.speed;
-    if (!Number.isFinite(remaining)) return;
-    while (remaining > 1e-8 && this.status === 'active') {
-      const dt = Math.min(remaining, 1 / 60);
+    if (!Number.isFinite(deltaSeconds * this.speed)) return;
+    let remainingReal = deltaSeconds;
+    while (remainingReal > 1e-8 && this.status === 'active') {
+      // An onset, cancellation or expiry can change speed within this same frame.
+      // Charge each simulation substep against the speed that advanced that substep.
+      const effectiveSpeed = this.effectiveSpeed();
+      const dt = Math.min(remainingReal * effectiveSpeed, 1 / 60);
       this.tick(dt);
-      remaining -= dt;
+      remainingReal -= dt / effectiveSpeed;
     }
   }
 
   snapshot(): BattleSnapshot {
     const economy = ECONOMY[this.economyLevel];
     return {
-      runId: this.runId, stageId: this.stage.id, status: this.status, speed: this.speed, defeatReason: this.defeatReason,
+      runId: this.runId, stageId: this.stage.id, status: this.status, speed: this.speed, effectiveSpeed: this.effectiveSpeed(),
+      bossAssistEnabled: this.bossAssistEnabled, bossAssistActive: this.bossAssistActive(), defeatReason: this.defeatReason,
       elapsed: this.elapsed, gold: this.gold, economyLevel: this.economyLevel + 1,
       income: economy.income, goldCap: economy.cap, upgradeCost: economy.upgradeCost,
       hero: { ...this.hero, buffs: { ...this.hero.buffs } }, humanBase: { ...this.humanBase }, aiBase: { ...this.aiBase },
@@ -186,6 +199,13 @@ export class BattleSession {
   }
 
   dispose(): void { this.disposed = true; this.direction = 0; this.units = []; this.pushes.clear(); this.projectiles = []; this.effects = []; this.clearPending(); this.overclockRemaining = 0; }
+
+  private bossAssistActive(): boolean {
+    return !this.disposed && this.bossAssistEnabled && this.speed > 1 && (this.status === 'active' || this.status === 'paused')
+      && this.bossTelegraphs.some(telegraph => this.units.some(unit => unit.id === telegraph.ownerId && unit.hp > 0));
+  }
+
+  private effectiveSpeed(): BattleSpeed { return this.bossAssistActive() ? 1 : this.speed; }
 
   private tick(dt: number): void {
     this.elapsed += dt;

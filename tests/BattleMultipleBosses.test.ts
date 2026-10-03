@@ -6,7 +6,7 @@ import type { BattleSpeed, BossTelegraphState } from '../src/game/battle/types';
 function dualBossBattle(runId = 1, fragile = false) {
   const definitions = structuredClone(UNIT_DEFINITIONS);
   definitions['gpt-4o'] = { ...definitions['gpt-4o'], speed: 0, damage: 0, hp: fragile ? 60 : 1500 };
-  return new BattleSession({ runId, unitDefinitions: definitions,
+  return new BattleSession({ runId, unitDefinitions: definitions, bossAssistEnabled: false,
     stage: { id: 'two-bosses', label: 'two boss owners', initialGold: 400, humanBaseHp: 900, aiBaseHp: 900,
       spawns: [{ at: 0, kind: 'gpt-4o' }, { at: .2, kind: 'gpt-4o' }] } });
 }

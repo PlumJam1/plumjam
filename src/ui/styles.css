@@ -594,3 +594,12 @@ body { min-width: 800px; }
 .pause-banner .pause-speed button.asset-speed .speed-icon { width: 26px; height: 26px; }
 .speed-controls button.asset-speed:disabled { background: var(--ui-disabled-top); border-color: #5f5544; cursor: not-allowed; }
 .speed-controls button.asset-speed:disabled .speed-number { color: var(--ui-on-disabled); }
+
+/* Assist metadata shares the boss attack row; the selected speed buttons keep their meaning. */
+.boss-assist-badge { display: inline-block; margin-left: 8px; color: var(--paper); font-size: 12px; font-weight: 900; }
+.pause-banner .pause-assist { display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap; }
+.pause-banner .pause-assist button { width: auto; min-height: 30px; padding: 5px 8px; margin: 2px 0; font-size: 13px; }
+.pause-assist span { font-size: 12px; font-weight: 900; }
+.pause-assist button[aria-pressed=true] { background: var(--gold); color: var(--ink); }
+.pause-banner #pause-description { margin-bottom: 12px; max-width: 92%; }
+.empty-primary { background: var(--ui-disabled-top); color: var(--ui-on-disabled); box-shadow: none; }
