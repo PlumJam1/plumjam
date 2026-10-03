@@ -35,3 +35,25 @@
 화면별 비율을 보존한 PC 프레임 안에 UI를 배치한다. 편성은 5칸씩 두 줄, 전투는 5개씩 두 페이지다. 이전/다음 병력 페이지 버튼·Q를 제공하고 숫자 1~5는 현재 페이지에 대응한다. 페이지를 바꿔도 자금·소환 대기시간은 유지되며 일시정지에서도 선택 가능하다. 파워 업은 원작의 중앙 선택 카드·양옆 캐릭터·갈색 설명판·큰 강화 버튼을 유지한다. 신규 스킬 foreach는 구매 카드와 I키를 사용하며 총 스킬 보유 6종 중 최대 3종만 장착한다.
 
 파워 업의 큰 강화 버튼은 중앙 카드 아래 왼쪽 약 40% 너비를 차지하고, 필요 XP는 중앙 카드 하단에 표시한다. 전투는 위 전장 약 80%와 아래 병력 한 줄 약 20%로 나누며 스킬 아이콘은 자금 아래 우상단에 둔다.
+
+## UI Pro Max CLI 적용 (2026-10-04)
+
+공식 `nextlevelbuilder/ui-ux-pro-max-skill`의 `ui-ux-pro-max-cli@2.15.0`을 사용한다. CLI는 UI를 자동으로 교체하는 생성기가 아니라 로컬 디자인·UX 데이터와 Python 검색 도구를 설치한다. 프로젝트의 기존 냥코 화면 비율·도트 자산·인간 대 AI 색감은 유지하며 상태 전달과 키보드 조작을 개선한다.
+
+```sh
+npm install --global --ignore-scripts ui-ux-pro-max-cli@2.15.0
+uipro --version
+uipro init --ai codex
+PYTHONDONTWRITEBYTECODE=1 python3 .agents/skills/ui-ux-pro-max/scripts/search.py "keyboard focus modal" --domain ux --json
+PYTHONDONTWRITEBYTECODE=1 python3 .agents/skills/ui-ux-pro-max/scripts/search.py "aria attributes" --stack vue --json
+```
+
+- 메인 지침은 `.agents/skills/ui-ux-pro-max/SKILL.md`, 데이터·검색 스크립트는 그 아래 `data/`·`scripts/`다. Codex용 프로젝트 init은 번들 보조 지침 6종도 `.agents/skills/`에 생성한다. 이 172파일 로컬 도구 묶음은 `.gitignore`에서 제외하고 재현 명령만 저장한다.
+- 해당 버전은 `--dry-run` 옵션을 제공하지 않는다. 설치 경로를 플랫폼 설정과 임시 디렉터리의 결과로 확인한 뒤 `--global`·`--ai all`·`--force` 없이 프로젝트 init을 실행했다. 기존 AGENTS·다른 AI 설정·글로벌 개인 메모리는 수정하지 않는다.
+- 검증한 UX 결과는 Interaction/Focus States와 Web/Focus Not Obscured이며, Vue 결과는 3.5.x용 동적 ARIA 속성이다. `modal focus trap`으로 한 번 좁혀 재검색해도 정확한 포커스 트랩 구현 지침은 없었으므로, 검색에서 찾은 것처럼 주장하지 않고 일반 DOM 포커스 처리를 별도로 적용한다.
+- 준비·대기·자금 부족·미장착 등은 번역된 문장을 파싱하지 않는 typed 표현 상태다. 작은 스킬 아이콘도 상태 글자를 보여주고, 포인터·키보드 선택에 전체 이름·실패 사유·효과를 읽을 수 있다. 읽기용 상세 선택은 스킬을 발동하지 않는다.
+- 일시정지와 결과 창은 의미 있는 제목/설명을 가진 모달이다. 열리면 배경을 inert로 만들고 주 행동에 포커스를 둔다. Tab만 모달 안에서 순환시키며 게임의 Escape·Q·R과 시스템 키 조합은 유지한다. 닫을 때 같은 전투의 유효한 시작점 또는 새 화면의 주 행동으로 돌아간다.
+- 병력 페이지를 바꿀 때 실제 병력 카드에 있던 포커스는 같은 가시 인덱스의 사용 가능한 카드 또는 페이지 버튼으로 옮긴다. 비동기 전환은 실행 번호·revision·컴포넌트 수명을 확인하여 이전 전투로 포커스를 되돌리지 않는다.
+
+
+이번 UI 개선은 800×600·1280×720·1920×1080 PC 화면에서 실제 확인했다. 작은 창의 편성 캐릭터와 강화 버튼이 프레임 안에 들어가며, 스킬 상태 글자·수입·보스 경고가 겹치지 않는다. 일시정지 안에서 Tab/Shift+Tab 순환·주 행동 초기 포커스·배경 inert, 일시정지 Q/R의 시간·자금 무변경, Escape의 시작점 복귀, 결과의 재도전 포커스와 준비실 주 행동 복귀를 확인했다. 활성 전투의 대기 중 J는 aria-disabled 상태에서도 키보드 상세 미리보기가 가능하고 추가 스킬 비용을 소비하지 않는다. Q로 빈 페이지에 가면 포커스는 페이지 버튼으로 옮겨진다. 이미지 깨짐과 콘솔 오류는 없었다.

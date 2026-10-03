@@ -3,3 +3,6 @@ dist/
 coverage/
 .DS_Store
 *.local
+
+# Project-local UI Pro Max installer bundle; reproduce with uipro init.
+.agents/skills/

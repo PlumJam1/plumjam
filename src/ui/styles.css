@@ -411,3 +411,103 @@ body { min-width: 800px; }
 .formation-slots img { height: 27px; max-height: 55%; width: 31px; }
 .formation-overlay .carousel-main > img { width: 72%; }
 @media (min-width:1500px) and (min-height:900px) { .formation-slots button { height: clamp(44px, 5.3cqw, 58px); }.formation-slots img { height: 32px; width: 37px; } }
+/* PC readability and explicit interaction states: retain the Battle Cats frame. */
+:root {
+  --ui-on-paper: #392512;
+  --ui-on-bronze: #fff4cc;
+  --ui-muted-paper: #594126;
+  --ui-on-disabled: #332e24;
+  --ui-disabled-top: #d0c9b9;
+  --ui-disabled-bottom: #a69e8c;
+  --ui-ready-track: #211b13;
+  --ui-ready-fill: #5bd6f8;
+  --ui-focus: #ed45dd;
+}
+.game-frame { container-type: inline-size; }
+.xp-wallet, .battle-wallet, .battle-stats strong, .action-card strong,
+.action-card small, .worker-control, .hero-trigger, .upgrade-cost, .upgrade-stats,
+.purchase-price, .unit-pages, .control-status { font-variant-numeric: tabular-nums; }
+.app-shell button:focus-visible { outline: 3px solid var(--ui-focus); outline-offset: 3px; box-shadow: 0 0 0 2px var(--ink), 0 0 0 6px var(--paper); z-index: 25; }
+.app-shell button:focus-visible:active { transform: none; }
+.roster-strip, .skill-shop { scroll-padding: 9px; }
+.roster-strip { padding: 8px 5px; scrollbar-color: #795028 #ebcc8b; }
+.carousel-nav, .unit-pages button, .speed-controls button, .summary-edit,
+.formation-selection button, .first-briefing button, .header-sound { min-width: 28px; min-height: 28px; }
+.card-label, .unit-button .card-label { font-size: clamp(12px, 1.15cqw, 14px); line-height: 1.25; letter-spacing: -.3px; }
+.unit-button .card-label { white-space: normal; overflow-wrap: anywhere; }
+.unit-button strong, .unit-button small { font-size: clamp(12px, 1.1cqw, 14px); line-height: 1.25; }
+.unit-slot, .unit-pages strong, kbd, .action-card kbd { font-size: 12px; }
+.unit-pages { top: -30px; }.unit-pages strong { padding: 3px 7px; white-space: nowrap; }
+.unit-pages button { height: 28px; }
+.unit-portrait { top: 0; height: 60%; width: 72%; right: 8%; }
+.unit-button { padding: 4px 5px; gap: 1px; }
+.unit-button .card-label { background: #fff3d6; color: var(--ui-on-paper); }
+.unit-button strong { color: #744016; }.unit-button small { color: #185568; background: #fff3d6; border-radius: 2px; }
+.ready-bar { background: var(--ui-ready-track); border-color: var(--ink); }.ready-bar i { background: var(--ui-ready-fill); }
+.unit-button .ready-bar { height: 6px; }
+.worker-control strong, .hero-trigger strong, .worker-control small,
+.hero-trigger small, .worker-control > span:not(.worker-symbol),
+.hero-trigger > span:not(.trigger-art):not(.ready-bar) { font-size: 12px; line-height: 1.25; }
+.worker-control small,.hero-trigger small { color: var(--ui-on-paper); }
+.skill-row .card-label { font-size: 12px; line-height: 1.25; top: -17px; white-space: nowrap; }
+.skill-row strong { font-size: 12px; line-height: 1.25; }
+.skill-row .skill-emblem { color: var(--ui-on-paper); }
+.skill-row .action-card { gap: 1px; }
+.skill-row .action-card[aria-disabled=true], .hero-trigger[aria-disabled=true],
+.unit-button:disabled, .worker-control:disabled {
+  background: linear-gradient(var(--ui-disabled-top),var(--ui-disabled-bottom));
+  color: var(--ui-on-disabled); border-color: #4e4639; cursor: not-allowed; opacity: 1;
+  box-shadow: inset 0 2px #e9e0cf, 0 2px #4c2d1b;
+}
+.skill-row .action-card[aria-disabled=true] .skill-emblem,
+.skill-row .action-card[aria-disabled=true] strong, .hero-trigger[aria-disabled=true] strong,
+.unit-button:disabled strong { color: var(--ui-on-disabled); }
+.unit-button:disabled small { color: var(--ui-on-disabled); background: #d0c9b9; }
+.skill-row .action-card:not([aria-disabled=true]):not(:disabled),
+.hero-trigger:not([aria-disabled=true]) { border-color: var(--ink); }
+.control-status { font-size: 12px; font-weight: 800; line-height: 1.25; }
+.status-ready { color: #234c28; background: #fff4cc; border-color: #47784b; }
+.status-waiting,.status-blocked { color: var(--ui-on-disabled); background: #d0c9b9; border-color: #5f5544; }
+.skill-row .control-status { display: block; position: absolute; top: calc(100% + 4px); left: 50%; transform: translateX(-50%); white-space: nowrap; padding: 2px 5px; border: 1px solid; border-radius: 3px; }
+.combat-detail, .first-briefing, .battle-help { font-size: 12px; line-height: 1.4; padding: 7px 10px; color: var(--ui-on-bronze); background: #211b13f0; }
+.combat-detail { max-width: calc(100% - 20px); overflow-wrap: anywhere; }
+.buff-chip { font-size: 12px; line-height: 1.25; color: #ffe371; }
+.battle-wallet small, .battle-stats, .boss-hud > div, .boss-hud small,
+.field-notice, .battle-speed button, .stage-title small { font-size: 12px; }
+.boss-hud > div { flex-wrap: wrap; }.field-notice { white-space: normal; text-align: center; }
+.formation-heading span, .formation-selection, .formation-selection button,
+.formation-equip, .formation-overlay .carousel-main > p,
+.carousel-card small, .formation-slots strong, .roster-card strong, .roster-card small,
+.training-select small, .lobby-shortcuts button, .summary-edit,
+.selected-stage-preview p, .selected-stage-preview small, .deploy-summary { font-size: 12px; line-height: 1.35; }
+.formation-slots button { height: clamp(48px,5.4cqw,58px); padding: 2px; gap: 0; }
+.formation-slots img { height: 24px; max-height: 55%; width: 32px; }
+.formation-slots strong { max-width: 100%; white-space: nowrap; }
+.formation-overlay .carousel-main > .character-description { font-size: 12px; line-height: 1.35; padding: 3px 6px; }
+.formation-overlay .carousel-main > img { width: 78%; }
+.formation-overlay .roster-strip { min-height: 74px; }
+.roster-card strong { text-align: center; white-space: nowrap; }
+.roster-card img { width: 37px; height: 41px; }
+.training-overlay .character-heading span, .training-overlay .character-description p,
+.upgrade-stats, .training-overlay .growth-preview, .levelup-cta span { font-size: 12px; line-height: 1.4; }
+.upgrade-stats { float: none; display: block; margin: 2px 0; color: #ffe08a; }
+.training-overlay .character-description { scroll-padding: 7px; }
+.skill-shop-heading span, .skill-shop .shop-card p, .skill-shop .shop-card button,
+.skill-owned-list button, .skill-owned-list button span, .skill-loadout-note { font-size: 12px; line-height: 1.4; }
+.skill-shop .shop-card h2 { overflow-wrap: anywhere; }
+.skill-shop .shop-card p { min-height: 0; color: var(--ui-muted-paper); }
+.skill-purchase-grid { align-items: stretch; }.skill-shop .shop-card { min-width: 0; }
+.skill-owned-list button { min-width: 0; }.skill-owned-list button strong { white-space: normal; overflow-wrap: anywhere; }
+.skill-shop { gap: 12px; scroll-padding-block: 10px; }
+@media (prefers-reduced-motion: reduce) { .app-shell button { transition: none; }.app-shell button:active { transform: none; } }
+/* Short PC windows use the carousel as the complete roster navigation. */
+@media (max-height:650px) {
+  .formation-overlay .roster-strip { display: none; }
+  .formation-overlay .character-carousel { min-height: 200px; }
+  .formation-overlay .carousel-main > img { min-height: 64px; }
+  .field-wrapper > .skill-row { min-width: 260px; }
+}
+/* Keep wallet, skill captions, status badges and wave notices in separate bands. */
+.field-wrapper > .skill-row { top: 92px; }
+.field-notice { top: 205px; }
+.boss-quote { top: 252px; }

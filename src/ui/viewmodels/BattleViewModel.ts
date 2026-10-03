@@ -3,6 +3,7 @@ import type { AppContext } from '../../core/AppContext';
 import type { SceneScope } from '../../core/SceneLifetimeManager';
 import { ALLY_ROLES, ECONOMY, SKILLS, SUPPORT, UNIT_DEFINITIONS, SKILL_SLOT_COUNT, FORMATION_SIZE, FORMATION_PAGE_SIZE, SKILL_KEYS } from '../../game/battle/balance';
 import { getCooldownEta, getSkillValues } from '../../game/BattleSession';
+import { controlState, type ControlInput } from '../controlState';
 import { skillPreview } from '../../game/presentation/battlePresentation';
 import type { AllyKind, BattleCommand, BattleSnapshot, BattleSpeed, SkillKind } from '../../game/battle/types';
 import { getStage, nextStage } from '../../game/progression/stages';
@@ -18,7 +19,13 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
     return !scope.disposed && !!battle.value && (battle.value.status === 'active' || battle.value.status === 'paused') && (!current || current.scene === 'Battle' && current.runId === scope.id);
   };
   scope.defer(context.bridge.subscribe('battle-page', value => {
-    if (value.runId === scope.id && (value.page === 0 || value.page === 1) && activePageScope()) unitPage.value = value.page;
+    if (value.runId !== scope.id || (value.page !== 0 && value.page !== 1) || !activePageScope()) return;
+    unitPage.value = value.page;
+    // Removed DOM buttons need not fire blur: drop only details from the old visible five.
+    for (const [source, detail] of detailSources) {
+      if (detail.type === 'unit' && Math.floor(detail.slot / FORMATION_PAGE_SIZE) !== value.page) detailSources.delete(source);
+    }
+    publishDetail();
   }));
   const intro = shallowRef(showIntro);
   const reward = shallowRef(0);
@@ -26,6 +33,12 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
   const prototypeComplete = shallowRef(false);
   const previewSkill = shallowRef<SkillKind | null>(null);
   const bossNotice = shallowRef('');
+  type Detail = { type: 'unit'; slot: number } | { type: 'skill'; kind: SkillKind } | { type: 'economy' };
+  const detailSources = new Map<'hover' | 'focus', Detail>();
+  const selectedDetail = shallowRef<Detail | null>(null);
+  const publishDetail = () => { selectedDetail.value = [...detailSources.values()].at(-1) ?? null; };
+  const clearDetail = () => { detailSources.clear(); selectedDetail.value = null; };
+  scope.defer(clearDetail);
   let defeatedBossCount = 0;
   let bossNoticeTimer: ReturnType<typeof setTimeout> | undefined;
   scope.defer(() => { if (bossNoticeTimer) clearTimeout(bossNoticeTimer); });
@@ -47,7 +60,7 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
   scope.defer(context.bridge.subscribe('battle-snapshot', (snapshot) => {
     if (scope.disposed || snapshot.runId !== scope.id) return;
     battle.value = snapshot;
-    if (snapshot.status !== 'active') clearPreview();
+    if (snapshot.status !== 'active') { clearPreview(); clearDetail(); }
     if (snapshot.defeatedBossCount > defeatedBossCount) {
       bossNotice.value = 'GPT-4o 격파!';
       if (bossNoticeTimer) clearTimeout(bossNoticeTimer);
@@ -67,23 +80,16 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
   const model = effects.run(() => {
     const ended = computed(() => battle.value?.status === 'won' || battle.value?.status === 'lost');
     const danger = computed(() => (battle.value?.hero.hp ?? 1) <= (battle.value?.hero.maxHp ?? 1) * 0.3);
-    const availability = (cost: number, cooldown = 0): string => {
-      const value = battle.value;
-      if (!value) return '전투 준비 중';
-      if (value.status !== 'active') return value.status === 'paused' ? '일시정지' : '전투 종료';
-      if (cooldown > 0) return `준비 ${cooldown.toFixed(1)}초`;
-      if (value.gold < cost) return `자금 ${Math.ceil(cost - value.gold)} 부족`;
-      return '사용 가능';
-    };
+    const availability = (cost: number, cooldown = 0, extra: Partial<ControlInput> = {}) => controlState({ battle: battle.value, cost, cooldown, ...extra });
     const units = computed(() => (battle.value?.equippedAllies ?? Array<null>(FORMATION_SIZE).fill(null)).map((kind, index) => {
-      if (kind === null) return { kind, label: '빈 칸', cost: 0, key: String(index % FORMATION_PAGE_SIZE + 1), slotIndex: index, cooldown: 0, progress: 0, reason: '준비실에서 편성', description: '이 칸에는 소환할 동료가 없어', disabled: true, level: 1 };
+      if (kind === null) return { kind, label: '빈 칸', cost: 0, key: String(index % FORMATION_PAGE_SIZE + 1), slotIndex: index, cooldown: 0, progress: 0, ...availability(0, 0, { empty: true }), description: '이 칸에는 소환할 동료가 없어', level: 1 };
       const definition = UNIT_DEFINITIONS[kind];
       const cooldown = battle.value?.summonCooldowns[kind] ?? 0;
       const eta = getCooldownEta(cooldown, battle.value?.overclockRemaining ?? 0);
-      const reason = availability(definition.cost!, eta);
+      const presentation = availability(definition.cost!, eta);
       const description = ALLY_ROLES[kind].description;
       return { kind, label: definition.label, cost: definition.cost!, key: String(index % FORMATION_PAGE_SIZE + 1), slotIndex: index, cooldown: eta,
-        level: battle.value?.levels[kind] ?? 1, progress: 1 - cooldown / definition.summonCooldown!, reason, description, disabled: reason !== '사용 가능' };
+        level: battle.value?.levels[kind] ?? 1, progress: 1 - cooldown / definition.summonCooldown!, ...presentation, description };
     }));
     const visibleUnits = computed(() => units.value.slice(unitPage.value * FORMATION_PAGE_SIZE, (unitPage.value + 1) * FORMATION_PAGE_SIZE));
     const pageDisabled = computed(() => !battle.value || ended.value);
@@ -93,14 +99,14 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
       const eta = getCooldownEta(cooldown, battle.value?.overclockRemaining ?? 0, kind === 'overclock');
       const unlocked = battle.value?.unlockedSkills.includes(kind) ?? false;
       const equipped = battle.value?.equippedSkills.includes(kind) ?? false;
-      const reason = !unlocked ? '상점에서 구매' : !equipped ? '장착 필요' : availability(definition.cost, eta);
+      const presentation = availability(definition.cost, eta, { unlocked, equipped });
       const hero = battle.value?.hero ?? { level: 1, buffs: { combat: 0, speed: 0, haste: 0 } };
       const values = getSkillValues(hero);
       const amount = (value: number) => Number(value.toFixed(1));
       const description = kind === 'hello-world' ? `피해 ${amount(values.helloDamage)} · 사거리 ${values.helloRange} · 오른쪽 첫 적` : kind === 'sleep' ? `반경 ${values.sleepRadius} · 이동속도 -${Math.round((1 - values.sleepSpeedMultiplier) * 100)}% · ${values.sleepDuration}초` : kind === 'heal' ? `회복 ${amount(values.healAmount)} · 반경 ${values.healRadius} · 나와 아군` : kind === 'foreach' ? `피해 ${amount(values.foreachDamage)} · 전방 ${values.foreachOffset} · 반경 ${values.foreachRadius} · ${values.foreachFlight}초 뒤 착지, 적 유닛만` : kind === 'git-push' ? `반경 ${values.pushRadius} · 일반 적 폭×3 / 보스 폭×1 서서히 밀기 · 적 기지 경계 제한` : `${values.overclockDuration}초간 소환·다른 스킬 쿨타임 50% · 자신 제외 · 수입 유지 · 자금 비축 후 사용`;
       const effectLabel = kind === 'hello-world' ? `피해 ${amount(values.helloDamage)}` : kind === 'sleep' ? `감속 ${values.sleepDuration}초` : kind === 'heal' ? `회복 ${amount(values.healAmount)}` : kind === 'foreach' ? `광역 피해 ${amount(values.foreachDamage)}` : kind === 'git-push' ? '밀치기 폭×3 / 보스×1' : `쿨타임 50% · ${values.overclockDuration}초`;
       return { kind, label: definition.label, cost: definition.cost, key: SKILL_KEYS[kind], cooldown: eta, unlocked,
-        equipped, progress: 1 - cooldown / definition.cooldown, description, effectLabel, reason, disabled: reason !== '사용 가능' };
+        equipped, progress: 1 - cooldown / definition.cooldown, description, effectLabel, ...presentation };
     }));
     const skills = computed(() => (battle.value?.equippedSkills ?? []).flatMap(kind => allSkills.value.filter(skill => skill.kind === kind)));
     const skillSlots = computed(() => Array.from({ length: SKILL_SLOT_COUNT }, (_, index) => skills.value[index] ?? null));
@@ -125,11 +131,25 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
     const preview = computed(() => battle.value ? skillPreview(battle.value, previewSkill.value) : null);
     const previewDescription = computed(() => skills.value.find(skill => skill.kind === previewSkill.value)?.description ?? '');
     const previewTargets = computed(() => preview.value?.shape === 'line' ? `현재 예상 대상: ${preview.value.targetLabel} · 이동 중 달라질 수 있음` : preview.value ? `대상 ${preview.value.targetIds.length}명` : '');
-    const economyReason = computed(() => battle.value?.upgradeCost === null ? '최대 레벨' : availability(battle.value?.upgradeCost ?? Infinity));
-    const economyDisabled = computed(() => economyReason.value !== '사용 가능');
+    const economyState = computed(() => availability(battle.value?.upgradeCost ?? Infinity, 0, { max: battle.value?.upgradeCost === null }));
+    const economyReason = computed(() => economyState.value.reason);
+    const economyDisabled = computed(() => economyState.value.disabled);
     const economyDescription = computed(() => {
       const next = ECONOMY[battle.value?.economyLevel ?? 0];
       return next ? `수입 +${next.income}/초 · 상한 ${next.cap}` : '수입과 보유 상한 최대';
+    });
+    const controlDetail = computed(() => {
+      const detail = selectedDetail.value;
+      if (!detail) return null;
+      if (detail.type === 'unit') {
+        const unit = visibleUnits.value.find(value => value.slotIndex === detail.slot);
+        return unit ? { type: detail.type, name: `${unit.slotIndex + 1}번 ${unit.label}`, key: unit.key, cost: unit.kind ? `${unit.cost}원` : '', reason: unit.reason, description: unit.description, status: unit.status } : null;
+      }
+      if (detail.type === 'skill') {
+        const skill = allSkills.value.find(value => value.kind === detail.kind);
+        return skill ? { type: detail.type, name: skill.label, key: skill.key, cost: `${skill.cost}원`, reason: skill.reason, description: skill.description, status: skill.status } : null;
+      }
+      return { type: detail.type, name: '경제 투자', key: 'U', cost: battle.value?.upgradeCost === null ? '' : `${battle.value?.upgradeCost ?? 0}원`, reason: economyReason.value, description: economyDescription.value, status: economyState.value.status };
     });
     const time = computed(() => {
       const seconds = Math.floor(battle.value?.elapsed ?? 0);
@@ -141,13 +161,25 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
     return {
       battle: readonly(battle), feedback: readonly(feedback), intro: readonly(intro), units, visibleUnits, unitPage: readonly(unitPage), pageDisabled, skills, allSkills, skillSlots, speed, speedDisabled, ended, danger,
       boss, bossNotice: readonly(bossNotice), waveNotice, heroBuffs, preview, previewDescription, previewTargets,
-      economyDisabled, economyDescription, economyReason, time, resultTitle, resultDescription,
+      economyDisabled, economyDescription, economyReason, economyState, controlDetail, time, resultTitle, resultDescription,
       newAllies: computed(() => newAllies.value.map(kind => ({ kind, label: UNIT_DEFINITIONS[kind].label }))), reward: readonly(reward), prototypeComplete: readonly(prototypeComplete), hasNextStage,
       setUnitPage: (page: 0 | 1) => { if (activePageScope() && (page === 0 || page === 1)) context.bridge.emit('battle-page', { runId: scope.id, page }); },
       setSpeed: (value: BattleSpeed) => {
         const current = context.bridge.sceneState;
         if (scope.disposed || !battle.value || ended.value || ![1, 2, 3].includes(value) || current && (current.scene !== 'Battle' || current.runId !== scope.id)) return;
         command({ type: 'set-speed', speed: value });
+      },
+      describeUnit: (slot: number, source: 'hover' | 'focus', enabled: boolean) => {
+        if (scope.disposed) return;
+        if (enabled && battle.value?.status === 'active' && visibleUnits.value.some(unit => unit.slotIndex === slot)) detailSources.set(source, { type: 'unit', slot });
+        else if (detailSources.get(source)?.type === 'unit' && (detailSources.get(source) as { slot: number }).slot === slot) detailSources.delete(source);
+        publishDetail();
+      },
+      describeEconomy: (source: 'hover' | 'focus', enabled: boolean) => {
+        if (scope.disposed) return;
+        if (enabled && battle.value?.status === 'active') detailSources.set(source, { type: 'economy' });
+        else if (detailSources.get(source)?.type === 'economy') detailSources.delete(source);
+        publishDetail();
       },
       dismissIntro: () => { intro.value = false; },
       summon: (kind: AllyKind | null) => { if (kind !== null) command({ type: 'summon', kind }); },
@@ -158,6 +190,9 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
         if (scope.disposed) return;
         if (enabled) previewSources.set(source, skill);
         else if (previewSources.get(source) === skill) previewSources.delete(source);
+        if (enabled && battle.value?.status === 'active') detailSources.set(source, { type: 'skill', kind: skill });
+        else if (detailSources.get(source)?.type === 'skill' && (detailSources.get(source) as { kind: SkillKind }).kind === skill) detailSources.delete(source);
+        publishDetail();
         publishPreview();
       },
     };
