@@ -571,7 +571,14 @@ body { min-width: 800px; }
 
 /* Short windows use one inline local key; the page/ARIA still exposes the global slot. */
 .unit-button .short-key { display: none; }
+.worker-control .investment-icon { display: block; width: 28px; height: 28px; max-width: 50%; max-height: 28px; min-height: 0; flex: 0 1 28px; object-fit: contain; image-rendering: pixelated; }
+/* Retain the label footprint and enlarge the existing speed buttons by 10%. */
+.speed-controls button.speed-image-button { background: transparent; border-color: transparent; box-shadow: none; zoom: 1.1; }
+.speed-image-button .speed-size-label { visibility: hidden; }
+.speed-image-button img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; image-rendering: pixelated; pointer-events: none; }
+.speed-controls button.speed-image-button:disabled img { opacity: .55; }
 @media (max-height: 650px) {
+  .worker-control .investment-icon { width: 16px; height: 16px; flex-basis: 16px; }
   .unit-button .unit-slot { display: none; }
   .unit-button .card-label { white-space: nowrap; padding-right: 0; }
   .unit-button .short-key { display: inline-block; margin: 0 2px 0 0; }
