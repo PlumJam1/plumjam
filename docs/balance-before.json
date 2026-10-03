@@ -3176,7 +3176,7 @@
   "provenance": {
     "referenceCommit": "658d1888854a55ffe338d2e16efc97f0bbfb545f",
     "productSourceSha256": "a06bc5139e7798e965a253fcc43871aa49c6c8f2b5152ba3791873c2133aa14c",
-    "simulationPolicySha256": "7410975c413972456a29aa57c258f2a2063119db82f9471333e4d9cfce75f6ae",
+    "simulationPolicySha256": "212f283476d1d3d4008aa81404b94f8ebb5f9f8236753e471943548dc66e0b08",
     "productFiles": [
       "src/game/BattleSession.ts",
       "src/game/battle/balance.ts",
@@ -3185,6 +3185,7 @@
     ],
     "policyVersion": "five-core-role-quota-v1",
     "productWorkingTree": false,
-    "note": "Measured on the clean reference product before tuning. The unchanged simulateBattle policy is shared with the after report; runner/helper filename and added burst benchmark differ."
+    "note": "Measured on the clean reference product before tuning. The unchanged simulateBattle policy is shared with the after report; runner/helper filename and added burst benchmark differ.",
+    "policyFormattingNote": "The common policy fingerprint uses the final whitespace-clean source; its executable behaviour was unchanged after measurement."
   }
 }

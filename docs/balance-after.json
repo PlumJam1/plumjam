@@ -3291,7 +3291,7 @@
   "provenance": {
     "referenceCommit": "658d1888854a55ffe338d2e16efc97f0bbfb545f",
     "productSourceSha256": "5dfb05912bf531466422509cf3434bdc78234dc8854d1b9336a4f377726f28af",
-    "simulationPolicySha256": "7410975c413972456a29aa57c258f2a2063119db82f9471333e4d9cfce75f6ae",
+    "simulationPolicySha256": "212f283476d1d3d4008aa81404b94f8ebb5f9f8236753e471943548dc66e0b08",
     "productFiles": [
       "src/game/BattleSession.ts",
       "src/game/battle/balance.ts",
@@ -3299,6 +3299,7 @@
       "src/game/progression/ProfileService.ts"
     ],
     "policyVersion": "five-core-role-quota-v1",
-    "productWorkingTree": true
+    "productWorkingTree": true,
+    "policyFormattingNote": "The common policy fingerprint uses the final whitespace-clean source; its executable behaviour was unchanged after measurement."
   }
 }

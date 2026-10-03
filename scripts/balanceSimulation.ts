@@ -50,7 +50,7 @@ export function simulateBattle(options: AuditOptions) {
       const enemy = enemies[0];
       let destination = enemy ? Math.max(80, Math.min(465, enemy.x - (options.heroDistance ?? 140))) : 420;
       // This policy notices telegraphs only at the next human-like decision, never retroactively.
-      const hazard = state.bossTelegraphs.find(zone => Math.abs(state.hero.x - zone.x) <= zone.radius + 12 && zone.duration - zone.remaining + 1e-8 >= (options.reactionSeconds ?? (cadence < .5 ? 0 : .5))); 
+      const hazard = state.bossTelegraphs.find(zone => Math.abs(state.hero.x - zone.x) <= zone.radius + 12 && zone.duration - zone.remaining + 1e-8 >= (options.reactionSeconds ?? (cadence < .5 ? 0 : .5)));
       if (hazard) {
         const leftExit = hazard.x - hazard.radius - 16, rightExit = hazard.x + hazard.radius + 16;
         destination = leftExit >= 80 && (rightExit > 560 || state.hero.x - leftExit <= rightExit - state.hero.x) ? leftExit : rightExit;
