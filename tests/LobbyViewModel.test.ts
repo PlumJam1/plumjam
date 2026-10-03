@@ -88,3 +88,31 @@ describe('formation MVVM', () => {
     scope.dispose(); model.equipAlly('melee'); expect(equip).not.toHaveBeenCalled(); context.dispose();
   });
 });
+
+
+describe('lobby character browsing', () => {
+  it('cycles every owned or locked character without spending, equipping or upgrading and guards stale scopes', () => {
+    const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
+    context.bridge.emit('scene-state', { scene: 'Lobby', runId: scope.id, phase: 'ready' });
+    const model = createLobbyViewModel(context, scope, 'formation');
+    const original = context.profile.snapshot();
+    expect(model.selectedAllyKind.value).toBe('melee');
+    model.shiftAlly(-1); expect(model.selectedAllyKind.value).toBe('counselor');
+    model.shiftAlly(1); expect(model.selectedAllyKind.value).toBe('melee');
+    model.selectAlly('technician'); expect(model.selectedAllyKind.value).toBe('technician');
+    expect(model.roster.value.find(ally => ally.kind === 'technician')?.unlocked).toBe(false);
+    model.shiftAlly(0.5); expect(model.selectedAllyKind.value).toBe('technician');
+    model.selectCharacter('counselor'); model.shiftCharacter(1); expect(model.selectedCharacterKind.value).toBe('hero');
+    model.shiftCharacter(-1); expect(model.selectedCharacterKind.value).toBe('counselor');
+    model.selectCharacter('technician'); expect(model.selectedCharacterKind.value).toBe('technician');
+    expect(context.profile.snapshot()).toEqual(original);
+    context.bridge.emit('scene-state', { scene: 'Battle', runId: scope.id, phase: 'ready' });
+    model.selectAlly('support'); model.shiftAlly(1); model.selectCharacter('hero'); model.shiftCharacter(1);
+    expect(model.selectedAllyKind.value).toBe('technician'); expect(model.selectedCharacterKind.value).toBe('technician');
+    context.bridge.emit('scene-state', { scene: 'Lobby', runId: scope.id + 1, phase: 'ready' });
+    model.selectAlly('support'); model.selectCharacter('hero'); expect(model.selectedAllyKind.value).toBe('technician'); expect(model.selectedCharacterKind.value).toBe('technician');
+    scope.dispose(); model.shiftAlly(1); model.shiftCharacter(1);
+    expect(model.selectedAllyKind.value).toBe('technician'); expect(model.selectedCharacterKind.value).toBe('technician');
+    expect(context.profile.snapshot()).toEqual(original); context.dispose();
+  });
+});
