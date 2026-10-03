@@ -111,10 +111,11 @@ export class PhaserBattleRenderer {
       const fall = Math.max(0, Math.min(1, (attack.duration - attack.remaining - attack.windup) / (attack.duration - attack.windup)));
       const y = -65 + fall * fall * 250;
       const width = source && source.level >= 5 ? 46 : 38;
+      // Handle trails above; the heavy head leads the fall so it strikes head-first.
+      g.fillStyle(0xe0b583).fillRect(attack.x - 3, y - 40, 6, 31);
       g.fillStyle(0x3b243b).fillRect(attack.x - width / 2 - 2, y - 11, width + 4, 22);
       g.fillStyle(0xbd8053).fillRect(attack.x - width / 2, y - 9, width, 18);
       g.fillStyle(0xecc489).fillRect(attack.x - width / 2, y - 9, width, 4);
-      g.fillStyle(0xe0b583).fillRect(attack.x - 3, y + 9, 6, 31);
       this.groundGraphics.lineStyle(2, 0xf3bc87, .9).strokeEllipse(attack.x, 229, 34, 9);
       this.label(`judge-${attack.id}`, fall > 0 ? '판결!' : '판결 예고', attack.x, y - 22, 0xffd6a4, 1, 10);
     }
