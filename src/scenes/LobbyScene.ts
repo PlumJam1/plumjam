@@ -1,4 +1,5 @@
 import Phaser from 'phaser';
+import type { AllyKind } from '../game/battle/types';
 import type { AppContext } from '../core/AppContext';
 import type { SceneScope } from '../core/SceneLifetimeManager';
 import { drawPlaceholder } from './drawPlaceholder';
@@ -7,9 +8,11 @@ export class LobbyScene extends Phaser.Scene {
   private scope!: SceneScope;
   private tab: 'menu' | 'stages' | 'training' | 'shop' | 'formation' = 'menu';
 
+  private focusAlly?: AllyKind;
+
   constructor(private readonly context: AppContext) { super('Lobby'); }
 
-  init(data?: { tab?: 'menu' | 'stages' | 'training' | 'shop' | 'formation' }): void { this.scope = this.context.lifetimes.begin(this); this.tab = data?.tab ?? 'menu'; }
+  init(data?: { focusAlly?: AllyKind; tab?: 'menu' | 'stages' | 'training' | 'shop' | 'formation' }): void { this.scope = this.context.lifetimes.begin(this); this.tab = data?.tab ?? 'menu'; this.focusAlly = data?.focusAlly; }
 
   create(): void {
     drawPlaceholder(this, false);
@@ -20,6 +23,6 @@ export class LobbyScene extends Phaser.Scene {
       if (scope.disposed || runId !== scope.id) return;
       if (command.type === 'start-battle' && this.context.stageForBattle(command.stageId)) this.scene.start('Battle', { stageId: command.stageId });
     }));
-    this.context.bridge.emit('scene-state', { scene: 'Lobby', runId: scope.id, phase: 'ready', lobbyTab: this.tab });
+    this.context.bridge.emit('scene-state', { scene: 'Lobby', runId: scope.id, phase: 'ready', lobbyTab: this.tab, focusAlly: this.focusAlly });
   }
 }

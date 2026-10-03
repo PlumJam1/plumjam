@@ -234,7 +234,8 @@ describe('ten summon slot presentation', () => {
     model.summon(null); expect(commands).not.toHaveBeenCalled();
     model.summon('melee'); expect(commands).toHaveBeenCalledWith({ runId: scope.id, command: { type: 'summon', kind: 'melee' } });
     context.bridge.emit('battle-result', { runId: scope.id, stageId: '1-1', reward: 120, prototypeComplete: false, firstClear: true, newlyUnlockedAllies: ['technician'] });
-    expect(model.newAllies.value).toEqual([{ kind: 'technician', label: '기술직' }]);
+    expect(model.newAllies.value).toMatchObject([{ kind: 'technician', label: '기술직', role: '튼튼한 탱커', cost: 150 }]);
+    expect(model.newAllies.value[0].image).toContain('technician');
     off(); context.dispose();
   });
 });

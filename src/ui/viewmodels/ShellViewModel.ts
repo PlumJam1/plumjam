@@ -4,6 +4,9 @@ import type { SceneState, SceneCommand } from '../../core/GameBridge';
 import type { SceneScope } from '../../core/SceneLifetimeManager';
 import { createBattleViewModel } from './BattleViewModel';
 import { createLobbyViewModel } from './LobbyViewModel';
+import { createGuideViewModel } from './GuideViewModel';
+import { ALLY_KINDS } from '../../game/battle/balance';
+import type { AllyKind } from '../../game/battle/types';
 import { createStoryViewModel } from './StoryViewModel';
 import { nextStage } from '../../game/progression/stages';
 
@@ -11,7 +14,7 @@ function createScreenViewModel(context: AppContext, scope: SceneScope, initial: 
   const effects = effectScope(true);
   const state = shallowRef(initial);
   const battleModel = createBattleViewModel(context, scope, showIntro);
-  const lobbyModel = createLobbyViewModel(context, scope, initial.lobbyTab ?? 'menu');
+  const lobbyModel = createLobbyViewModel(context, scope, initial.lobbyTab ?? 'menu', initial.focusAlly);
   const model = effects.run(() => {
     const isBattle = computed(() => state.value.scene === 'Battle');
     const isPaused = computed(() => state.value.phase === 'paused');
@@ -19,7 +22,7 @@ function createScreenViewModel(context: AppContext, scope: SceneScope, initial: 
       ? `${state.value.stageId} · ${isPaused.value ? '일시정지' : battleModel.ended.value ? '전투 종료' : battleModel.time.value}`
       : '출근 전 준비실');
     const command = (value: SceneCommand) => {
-      if (!scope.disposed && !blocked()) context.bridge.emit('scene-command', { runId: scope.id, command: value });
+      if (!scope.disposed && !blocked() && context.bridge.sceneState?.runId === scope.id) context.bridge.emit('scene-command', { runId: scope.id, command: value });
     };
     return {
       ...battleModel, ...lobbyModel, statusLabel,
@@ -29,7 +32,7 @@ function createScreenViewModel(context: AppContext, scope: SceneScope, initial: 
       returnLobby: () => command({ type: 'return-lobby' }),
       openStages: () => command({ type: 'return-lobby', tab: 'stages' }),
       openTraining: () => command({ type: 'return-lobby', tab: 'training' }),
-      openFormation: () => command({ type: 'return-lobby', tab: 'formation' }),
+      openFormation: (focusAlly?: AllyKind) => { if (focusAlly === undefined || ALLY_KINDS.includes(focusAlly) && context.profile.snapshot().unlockedAllies.includes(focusAlly)) command({ type: 'return-lobby', tab: 'formation', ...(focusAlly ? { focusAlly } : {}) }); },
       openShop: () => command({ type: 'return-lobby', tab: 'shop' }),
       nextStage: () => { const next = nextStage(state.value.stageId ?? ''); if (next && context.stageForBattle(next.id)) command({ type: 'start-battle', stageId: next.id }); },
       restartBattle: () => command({ type: 'restart-battle' }),
@@ -43,6 +46,8 @@ function createScreenViewModel(context: AppContext, scope: SceneScope, initial: 
 export function createShellViewModel(context: AppContext) {
   let seenBattleIntro = false;
   const story = createStoryViewModel(context);
+  const guide = createGuideViewModel(context, () => story.hasOverlay.value);
+  const blocked = () => story.hasOverlay.value || guide.isOpen.value;
   const assetNotice = shallowRef('');
   const unsubscribeAssets = context.bridge.subscribe('asset-notice', notice => { assetNotice.value = notice; });
   const titleVisible = shallowRef(true);
@@ -52,12 +57,12 @@ export function createShellViewModel(context: AppContext) {
     else {
       const scope = context.lifetimes.getScope(state.runId);
       if (scope && !scope.disposed) {
-        screen.value = createScreenViewModel(context, scope, state, state.scene === 'Battle' && !seenBattleIntro, () => story.hasOverlay.value);
+        screen.value = createScreenViewModel(context, scope, state, state.scene === 'Battle' && !seenBattleIntro, blocked);
         if (state.scene === 'Battle') seenBattleIntro = true;
       }
     }
   };
   const unsubscribe = context.bridge.subscribe('scene-state', receive);
   if (context.bridge.sceneState) receive(context.bridge.sceneState);
-  return { story, assetNotice: readonly(assetNotice), screen: shallowReadonly(screen), titleVisible: readonly(titleVisible), enterLobby: () => { if (!story.hasOverlay.value && context.bridge.sceneState?.scene === 'Lobby' && context.bridge.sceneState.phase === 'ready') titleVisible.value = false; }, showTitle: () => { if (!story.hasOverlay.value) titleVisible.value = true; }, dispose: () => { story.dispose(); unsubscribe(); unsubscribeAssets(); } };
+  return { story, guide, assetNotice: readonly(assetNotice), screen: shallowReadonly(screen), titleVisible: readonly(titleVisible), enterLobby: () => { if (!blocked() && context.bridge.sceneState?.scene === 'Lobby' && context.bridge.sceneState.phase === 'ready') titleVisible.value = false; }, showTitle: () => { if (!blocked()) titleVisible.value = true; }, dispose: () => { guide.dispose(); story.dispose(); unsubscribe(); unsubscribeAssets(); } };
 }

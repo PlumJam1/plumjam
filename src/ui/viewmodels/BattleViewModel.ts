@@ -1,3 +1,5 @@
+import { assetUrl, characterArt } from '../../game/presentation/assets';
+import { acknowledgeTutorialStep, initialTutorialProgress, observeTutorial, tutorialStep, type IntroGuide } from '../tutorialProgress';
 import { HERO_NAME } from '../../game/presentation/characterNames';
 import type { BattleViewMode } from '../../game/presentation/battleCamera';
 import { computed, effectScope, readonly, shallowRef } from 'vue';
@@ -38,6 +40,14 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
     if (value.runId === scope.id && (value.mode === 'close' || value.mode === 'overview') && activePageScope()) viewMode.value = value.mode;
   }));
   const intro = shallowRef(showIntro);
+  const tutorial = shallowRef(initialTutorialProgress());
+  const guideOwnerCurrent = shallowRef(!context.bridge.sceneState || context.bridge.sceneState.scene === 'Battle' && context.bridge.sceneState.runId === scope.id);
+  scope.defer(context.bridge.subscribe('scene-state', state => {
+    if (!scope.disposed) guideOwnerCurrent.value = state.scene === 'Battle' && state.runId === scope.id;
+  }));
+  scope.defer(() => { intro.value = false; });
+  const profileLevels = shallowRef(context.profile.snapshot().levels);
+  scope.defer(context.profile.subscribe(profile => { if (!scope.disposed) profileLevels.value = profile.levels; }));
   const reward = shallowRef(0);
   const newAllies = shallowRef<readonly AllyKind[]>([]);
   const prototypeComplete = shallowRef(false);
@@ -79,6 +89,7 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
   scope.defer(context.bridge.subscribe('battle-snapshot', (snapshot) => {
     if (scope.disposed || snapshot.runId !== scope.id) return;
     battle.value = snapshot;
+    if (intro.value && guideOwnerCurrent.value) tutorial.value = observeTutorial(tutorial.value, snapshot);
     if (snapshot.status !== 'active') { clearPreview(); clearDetail(); }
     if (snapshot.defeatedBossCount > defeatedBossCount) {
       bossNotice.value = 'GPT-4o 격파!';
@@ -131,6 +142,24 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
     }));
     const skills = computed(() => (battle.value?.equippedSkills ?? []).flatMap(kind => allSkills.value.filter(skill => skill.kind === kind)));
     const primarySkill = computed(() => skills.value[0] ?? null);
+    const introGuide = computed<IntroGuide | null>(() => {
+      if (!intro.value || !guideOwnerCurrent.value || !activePageScope() || battle.value?.status !== 'active') return null;
+      const step = tutorialStep(tutorial.value, !!primarySkill.value);
+      const common = { step: Math.min(step, 4) as 1 | 2 | 3 | 4, progress: (step - 1) / 4, completed: step === 5 };
+      if (step === 1) {
+        const visible = visibleUnits.value.find(unit => unit.kind);
+        return { ...common, title: '동료부터 소환하자', key: visible?.key ?? 'Q',
+          body: visible ? `아래 병력 카드나 ${visible.key}키로 동료를 소환해. 병력이 앞에서 전선을 지켜줘.` : 'Q로 다른 병력 페이지를 열고 채워진 카드를 골라 소환해.' };
+      }
+      if (step === 2) return { ...common, title: '여유가 생기면 투자', key: 'U', body: 'U나 왼쪽 투자 버튼으로 수입을 늘릴 수 있어. 소환할 자금을 남기고, 당장 필요 없으면 다음 안내로 넘어가도 돼.' };
+      if (step === 3) {
+        const skill = primarySkill.value!;
+        const body = skill.kind === 'heal' ? '아군이 다쳤을 때 회복을 보태줘.' : skill.kind === 'overclock' ? '자금을 비축하고 소환·스킬 준비를 빠르게 할 때 써.' : '적이 사거리 안에 들어오면 병력을 지원해.';
+        return { ...common, title: `${skill.label}로 지원`, key: skill.key, body: `${skill.key}키나 오른쪽 ${skill.label} 버튼을 써. ${body} 자금과 대기시간을 함께 확인하자.` };
+      }
+      if (step === 4) return { ...common, title: '병력 뒤에서 이동하자', key: 'A/D', body: `${primarySkill.value ? '' : '장착 스킬이 없으니 병력과 이동으로 싸우자. '}A/D로 움직이고 위험하면 뒤로 물러나. 보스의 붉은 예고 구역에서 벗어나자.` };
+      return { ...common, title: '기본 안내 끝!', body: '병력 뒤에서 싸우고 위험하면 후퇴하자. 보스의 붉은 예고 구역에서 벗어나면 피해를 피할 수 있어.' };
+    });
     const skillSlots = computed(() => Array.from({ length: SKILL_SLOT_COUNT }, (_, index) => skills.value[index] ?? null));
     const speed = computed(() => battle.value?.speed ?? 1);
     const effectiveSpeed = computed(() => battle.value?.effectiveSpeed ?? speed.value);
@@ -181,10 +210,10 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
     const resultDescription = computed(() => campaignComplete.value ? `GPT-4o를 이겼어. ${CHAPTERS.length}개 챕터 · ${STAGES.length}개 스테이지를 모두 클리어했어!` : battle.value?.status === 'won' ? 'AI 데이터센터를 파괴했어. 재화로 강화하거나 다음 출근에 도전해봐.' : battle.value?.defeatReason === 'hero' ? `${HERO_NAME}가 쓰러졌어. 병력 뒤에서 전선을 도와줘.` : '아군 기지가 파괴됐어. 병력과 경제 투자 타이밍을 바꿔봐.');
     const hasNextStage = computed(() => battle.value?.status === 'won' && !!nextStage(battle.value.stageId));
     return {
-      battle: readonly(battle), feedback: readonly(feedback), intro: readonly(intro), units, visibleUnits, unitPage: readonly(unitPage), pageDisabled, viewMode: readonly(viewMode), viewModeLabel, viewDisabled, skills, allSkills, primarySkill, skillSlots, speed, effectiveSpeed, bossAssistEnabled, bossAssistActive, bossAssistLabel, speedSummary, speedDisabled, ended, danger,
+      battle: readonly(battle), feedback: readonly(feedback), intro: readonly(intro), introGuide, units, visibleUnits, unitPage: readonly(unitPage), pageDisabled, viewMode: readonly(viewMode), viewModeLabel, viewDisabled, skills, allSkills, primarySkill, skillSlots, speed, effectiveSpeed, bossAssistEnabled, bossAssistActive, bossAssistLabel, speedSummary, speedDisabled, ended, danger,
       boss, bossNotice: readonly(bossNotice), waveNotice, heroBuffs, preview, previewDescription, previewTargets,
       economyDisabled, economyDescription, economyReason, economyState, controlDetail, time, resultTitle, resultDescription,
-      newAllies: computed(() => newAllies.value.map(kind => ({ kind, label: UNIT_DEFINITIONS[kind].label }))), reward: readonly(reward), prototypeComplete: campaignComplete, hasNextStage,
+      newAllies: computed(() => newAllies.value.map(kind => ({ kind, label: UNIT_DEFINITIONS[kind].label, image: assetUrl(characterArt(kind, profileLevels.value[kind])), role: ALLY_ROLES[kind].role, description: ALLY_ROLES[kind].description, cost: UNIT_DEFINITIONS[kind].cost! }))), reward: readonly(reward), prototypeComplete: campaignComplete, hasNextStage,
       setViewMode: publishView,
       toggleViewMode: () => publishView(viewMode.value === 'close' ? 'overview' : 'close'),
       setUnitPage: (page: 0 | 1) => { if (activePageScope() && (page === 0 || page === 1)) context.bridge.emit('battle-page', { runId: scope.id, page }); },
@@ -216,6 +245,9 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
         if (enabled && battle.value?.status === 'active') detailSources.set(source, { type: 'economy' });
         else if (detailSources.get(source)?.type === 'economy') detailSources.delete(source);
         publishDetail();
+      },
+      nextIntroGuide: () => {
+        if (intro.value && activePageScope() && battle.value?.status === 'active') tutorial.value = acknowledgeTutorialStep(tutorial.value, !!primarySkill.value);
       },
       dismissIntro: () => { intro.value = false; },
       summon: (kind: AllyKind | null) => { if (kind !== null) command({ type: 'summon', kind }); },

@@ -9,12 +9,13 @@ export interface SceneState {
   readonly runId: number;
   readonly phase: ScenePhase;
   readonly stageId?: string;
+  readonly focusAlly?: AllyKind;
   readonly lobbyTab?: 'menu' | 'stages' | 'training' | 'shop' | 'formation';
 }
 
 export type SceneCommand =
   | { type: 'start-battle'; stageId: string }
-  | { type: 'return-lobby'; tab?: 'menu' | 'stages' | 'training' | 'shop' | 'formation' }
+  | { type: 'return-lobby'; focusAlly?: AllyKind; tab?: 'menu' | 'stages' | 'training' | 'shop' | 'formation' }
   | { type: 'restart-battle' }
   | { type: 'toggle-pause' };
 

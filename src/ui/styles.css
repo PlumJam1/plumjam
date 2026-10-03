@@ -603,3 +603,14 @@ body { min-width: 800px; }
 .pause-assist button[aria-pressed=true] { background: var(--gold); color: var(--ink); }
 .pause-banner #pause-description { margin-bottom: 12px; max-width: 92%; }
 .empty-primary { background: var(--ui-disabled-top); color: var(--ui-on-disabled); box-shadow: none; }
+
+/* Release reading/navigation remains secondary to the three base actions and battle dock. */
+.progressive-briefing { font-size: 12px; }
+.progressive-briefing button { font-size: 12px; }
+.new-ally-cards { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; max-width: 88%; margin: 0 0 12px; }
+.new-ally-card { display: grid; grid-template-columns: 48px minmax(0,1fr); align-items: center; text-align: left; gap: 3px 8px; min-width: 220px; max-width: 280px; padding: 6px 10px; }
+.new-ally-card img { grid-row: 1 / 4; width: 48px; height: 60px; object-fit: contain; image-rendering: pixelated; }
+.new-ally-card strong { font-size: 14px; }.new-ally-card small,.new-ally-card span { font-size: 12px; }.new-ally-card span { color: #75441b; }
+.result-banner { overflow-y: auto; scroll-padding: 18px; }
+.result-banner .campaign-clear { color: var(--gold); font-weight: 900; }
+@media(max-height:650px) { .pause-banner,.result-banner { justify-content: flex-start; padding-top: 12px; } .result-headline { margin-top: 0; } }

@@ -6,3 +6,6 @@ coverage/
 
 # Project-local UI Pro Max installer bundle; reproduce with uipro init.
 .agents/skills/
+
+# Portable gamejam builds and backup ZIPs.
+/artifacts/gamejam/

@@ -54,7 +54,7 @@ export class BattleScene extends Phaser.Scene {
     }));
     scope.defer(this.context.bridge.subscribe('scene-command', ({ runId, command }) => {
       if (scope.disposed || runId !== scope.id) return;
-      if (command.type === 'return-lobby') this.scene.start('Lobby', { tab: command.tab });
+      if (command.type === 'return-lobby') this.scene.start('Lobby', { tab: command.tab, focusAlly: command.focusAlly });
       else if (command.type === 'restart-battle') this.scene.restart({ stageId: this.stageId });
       else if (command.type === 'start-battle' && session.snapshot().status === 'won' && this.context.stageForBattle(command.stageId)) this.scene.restart({ stageId: command.stageId });
       else if (command.type === 'toggle-pause') {

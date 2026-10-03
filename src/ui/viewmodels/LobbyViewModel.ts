@@ -8,7 +8,7 @@ import { CHAPTERS, getChapter, STAGES } from '../../game/progression/stages';
 import { ALLY_KINDS, ALLY_ROLES, ALLY_UNLOCK_STAGES, FORMATION_SIZE, HERO, SKILLS, SKILL_UNLOCK_COSTS, SKILL_SLOT_COUNT, SONG, SUPPORT, UNIT_DEFINITIONS, WATER } from '../../game/battle/balance';
 import type { AllyKind, CharacterKind, SkillKind } from '../../game/battle/types';
 const growth = { hero: `맥북과 능숙해진 ${HERO_NAME}`, ...Object.fromEntries(ALLY_KINDS.map(kind => [kind, ALLY_ROLES[kind].evolution])) } as Record<CharacterKind, string>;
-export function createLobbyViewModel(context: AppContext, scope: SceneScope, initialTab: 'menu' | 'stages' | 'training' | 'shop' | 'formation') {
+export function createLobbyViewModel(context: AppContext, scope: SceneScope, initialTab: 'menu' | 'stages' | 'training' | 'shop' | 'formation', focusAlly?: AllyKind) {
   const effects = effectScope(true);
   const profile = shallowRef(context.profile.snapshot());
   const tab = shallowRef(initialTab);
@@ -19,6 +19,12 @@ export function createLobbyViewModel(context: AppContext, scope: SceneScope, ini
   const selectedCharacterKind = shallowRef<CharacterKind>('hero');
   const shiftSelection = <T extends string>(values: readonly T[], current: T, offset: number): T => values[(values.indexOf(current) + offset % values.length + values.length) % values.length];
   const currentLobby = () => !scope.disposed && context.bridge.sceneState?.scene === 'Lobby' && context.bridge.sceneState.runId === scope.id;
+  // Route hints select a preview/slot only; the user still confirms the saved formation.
+  if (initialTab === 'formation' && currentLobby() && focusAlly && ALLY_KINDS.includes(focusAlly) && profile.value.unlockedAllies.includes(focusAlly)) {
+    selectedAllyKind.value = focusAlly;
+    const existing = profile.value.equippedAllies.indexOf(focusAlly), empty = profile.value.equippedAllies.indexOf(null);
+    selectedSlot.value = existing >= 0 ? existing : empty >= 0 ? empty : 0;
+  }
   const selectedStageId = shallowRef(context.bridge.sceneState?.stageId ?? profile.value.unlockedStages.at(-1) ?? '1-1');
   const rememberedStages = new Map<number, string>();
   const rememberStage = (id: string) => { const chapter = getChapter(id); if (chapter) rememberedStages.set(chapter.id, id); };

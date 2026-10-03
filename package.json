@@ -10,7 +10,8 @@
     "test:watch": "vitest",
     "build": "npm run typecheck && vite build",
     "preview": "vite preview --host 127.0.0.1",
-    "balance": "node scripts/balance-audit.mjs"
+    "balance": "node scripts/balance-audit.mjs",
+    "package:jam": "npm run typecheck && node scripts/package-jam.mjs"
   },
   "dependencies": {
     "phaser": "4.2.1",
