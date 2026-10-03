@@ -3,6 +3,7 @@ import type { AppContext } from '../../core/AppContext';
 import type { SceneScope } from '../../core/SceneLifetimeManager';
 import { ECONOMY, SKILLS, UNIT_DEFINITIONS } from '../../game/battle/balance';
 import type { AllyKind, BattleCommand, BattleSnapshot, SkillKind } from '../../game/battle/types';
+import { nextStage } from '../../game/progression/stages';
 
 /** View-independent display decisions; the session remains authoritative for every command. */
 export function createBattleViewModel(context: AppContext, scope: SceneScope, showIntro: boolean) {
@@ -10,6 +11,11 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
   const battle = shallowRef<BattleSnapshot | null>(null);
   const feedback = shallowRef('');
   const intro = shallowRef(showIntro);
+  const reward = shallowRef(0);
+  const prototypeComplete = shallowRef(false);
+  scope.defer(context.bridge.subscribe('battle-result', value => {
+    if (!scope.disposed && value.runId === scope.id) { reward.value = value.reward; prototypeComplete.value = value.prototypeComplete; }
+  }));
   let feedbackTimer: ReturnType<typeof setTimeout> | undefined;
   scope.defer(() => { if (feedbackTimer) clearTimeout(feedbackTimer); });
   scope.defer(context.bridge.subscribe('battle-snapshot', (snapshot) => {
@@ -60,11 +66,13 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
       const seconds = Math.floor(battle.value?.elapsed ?? 0);
       return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
     });
-    const resultTitle = computed(() => battle.value?.status === 'won' ? '오늘의 출근을 지켰다!' : '전선을 지키지 못했다.');
-    const resultDescription = computed(() => battle.value?.status === 'won' ? 'AI 데이터센터를 파괴했어. 다시 출근해서 다른 전략도 시험해봐.' : battle.value?.defeatReason === 'hero' ? '개발자가 쓰러졌어. 병력 뒤에서 전선을 도와줘.' : '아군 기지가 파괴됐어. 병력과 경제 투자 타이밍을 바꿔봐.');
+    const resultTitle = computed(() => prototypeComplete.value ? '마지막 출근까지 지켰다!' : battle.value?.status === 'won' ? '오늘의 출근을 지켰다!' : '전선을 지키지 못했다.');
+    const resultDescription = computed(() => prototypeComplete.value ? 'GPT-4o를 이겼어. 프로토타입의 5개 스테이지를 모두 클리어했어!' : battle.value?.status === 'won' ? 'AI 데이터센터를 파괴했어. 재화로 강화하거나 다음 출근에 도전해봐.' : battle.value?.defeatReason === 'hero' ? '개발자가 쓰러졌어. 병력 뒤에서 전선을 도와줘.' : '아군 기지가 파괴됐어. 병력과 경제 투자 타이밍을 바꿔봐.');
+    const hasNextStage = computed(() => battle.value?.status === 'won' && !!nextStage(battle.value.stageId));
     return {
       battle: readonly(battle), feedback: readonly(feedback), intro: readonly(intro), units, skills, ended, danger,
       economyDisabled, economyDescription, economyReason, time, resultTitle, resultDescription,
+      reward: readonly(reward), prototypeComplete: readonly(prototypeComplete), hasNextStage,
       dismissIntro: () => { intro.value = false; },
       summon: (kind: AllyKind) => command({ type: 'summon', kind }),
       useSkill: (skill: SkillKind) => command({ type: 'skill', skill }),

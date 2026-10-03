@@ -9,6 +9,21 @@ const fakeScene = () => ({ events: new EventEmitter() }) as unknown as Phaser.Sc
 afterEach(() => vi.useRealTimers());
 
 describe('BattleViewModel scoped MVVM', () => {
+  it('shows per-run rewards and the final completion without inventing a sixth stage', () => {
+    const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
+    const model = createBattleViewModel(context, scope, false);
+    const session = new BattleSession({ runId: scope.id });
+    context.bridge.emit('battle-result', { runId: scope.id + 1, stageId: '1-5', reward: 360, prototypeComplete: true });
+    expect(model.reward.value).toBe(0);
+    context.bridge.emit('battle-result', { runId: scope.id, stageId: '1-1', reward: 120, prototypeComplete: false });
+    context.bridge.emit('battle-snapshot', { ...session.snapshot(), status: 'won' });
+    expect(model.reward.value).toBe(120); expect(model.hasNextStage.value).toBe(true);
+    context.bridge.emit('battle-result', { runId: scope.id, stageId: '1-5', reward: 360, prototypeComplete: true });
+    context.bridge.emit('battle-snapshot', { ...session.snapshot(), stageId: '1-5', status: 'won' });
+    expect(model.hasNextStage.value).toBe(false);
+    expect(model.resultDescription.value).toContain('5개 스테이지');
+    context.dispose();
+  });
   it('derives costs/cooldown/reasons and sends click commands through the same run-scoped bridge', () => {
     const context = new AppContext();
     const scope = context.lifetimes.begin(fakeScene());

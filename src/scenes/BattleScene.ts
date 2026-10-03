@@ -3,7 +3,6 @@ import type { AppContext } from '../core/AppContext';
 import type { SceneScope } from '../core/SceneLifetimeManager';
 import { BattleSession } from '../game/BattleSession';
 import { PhaserBattleRenderer } from '../game/PhaserBattleRenderer';
-import { DEFAULT_STAGE } from '../game/battle/balance';
 import type { BattleCommand } from '../game/battle/types';
 import { drawPlaceholder } from './drawPlaceholder';
 
@@ -12,18 +11,24 @@ export class BattleScene extends Phaser.Scene {
   private stageId = '1-1';
   private session!: BattleSession;
   private battleRenderer!: PhaserBattleRenderer;
+  private receipt = '';
+  private resultPublished = false;
 
   constructor(private readonly context: AppContext) { super('Battle'); }
 
   init(data?: { stageId?: string }): void {
     this.scope = this.context.lifetimes.begin(this);
     this.stageId = data?.stageId ?? '1-1';
+    this.receipt = this.context.newBattleReceipt();
+    this.resultPublished = false;
   }
 
   create(): void {
+    const stage = this.context.stageForBattle(this.stageId);
+    if (!stage) { this.scene.start('Lobby'); return; }
     drawPlaceholder(this, true);
     const scope = this.scope;
-    this.session = new BattleSession({ runId: scope.id, stage: { ...DEFAULT_STAGE, id: this.stageId } });
+    this.session = new BattleSession({ runId: scope.id, stage, levels: this.context.profile.snapshot().levels });
     const session = this.session;
     this.battleRenderer = new PhaserBattleRenderer(this);
     const battleRenderer = this.battleRenderer;
@@ -37,8 +42,9 @@ export class BattleScene extends Phaser.Scene {
     }));
     scope.defer(this.context.bridge.subscribe('scene-command', ({ runId, command }) => {
       if (scope.disposed || runId !== scope.id) return;
-      if (command.type === 'return-lobby') this.scene.start('Lobby');
+      if (command.type === 'return-lobby') this.scene.start('Lobby', { tab: command.tab });
       else if (command.type === 'restart-battle') this.scene.restart({ stageId: this.stageId });
+      else if (command.type === 'start-battle' && session.snapshot().status === 'won' && this.context.stageForBattle(command.stageId)) this.scene.restart({ stageId: command.stageId });
       else if (command.type === 'toggle-pause') {
         if (session.snapshot().status === 'won' || session.snapshot().status === 'lost') return;
         if (this.scene.isPaused()) this.scene.resume();
@@ -98,6 +104,11 @@ export class BattleScene extends Phaser.Scene {
 
   private publishBattle(): void {
     const snapshot = this.session.snapshot();
+    if (!this.resultPublished && (snapshot.status === 'won' || snapshot.status === 'lost')) {
+      this.resultPublished = true;
+      const reward = snapshot.status === 'won' ? this.context.profile.rewardWin(this.receipt, this.stageId) : 0;
+      this.context.bridge.emit('battle-result', { runId: this.scope.id, stageId: this.stageId, reward, prototypeComplete: snapshot.status === 'won' && this.stageId === '1-5' });
+    }
     this.battleRenderer.render(snapshot);
     this.context.bridge.emit('battle-snapshot', snapshot);
   }

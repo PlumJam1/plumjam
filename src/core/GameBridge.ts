@@ -8,11 +8,12 @@ export interface SceneState {
   readonly runId: number;
   readonly phase: ScenePhase;
   readonly stageId?: string;
+  readonly lobbyTab?: 'menu' | 'stages' | 'training';
 }
 
 export type SceneCommand =
   | { type: 'start-battle'; stageId: string }
-  | { type: 'return-lobby' }
+  | { type: 'return-lobby'; tab?: 'menu' | 'stages' | 'training' }
   | { type: 'restart-battle' }
   | { type: 'toggle-pause' };
 
@@ -27,6 +28,7 @@ export interface GameBridgeEvents {
   'battle-command': { runId: number; command: BattleCommand };
   'battle-snapshot': BattleSnapshot;
   'battle-feedback': { runId: number; result: CommandResult };
+  'battle-result': { runId: number; stageId: string; reward: number; prototypeComplete: boolean };
 }
 
 export type Unsubscribe = () => void;

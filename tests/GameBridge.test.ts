@@ -7,6 +7,24 @@ import { AppContext } from '../src/core/AppContext';
 import { createShellViewModel } from '../src/ui/viewmodels/ShellViewModel';
 
 describe('GameBridge and scene ViewModels', () => {
+  it('routes result stage selection and training separately from the preparation menu, scoped to the current run', () => {
+    const context = new AppContext();
+    const scope = context.lifetimes.begin({ events: new EventEmitter() } as unknown as Phaser.Scene);
+    const shell = createShellViewModel(context);
+    context.bridge.emit('scene-state', { scene: 'Battle', runId: scope.id, stageId: '1-1', phase: 'ready' });
+    const listener = vi.fn();
+    context.bridge.subscribe('scene-command', listener);
+    const screen = shell.screen.value!;
+    screen.openStages();
+    expect(listener).toHaveBeenLastCalledWith({ runId: scope.id, command: { type: 'return-lobby', tab: 'stages' } });
+    screen.openTraining();
+    expect(listener).toHaveBeenLastCalledWith({ runId: scope.id, command: { type: 'return-lobby', tab: 'training' } });
+    screen.returnLobby();
+    expect(listener).toHaveBeenLastCalledWith({ runId: scope.id, command: { type: 'return-lobby' } });
+    scope.dispose(); screen.openStages(); screen.openTraining(); screen.returnLobby();
+    expect(listener).toHaveBeenCalledTimes(3);
+    shell.dispose(); context.dispose();
+  });
   it('returns idempotent unsubscriptions and retains the latest screen state', () => {
     const bridge = new GameBridge();
     const listener = vi.fn();

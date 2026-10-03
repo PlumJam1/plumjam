@@ -27,6 +27,8 @@ export interface StageDefinition {
   humanBaseHp: number;
   aiBaseHp: number;
   initialGold: number;
+  clearReward?: number;
+  theme?: 'early' | 'mid' | 'boss';
   spawns: readonly SpawnEvent[];
   /** Optional repeating pressure after authored introductory waves. */
   repeat?: { startAt: number; interval: number; kinds: readonly EnemyKind[] };

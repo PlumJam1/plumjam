@@ -1,5 +1,6 @@
 import { DEFAULT_STAGE, ECONOMY, FIELD, HERO, SKILLS, SUPPORT, UNIT_DEFINITIONS } from './battle/balance';
 import type { AllyKind, BaseState, BattleCommand, BattleSnapshot, BattleStatus, CharacterKind, CommandResult, DefeatReason, EffectKind, EffectState, HeroState, ProjectileState, SkillKind, StageDefinition, Team, UnitDefinition, UnitKind, UnitState } from './battle/types';
+import { levelMultiplier } from './progression/ProfileService';
 
 export interface BattleOptions {
   runId: number;
@@ -48,6 +49,7 @@ export class BattleSession {
     this.hero = { id: 1, x: FIELD.heroStartX, hp, maxHp: hp, level: heroLevel, hitFlash: 0, healFlash: 0, buffs: { combat: 0, speed: 0 } };
     this.humanBase = { id: 2, team: 'human', x: FIELD.humanBaseX, hp: this.stage.humanBaseHp, maxHp: this.stage.humanBaseHp };
     this.aiBase = { id: 3, team: 'ai', x: FIELD.aiBaseX, hp: this.stage.aiBaseHp, maxHp: this.stage.aiBaseHp };
+    this.spawnScheduled();
   }
 
   dispatch(command: BattleCommand): CommandResult {
@@ -262,5 +264,5 @@ export class BattleSession {
     }
   }
 
-  private levelMultiplier(level: number): number { return 1 + (level - 1) * 0.15; }
+  private levelMultiplier(level: number): number { return levelMultiplier(level); }
 }

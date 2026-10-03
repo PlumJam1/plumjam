@@ -18,6 +18,7 @@ const ended = computed(() => screen.value?.ended.value ?? false);
 const economyDisabled = computed(() => screen.value?.economyDisabled.value ?? true);
 const danger = computed(() => screen.value?.danger.value ?? false);
 const statusLabel = computed(() => screen.value?.statusLabel.value ?? '로딩 중');
+const titleVisible = viewModel.titleVisible;
 
 onMounted(() => { if (gameParent.value) game.value = markRaw(createGame(gameParent.value, context)); });
 onBeforeUnmount(() => {
@@ -38,7 +39,8 @@ onBeforeUnmount(() => {
       <div class="status-bar">
         <span class="human-label">HUMAN / 서울과기대</span>
         <span>{{ statusLabel }}</span>
-        <span class="ai-label">AI / DATA CENTER</span>
+        <span v-if="isBattle" class="ai-label">AI / DATA CENTER</span>
+        <span v-else class="human-label">육성 재화 {{ screen?.profile.value.xp ?? 0 }} XP</span>
       </div>
       <div v-if="isBattle && battle" class="battle-stats" aria-label="전투 상태">
         <span>기지 <strong>{{ Math.ceil(battle.humanBase.hp) }} / {{ battle.humanBase.maxHp }}</strong></span>
@@ -46,7 +48,43 @@ onBeforeUnmount(() => {
         <span class="money">자금 <strong>{{ Math.floor(battle.gold) }} / {{ battle.goldCap }}</strong> <small>+{{ battle.income }}/초</small></span>
         <span>적 기지 <strong>{{ Math.ceil(battle.aiBase.hp) }} / {{ battle.aiBase.maxHp }}</strong></span>
       </div>
-      <div ref="gameParent" class="game-canvas" aria-label="게임 전장"></div>
+      <div class="field-wrapper">
+        <div ref="gameParent" class="game-canvas" aria-label="게임 전장"></div>
+        <div v-if="!isBattle && titleVisible" class="title-screen">
+          <span class="eyebrow">HUMANS VS AUTOMATION</span>
+          <h2>인간의<br /><em>마지막 출근</em></h2>
+          <p>졸업은 했는데, 세상이 업데이트됐다.</p>
+          <img class="title-hero" src="/assets/generated/hero.png" alt="실전이 낯선 컴공 졸업생" />
+          <button class="primary title-start" :disabled="state?.scene !== 'Lobby'" @click="viewModel.enterLobby()">출근 시작</button>
+          <small>PC · A/D 이동 · 숫자키 병력 · J/K/L 스킬</small>
+        </div>
+        <div v-else-if="!isBattle && screen?.lobbyTab.value === 'menu'" class="lobby-home">
+          <div class="mission-nav"><button class="primary" @click="screen?.setLobbyTab('stages')">전투 시작!</button><button class="primary" @click="screen?.setLobbyTab('training')">캐릭터 강화</button></div>
+          <div class="hero-welcome"><p>수업은 열심히 들었는데...<br />실전도 출근도 지금부터다!</p><img :src="screen.profile.value.levels.hero >= 5 ? '/assets/generated/hero-lv5.png' : '/assets/generated/hero.png'" alt="주인공 개발자" /></div>
+        </div>
+        <div v-else-if="!isBattle && screen?.lobbyTab.value === 'stages'" class="stage-map-ui" :style="{ backgroundImage: `linear-gradient(#142337b0,#172337bb),url('/assets/generated/bg-${screen.selectedStage.value.theme}.png')` }">
+        <div class="selected-stage-preview">
+          <span class="eyebrow">{{ screen.selectedStage.value.theme === 'boss' ? 'BOSS INCOMING' : 'NEXT SHIFT' }}</span>
+          <h2>{{ screen.selectedStage.value.id }} · {{ screen.selectedStage.value.label }}</h2>
+          <p>{{ screen.selectedStage.value.enemies }}</p>
+          <strong>클리어 보상 {{ screen.selectedStage.value.clearReward }} XP</strong>
+          <small v-if="screen.selectedStage.value.locked">앞 스테이지를 클리어하면 출근할 수 있어.</small>
+        </div>
+        <div class="stage-grid stage-route">
+          <button v-for="stage in screen.stages.value" :key="stage.id" class="stage-card" :class="{ boss: stage.theme === 'boss', selected: stage.id === screen.selectedStageId.value }" :aria-pressed="stage.id === screen.selectedStageId.value" @click="screen.selectStage(stage.id)">
+            <span class="stage-number">{{ stage.id }}</span><small>{{ stage.locked ? '잠김' : stage.cleared ? 'CLEAR · 재도전' : '출근 가능' }}</small>
+          </button>
+        </div>
+        </div>
+        <div v-else-if="!isBattle && screen?.lobbyTab.value === 'training'" class="training-grid training-overlay">
+          <article v-for="character in screen?.characters.value" :key="character.kind" class="training-card">
+            <div class="character-heading"><img :src="character.image" alt="" /><div><h3>{{ character.label }}</h3><span>Lv.{{ character.level }} / 10 · {{ character.evolved ? '성장 외형' : '기본 외형' }}</span></div></div>
+            <p>HP {{ character.hp }} <span v-if="character.cost !== null">→ {{ character.nextHp }}</span> · {{ character.statLabel }} {{ character.stat }} <span v-if="character.cost !== null">→ {{ character.nextStat }}</span></p>
+            <div class="growth-preview"><img :src="character.preview" alt="레벨 5 성장 외형 미리보기" /><span>Lv.5 · {{ character.growth }}</span></div>
+            <button :disabled="character.disabled || state?.scene !== 'Lobby'" class="primary" @click="screen?.upgradeCharacter(character.kind)">{{ character.reason }}</button>
+          </article>
+        </div>
+      </div>
       <div v-if="paused" class="pause-banner" role="dialog" aria-label="일시정지">
         <span class="eyebrow">COFFEE BREAK</span><h2>숨 고르고 다시 출근하자.</h2>
         <p>시간 · 자금 · 스킬 준비가 모두 멈췄어.</p>
@@ -57,8 +95,13 @@ onBeforeUnmount(() => {
         <span class="eyebrow">{{ battle?.status === 'won' ? 'MISSION COMPLETE' : 'SHIFT ENDED' }}</span>
         <h2>{{ screen?.resultTitle.value }}</h2>
         <p>{{ screen?.resultDescription.value }}</p>
-        <button class="primary" @click="screen?.restartBattle()">다시 도전</button>
-        <button @click="screen?.returnLobby()">준비실로</button>
+        <p class="reward-line">획득 육성 재화 <strong>+{{ screen?.reward.value ?? 0 }} XP</strong></p>
+        <div class="result-actions">
+        <button v-if="screen?.hasNextStage.value" class="primary" @click="screen?.nextStage()">다음 출근</button>
+        <button :class="{ primary: !screen?.hasNextStage.value }" @click="screen?.restartBattle()">다시 도전</button>
+        <button @click="screen?.openTraining()">캐릭터 육성</button>
+        <button @click="screen?.openStages()">스테이지 선택</button>
+        </div>
       </div>
       <section v-if="isBattle && battle" class="battle-controls">
         <div class="action-grid">
@@ -94,15 +137,16 @@ onBeforeUnmount(() => {
           </div>
         </div>
       </section>
-      <section v-else class="control-panel">
-        <div class="briefing">
-          <span class="eyebrow">MISSION BRIEFING</span>
-          <h2>졸업은 했는데, 세상이 업데이트됐다.</h2>
-          <p>수업은 열심히 들었다. 실전은 지금부터. AI에게 마지막 출근까지 빼앗길 순 없다.</p>
+      <section v-else-if="!titleVisible" class="lobby-panel">
+        <div class="lobby-top">
+          <div class="lobby-tabs" role="tablist" aria-label="준비실">
+            <button role="tab" :aria-selected="screen?.lobbyTab.value === 'menu'" @click="screen?.setLobbyTab('menu')">준비실</button>
+            <button role="tab" :aria-selected="screen?.lobbyTab.value === 'stages'" @click="screen?.setLobbyTab('stages')">출근 경로</button>
+            <button role="tab" :aria-selected="screen?.lobbyTab.value === 'training'" @click="screen?.setLobbyTab('training')">캐릭터 육성</button>
+          </div>
+          <button class="mute-toggle" @click="screen?.toggleMuted()">{{ screen?.profile.value.muted ? '음소거 중' : '소리 켜짐' }}</button>
         </div>
-        <div class="actions">
-          <button class="primary" :disabled="state?.scene !== 'Lobby'" @click="screen?.startBattle()">1-1 출근하기 <span aria-hidden="true">→</span></button>
-        </div>
+        <div class="lobby-bottom"><button @click="viewModel.showTitle()">타이틀로</button><div class="lobby-note"><span role="status">{{ screen?.upgradeFeedback.value || '반복 클리어로 재화를 모아 캐릭터를 강화하자.' }}</span><span v-if="screen?.profile.value.storageMessage" class="storage-notice" role="status">{{ screen.profile.value.storageMessage }}</span></div><button v-if="screen?.lobbyTab.value === 'stages'" class="primary deploy-button" :disabled="screen?.selectedStage.value.locked || state?.scene !== 'Lobby'" @click="screen?.startBattle(screen.selectedStage.value.id)">{{ screen?.selectedStage.value.locked ? '아직 잠긴 출근길' : `${screen?.selectedStage.value.id} 출근!` }}</button></div>
       </section>
     </section>
     <footer class="footer"><span>PC 브라우저 · 키보드 / 마우스</span><span>프로토타입 · 병력과 경제를 운영해서 데이터센터를 파괴해</span></footer>
