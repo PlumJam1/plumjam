@@ -195,3 +195,35 @@ kbd { display: inline-block; font: inherit; font-size: 9px; border: 1px solid #8
 .mission-nav button { padding: 12px 20px; }
 @media (max-height: 800px) { .app-shell { margin: 8px auto; } .masthead { height: 34px; margin-bottom: 6px; } .battle-controls { padding: 8px 12px; } .combat-detail { min-height: 18px; } .battle-help, .first-briefing { min-height: 25px; } .battle-menu { min-height: 24px; } }
 @media (min-width: 1500px) and (min-height: 900px) { .boss-hud { top: 16px; } .boss-hud > div { font-size: 13px; } .boss-hud small { font-size: 11px; } .field-notice { top: 84px; font-size: 13px; } .combat-detail { font-size: 10px; } .skill-effect { font-size: 10px; } }
+/* Five deploy slots share the same two battle rows; investment stays in the menu. */
+.expanded-actions .unit-button { grid-row: 1; grid-column: auto; }
+.compact-investment { display: flex; align-items: center; gap: 4px; padding: 5px 8px; font-size: 10px; white-space: nowrap; }
+.compact-investment small { color: #b8c8d6; font-size: 9px; font-weight: 400; }
+.formation-overlay { position: absolute; inset: 0; padding: 10px 3%; display: flex; flex-direction: column; gap: 8px; background: linear-gradient(#152337f5,#182537e8),var(--early-bg) center/cover; }
+.formation-heading { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 12px; }
+.formation-heading span { font-size: 10px; color: #b8c8d6; }
+.formation-slots { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 6px; }
+.formation-slots button { position: relative; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 3px; padding: 5px; height: 74px; font-size: 11px; }
+.formation-slots kbd { position: absolute; left: 5px; top: 4px; margin: 0; }
+.formation-slots img { height: 40px; width: 38px; object-fit: contain; image-rendering: pixelated; }
+.formation-slots button[aria-pressed=true] { border: 2px solid #efc487; background: #4a4050; }
+.formation-selection { display: flex; align-items: center; justify-content: space-between; color: #f3c586; font-size: 10px; }
+.formation-selection button { padding: 3px 8px; font-size: 10px; }
+.roster-grid { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 7px; flex: 1; min-height: 0; overflow-y: auto; }
+.roster-card { display: flex; align-items: center; padding: 7px; gap: 7px; min-height: 70px; text-align: left; }
+.roster-card img { height: 48px; width: 40px; object-fit: contain; image-rendering: pixelated; }
+.roster-card > div { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.roster-card strong { font-size: 12px; }.roster-card span,.roster-card small { font-size: 9px; color: #bacbdc; }
+.roster-card:disabled img { filter: grayscale(1); opacity: .45; }
+.deploy-summary { max-width: 520px; }.summary-edit { padding: 3px 9px; font-size: 10px; }
+.training-overlay { grid-template-columns: repeat(4,minmax(0,1fr)); align-content: start; align-items: stretch; padding: 10px 2%; overflow-y: auto; }
+.training-overlay .training-card { min-height: 145px; padding: 7px; }
+.training-overlay .character-heading { flex-direction: row; text-align: left; }
+.training-overlay .character-heading img { height: 40px; width: 38px; }
+.training-overlay .character-heading h3 { font-size: 11px; }.training-overlay .character-heading span { font-size: 9px; }
+.training-overlay .training-card p { font-size: 10px; margin: 5px 0; }
+.training-overlay .growth-preview { height: 27px; font-size: 9px; }.training-overlay .training-card button { padding: 5px; font-size: 10px; }
+.training-overlay .support-note { font-size: 9px !important; color: #f3c586; }
+.mission-nav { gap: 7px; top: 9%; }.mission-nav button { padding: 9px 12px; font-size: clamp(17px,1.9vw,25px); }
+.result-banner .unlock-line { color: #ffe1aa; font-size: 11px; }
+@media (max-height:800px) { .compact-investment small { max-width: 120px; overflow: hidden; text-overflow: ellipsis; }.formation-overlay { gap: 6px; }.formation-slots button { height: 65px; }.formation-slots img { height: 33px; }.roster-card { min-height: 64px; } }

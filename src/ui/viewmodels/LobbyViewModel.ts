@@ -4,19 +4,41 @@ import type { AppContext } from '../../core/AppContext';
 import type { SceneScope } from '../../core/SceneLifetimeManager';
 import { CHARACTERS, levelMultiplier, MAX_LEVEL, upgradeCost } from '../../game/progression/ProfileService';
 import { STAGES } from '../../game/progression/stages';
-import { HERO, SKILLS, SKILL_UNLOCK_COSTS, SUPPORT, UNIT_DEFINITIONS } from '../../game/battle/balance';
-import type { CharacterKind, SkillKind } from '../../game/battle/types';
-const growth = { hero: '맥북과 능숙해진 개발자', melee: '녹초가 된 좀비 회사원', ranged: '배가 나오고 머리가 빠진 회사원', support: '빨간 안경의 서비스직' };
-export function createLobbyViewModel(context: AppContext, scope: SceneScope, initialTab: 'menu' | 'stages' | 'training' | 'shop') {
+import { ALLY_KINDS, ALLY_ROLES, ALLY_UNLOCK_STAGES, FORMATION_SIZE, HERO, SKILLS, SKILL_UNLOCK_COSTS, SUPPORT, UNIT_DEFINITIONS } from '../../game/battle/balance';
+import type { AllyKind, CharacterKind, SkillKind } from '../../game/battle/types';
+const growth = { hero: '맥북과 능숙해진 개발자', ...Object.fromEntries(ALLY_KINDS.map(kind => [kind, ALLY_ROLES[kind].evolution])) } as Record<CharacterKind, string>;
+export function createLobbyViewModel(context: AppContext, scope: SceneScope, initialTab: 'menu' | 'stages' | 'training' | 'shop' | 'formation') {
   const effects = effectScope(true);
   const profile = shallowRef(context.profile.snapshot());
   const tab = shallowRef(initialTab);
   const upgradeFeedback = shallowRef('');
+  const selectedSlot = shallowRef(0);
+  const currentLobby = () => !scope.disposed && context.bridge.sceneState?.scene === 'Lobby' && context.bridge.sceneState.runId === scope.id;
   const selectedStageId = shallowRef('1-1');
   scope.defer(context.profile.subscribe(value => { if (!scope.disposed) profile.value = value; }));
   const model = effects.run(() => ({
     profile: readonly(profile), lobbyTab: readonly(tab), upgradeFeedback: readonly(upgradeFeedback),
-    selectedStageId: readonly(selectedStageId),
+    selectedStageId: readonly(selectedStageId), selectedSlot: readonly(selectedSlot),
+    formation: computed(() => profile.value.equippedAllies.map((kind, index) => ({ index, kind, key: String(index + 1), label: kind ? UNIT_DEFINITIONS[kind].label : '빈 칸', image: kind ? assetUrl(characterArt(kind, profile.value.levels[kind])) : null }))),
+    formationSummary: computed(() => profile.value.equippedAllies.map(kind => kind ? UNIT_DEFINITIONS[kind].label : '빈 칸').join(' · ')),
+    roster: computed(() => ALLY_KINDS.map(kind => {
+      const unlocked = profile.value.unlockedAllies.includes(kind);
+      const equippedIndex = profile.value.equippedAllies.indexOf(kind);
+      const definition = UNIT_DEFINITIONS[kind];
+      return { kind, label: definition.label, level: profile.value.levels[kind], image: assetUrl(characterArt(kind, profile.value.levels[kind])), role: ALLY_ROLES[kind].role, description: ALLY_ROLES[kind].description, cost: definition.cost, cooldown: definition.summonCooldown, unlocked, equippedIndex,
+        reason: !unlocked ? `${ALLY_UNLOCK_STAGES[kind]} 첫 클리어로 해금` : equippedIndex === selectedSlot.value ? '현재 선택 칸에 편성됨' : equippedIndex >= 0 ? `${equippedIndex + 1}번 칸과 교환` : `${selectedSlot.value + 1}번 칸에 편성`,
+      };
+    })),
+    selectSlot: (index: number) => { if (currentLobby() && Number.isInteger(index) && index >= 0 && index < FORMATION_SIZE) selectedSlot.value = index; },
+    equipAlly: (kind: AllyKind) => {
+      if (!currentLobby()) return;
+      const next = [...profile.value.equippedAllies];
+      const existing = next.indexOf(kind);
+      if (existing >= 0) next[existing] = next[selectedSlot.value];
+      next[selectedSlot.value] = kind;
+      upgradeFeedback.value = context.profile.setFormation(next).reason ?? '';
+    },
+    removeAlly: () => { if (currentLobby()) upgradeFeedback.value = context.profile.setSlot(selectedSlot.value, null).reason ?? ''; },
     selectedStage: computed(() => { const stage = STAGES.find(item => item.id === selectedStageId.value)!; return { ...stage, locked: !profile.value.unlockedStages.includes(stage.id), enemies: [...new Set(stage.spawns.map(spawn => UNIT_DEFINITIONS[spawn.kind].label))].join(' · ') }; }),
     selectStage: (id: string) => { if (!scope.disposed && STAGES.some(stage => stage.id === id)) selectedStageId.value = id; },
     stages: computed(() => STAGES.map(stage => ({ ...stage, locked: !profile.value.unlockedStages.includes(stage.id), cleared: profile.value.clearedStages.includes(stage.id) }))),
@@ -33,17 +55,19 @@ export function createLobbyViewModel(context: AppContext, scope: SceneScope, ini
       const multiplier = levelMultiplier(level);
       const nextMultiplier = levelMultiplier(Math.min(MAX_LEVEL, level + 1));
       const hp = kind === 'hero' ? HERO.hp : UNIT_DEFINITIONS[kind].hp;
-      const damage = kind === 'hero' ? SKILLS['hello-world'].damage : kind === 'support' ? SUPPORT.heal : UNIT_DEFINITIONS[kind].damage;
+      const damage = kind === 'hero' ? SKILLS['hello-world'].damage : kind === 'counselor' ? SUPPORT.heal : UNIT_DEFINITIONS[kind].damage;
+      const unlocked = kind === 'hero' || profile.value.unlockedAllies.includes(kind);
       const cost = upgradeCost(level);
       return { kind, label: kind === 'hero' ? '주인공 개발자' : UNIT_DEFINITIONS[kind].label, level, cost,
         evolved: level >= 5, growth: growth[kind], image: assetUrl(characterArt(kind, level)), preview: assetUrl(characterArt(kind, 5)),
         hp: Math.round(hp * multiplier), nextHp: Math.round(hp * nextMultiplier),
-        statLabel: kind === 'support' ? '회복' : kind === 'hero' ? '스킬 피해' : '공격', stat: Math.round(damage * multiplier), nextStat: Math.round(damage * nextMultiplier),
-        disabled: cost === null || profile.value.xp < cost,
-        reason: cost === null ? '최대 레벨' : profile.value.xp < cost ? `재화 ${cost - profile.value.xp} 부족` : `${cost} XP 강화`,
+        statLabel: kind === 'support' ? '공격속도 ×' : kind === 'counselor' ? '회복' : kind === 'hero' ? '스킬 피해' : '공격', stat: kind === 'support' ? SUPPORT.hasteMultiplier : Math.round(damage * multiplier), nextStat: kind === 'support' ? SUPPORT.hasteMultiplier : Math.round(damage * nextMultiplier),
+        unlocked, supportNote: kind === 'support' ? '공격 유닛만 · 반경 100 · 7초 / 5초마다 · 배율은 고정' : kind === 'counselor' ? '아군과 개발자 · 반경 100 · 5초마다 회복' : '',
+        disabled: !unlocked || cost === null || profile.value.xp < cost,
+        reason: !unlocked ? `${ALLY_UNLOCK_STAGES[kind as AllyKind]} 첫 클리어로 해금` : cost === null ? '최대 레벨' : profile.value.xp < cost ? `재화 ${cost - profile.value.xp} 부족` : `${cost} XP 강화`,
       };
     })),
-    setLobbyTab: (value: 'menu' | 'stages' | 'training' | 'shop') => { if (!scope.disposed) tab.value = value; },
+    setLobbyTab: (value: 'menu' | 'stages' | 'training' | 'shop' | 'formation') => { if (!scope.disposed) tab.value = value; },
     upgradeCharacter: (kind: CharacterKind) => {
       if (!scope.disposed && context.bridge.sceneState?.scene === 'Lobby' && context.bridge.sceneState.runId === scope.id) upgradeFeedback.value = context.profile.upgrade(kind).reason ?? '';
     },

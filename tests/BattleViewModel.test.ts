@@ -81,7 +81,7 @@ describe('BattleViewModel scoped MVVM', () => {
     const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
     const model = createBattleViewModel(context, scope, false);
     const snapshot = new BattleSession({ runId: scope.id, levels: { hero: 5, melee: 1, ranged: 1, support: 1 } }).snapshot();
-    context.bridge.emit('battle-snapshot', { ...snapshot, hero: { ...snapshot.hero, buffs: { combat: 6.2, speed: 3.1 } } });
+    context.bridge.emit('battle-snapshot', { ...snapshot, hero: { ...snapshot.hero, buffs: { combat: 6.2, speed: 3.1, haste: 0 } } });
     expect(model.skills.value.find(skill => skill.kind === 'hello-world')?.description).toContain('피해 156');
     expect(model.skills.value.find(skill => skill.kind === 'heal')?.description).toContain('회복 112');
     expect(model.skills.value.find(skill => skill.kind === 'sleep')?.description).toContain('반경 120');
@@ -159,7 +159,7 @@ describe('BattleViewModel scoped MVVM', () => {
       context.bridge.emit('battle-snapshot', session.snapshot());
     }));
     context.bridge.emit('battle-snapshot', session.snapshot());
-    expect(model.units.value).toHaveLength(3);
+    expect(model.units.value).toHaveLength(5);
     expect(model.skills.value).toHaveLength(5);
     model.useSkill('heal');
     expect(model.skills.value.find((skill) => skill.kind === 'heal')).toMatchObject({ disabled: true, reason: '준비 12.0초' });
@@ -210,5 +210,24 @@ describe('BattleViewModel scoped MVVM', () => {
     context.bridge.emit('battle-snapshot', { ...current, gold: 0 });
     expect(model.battle.value?.gold).toBe(180);
     context.dispose();
+  });
+});
+
+
+describe('five summon slot presentation', () => {
+  it('keeps empty slots and keys stable, and renders captured levels and first-clear allies', () => {
+    const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
+    const model = createBattleViewModel(context, scope, false);
+    const session = new BattleSession({ runId: scope.id, levels: { hero: 1, melee: 5, ranged: 1, support: 1 }, equippedAllies: ['ranged', null, 'melee', null, null] });
+    context.bridge.emit('battle-snapshot', session.snapshot());
+    expect(model.units.value.map(unit => [unit.key, unit.kind])).toEqual([['1', 'ranged'], ['2', null], ['3', 'melee'], ['4', null], ['5', null]]);
+    expect(model.units.value[1]).toMatchObject({ disabled: true, reason: '준비실에서 편성' });
+    expect(model.units.value[2].level).toBe(5);
+    const commands = vi.fn(); const off = context.bridge.subscribe('battle-command', commands);
+    model.summon(null); expect(commands).not.toHaveBeenCalled();
+    model.summon('melee'); expect(commands).toHaveBeenCalledWith({ runId: scope.id, command: { type: 'summon', kind: 'melee' } });
+    context.bridge.emit('battle-result', { runId: scope.id, stageId: '1-1', reward: 120, prototypeComplete: false, firstClear: true, newlyUnlockedAllies: ['technician'] });
+    expect(model.newAllies.value).toEqual([{ kind: 'technician', label: '기술직' }]);
+    off(); context.dispose();
   });
 });

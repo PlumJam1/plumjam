@@ -1,4 +1,4 @@
-import { BOSS, DEFAULT_STAGE, DEFAULT_UNLOCKED_SKILLS, ECONOMY, FIELD, HERO, SKILLS, SUPPORT, UNIT_DEFINITIONS } from './battle/balance';
+import { ALLY_KINDS, FORMATION_SIZE, STARTER_ALLIES, BOSS, DEFAULT_STAGE, DEFAULT_UNLOCKED_SKILLS, ECONOMY, FIELD, HERO, SKILLS, SUPPORT, UNIT_DEFINITIONS } from './battle/balance';
 import type { AllyKind, BaseState, BattleCommand, BattleSnapshot, BattleStatus, BossTelegraphState, CharacterKind, CommandResult, DefeatReason, EffectKind, EffectState, HeroState, ProjectileState, SkillKind, StageDefinition, Team, UnitDefinition, UnitKind, UnitState } from './battle/types';
 import { levelMultiplier } from './progression/ProfileService';
 
@@ -9,6 +9,8 @@ export interface BattleOptions {
   random?: () => number;
   unitDefinitions?: Record<UnitKind, UnitDefinition>;
   unlockedSkills?: readonly SkillKind[];
+  equippedAllies?: readonly (AllyKind | null)[];
+  unlockedAllies?: readonly AllyKind[];
 }
 type Target = UnitState | HeroState | BaseState;
 
@@ -41,13 +43,20 @@ export function getPushDestination(unit: Pick<UnitState, 'x' | 'kind' | 'bodyWid
   return Math.max(unit.x, Math.min(boundaryX - unit.bodyWidth / 2, unit.x + unit.bodyWidth * (unit.kind === 'gpt-4o' ? 1 : 3)));
 }
 
+/** Keyboard slots read the immutable battle formation, including empty slots. */
+export function getFormationCommand(equipped: readonly (AllyKind | null)[], slot: number): BattleCommand | undefined {
+  const kind = Number.isInteger(slot) && slot >= 0 && slot < FORMATION_SIZE ? equipped[slot] : null;
+  return kind ? { type: 'summon', kind } : undefined;
+}
+
 /** Phaser/Vue-free rules. A Scene owns one session and drops it at shutdown. */
 export class BattleSession {
   readonly runId: number;
   readonly stage: StageDefinition;
-  private readonly random: () => number;
   private readonly definitions: Record<UnitKind, UnitDefinition>;
-  private readonly levels: Partial<Record<CharacterKind, number>>;
+  private readonly levels: Record<CharacterKind, number>;
+  private readonly equippedAllies: readonly (AllyKind | null)[];
+  private readonly unlockedAllies: readonly AllyKind[];
   private readonly unlockedSkills: readonly SkillKind[];
   private status: BattleStatus = 'active';
   private defeatReason?: DefeatReason;
@@ -69,19 +78,26 @@ export class BattleSession {
   private defeatedBossCount = 0;
   private overclockRemaining = 0;
   private skillCooldowns: Record<SkillKind, number> = { 'hello-world': 0, sleep: 0, heal: 0, 'git-push': 0, overclock: 0 };
-  private cooldowns: Record<AllyKind, number> = { melee: 0, ranged: 0, support: 0 };
+  private cooldowns = Object.fromEntries(ALLY_KINDS.map(kind => [kind, 0])) as Record<AllyKind, number>;
 
   constructor(options: BattleOptions) {
     this.runId = options.runId;
-    this.random = options.random ?? Math.random;
     this.stage = options.stage ?? DEFAULT_STAGE;
     this.definitions = options.unitDefinitions ?? UNIT_DEFINITIONS;
-    this.levels = { ...options.levels };
+    this.levels = Object.fromEntries((['hero', ...ALLY_KINDS] as CharacterKind[]).map(kind => [kind, options.levels?.[kind] ?? 1])) as Record<CharacterKind, number>;
     this.unlockedSkills = [...new Set(options.unlockedSkills ?? DEFAULT_UNLOCKED_SKILLS)].filter(skill => skill in SKILLS);
+    this.unlockedAllies = [...new Set(options.unlockedAllies ?? STARTER_ALLIES)].filter(kind => ALLY_KINDS.includes(kind));
+    const chosen = options.equippedAllies ?? [...STARTER_ALLIES, null, null];
+    const seen = new Set<AllyKind>();
+    this.equippedAllies = Array.from({ length: FORMATION_SIZE }, (_, index) => {
+      const kind = chosen[index];
+      if (!kind || !this.unlockedAllies.includes(kind) || seen.has(kind)) return null;
+      seen.add(kind); return kind;
+    });
     this.gold = Math.min(this.stage.initialGold, ECONOMY[0].cap);
     const heroLevel = this.levels.hero ?? 1;
     const hp = HERO.hp * this.levelMultiplier(heroLevel);
-    this.hero = { id: 1, x: FIELD.heroStartX, hp, maxHp: hp, level: heroLevel, hitFlash: 0, healFlash: 0, buffs: { combat: 0, speed: 0 } };
+    this.hero = { id: 1, x: FIELD.heroStartX, hp, maxHp: hp, level: heroLevel, hitFlash: 0, healFlash: 0, buffs: { combat: 0, speed: 0, haste: 0 } };
     this.humanBase = { id: 2, team: 'human', x: FIELD.humanBaseX, hp: this.stage.humanBaseHp, maxHp: this.stage.humanBaseHp };
     this.aiBase = { id: 3, team: 'ai', x: FIELD.aiBaseX, hp: this.stage.aiBaseHp, maxHp: this.stage.aiBaseHp };
     this.spawnScheduled();
@@ -99,6 +115,8 @@ export class BattleSession {
       this.economyLevel++;
       return { accepted: true };
     }
+    if (!this.unlockedAllies.includes(command.kind)) return { accepted: false, reason: '아직 해금하지 않은 동료야.' };
+    if (!this.equippedAllies.includes(command.kind)) return { accepted: false, reason: '이번 출전 편성에 없는 동료야.' };
     const definition = this.definitions[command.kind];
     if (this.cooldowns[command.kind] > 0) return { accepted: false, reason: '출격 준비 중이야.' };
     if (this.gold < definition.cost!) return { accepted: false, reason: '출격할 자금이 부족해.' };
@@ -137,6 +155,7 @@ export class BattleSession {
       summonCooldowns: { ...this.cooldowns }, skillCooldowns: { ...this.skillCooldowns },
       effects: this.effects.map((effect) => ({ ...effect })),
       bossTelegraphs: this.bossTelegraphs.map((telegraph) => ({ ...telegraph })), defeatedBossCount: this.defeatedBossCount,
+      levels: { ...this.levels }, equippedAllies: [...this.equippedAllies], unlockedAllies: [...this.unlockedAllies],
       unlockedSkills: [...this.unlockedSkills], overclockRemaining: this.overclockRemaining,
     };
   }
@@ -151,7 +170,7 @@ export class BattleSession {
     this.overclockRemaining = Math.max(0, this.overclockRemaining - dt);
     if (this.overclockRemaining < 1e-8) this.overclockRemaining = 0;
     const drainCooldown = (remaining: number, work: number) => remaining - work < 1e-8 ? 0 : remaining - work;
-    for (const kind of ['melee', 'ranged', 'support'] as const) this.cooldowns[kind] = drainCooldown(this.cooldowns[kind], cooldownWork);
+    for (const kind of ALLY_KINDS) this.cooldowns[kind] = drainCooldown(this.cooldowns[kind], cooldownWork);
     for (const skill of Object.keys(SKILLS) as SkillKind[]) this.skillCooldowns[skill] = drainCooldown(this.skillCooldowns[skill], skill === 'overclock' ? dt : cooldownWork);
     this.effects = this.effects.filter((effect) => { effect.remaining -= dt; return effect.remaining > 0; });
     this.tickBuffs(this.hero, dt);
@@ -184,13 +203,14 @@ export class BattleSession {
     });
     for (const unit of living) {
       const definition = this.definitions[unit.kind];
+      const attackWork = dt + Math.min(dt, unit.buffs.haste) * (SUPPORT.hasteMultiplier - 1);
       this.tickBuffs(unit, dt);
       unit.slowRemaining = Math.max(0, unit.slowRemaining - dt);
-      if (unit.kind === 'support') {
+      if (unit.kind === 'support' || unit.kind === 'counselor') {
         unit.supportCooldown -= dt;
         if (unit.supportCooldown <= 1e-8) { unit.supportCooldown += SUPPORT.period; this.support(unit); }
       }
-      unit.attackCooldown = Math.max(0, unit.attackCooldown - dt);
+      unit.attackCooldown = Math.max(0, unit.attackCooldown - attackWork);
       unit.hitFlash = Math.max(0, unit.hitFlash - dt);
       unit.attackFlash = Math.max(0, unit.attackFlash - dt);
       const target = this.nearestTarget(unit);
@@ -288,16 +308,21 @@ export class BattleSession {
   }
 
   private support(unit: UnitState): void {
-    // One equal-probability choice per elapsed period, independent of the render frame count.
-    const selection = Math.min(2, Math.max(0, Math.floor(this.random() * 3)));
     const targets = this.nearbyAllies(unit.x, SUPPORT.radius);
-    if (selection === 0) this.heal(targets, SUPPORT.heal * this.levelMultiplier(unit.level));
-    else for (const target of targets) target.buffs[selection === 1 ? 'combat' : 'speed'] = SUPPORT.duration;
+    if (unit.kind === 'counselor') {
+      this.heal(targets, SUPPORT.heal * this.levelMultiplier(unit.level));
+      this.effect('support-heal', unit.x, SUPPORT.radius);
+    } else {
+      for (const target of targets) {
+        if ('kind' in target && this.definitions[target.kind].damage > 0) target.buffs.haste = SUPPORT.duration;
+      }
+      this.effect('support-haste', unit.x, SUPPORT.radius);
+    }
     unit.attackFlash = 0.3;
-    this.effect((['support-heal', 'support-combat', 'support-speed'] as const)[selection], unit.x, SUPPORT.radius);
   }
 
   private tickBuffs(target: HeroState | UnitState, dt: number): void {
+    target.buffs.haste = Math.max(0, target.buffs.haste - dt);
     target.buffs.combat = Math.max(0, target.buffs.combat - dt);
     target.buffs.speed = Math.max(0, target.buffs.speed - dt);
     target.healFlash = Math.max(0, target.healFlash - dt);
@@ -332,7 +357,7 @@ export class BattleSession {
       bodyWidth: definition.bodyWidth,
       hp, maxHp: hp, attackCooldown: 0, hitFlash: 0, attackFlash: 0,
       slowRemaining: 0, supportCooldown: SUPPORT.period, bossCooldown: kind === 'gpt-4o' ? BOSS.firstCastDelay : 0,
-      healFlash: 0, buffs: { combat: 0, speed: 0 } });
+      healFlash: 0, buffs: { combat: 0, speed: 0, haste: 0 } });
   }
 
   private spawnScheduled(): void {

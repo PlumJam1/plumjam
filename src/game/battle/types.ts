@@ -1,6 +1,6 @@
 export type Team = 'human' | 'ai';
-export type AllyKind = 'melee' | 'ranged' | 'support';
-export type EnemyKind = 'robot-melee' | 'robot-ranged' | 'robot-runner' | 'gpt-4o';
+export type AllyKind = 'melee' | 'ranged' | 'support' | 'technician' | 'judge' | 'counselor';
+export type EnemyKind = 'robot-melee' | 'robot-ranged' | 'robot-runner' | 'robot-heavy' | 'gpt-4o';
 export type UnitKind = AllyKind | EnemyKind;
 export type SkillKind = 'hello-world' | 'sleep' | 'heal' | 'git-push' | 'overclock';
 export type CharacterKind = 'hero' | AllyKind;
@@ -41,8 +41,9 @@ export interface TimedBuffs {
   /** Remaining seconds. A repeated effect refreshes this timer without stacking magnitude. */
   combat: number;
   speed: number;
+  haste: number;
 }
-export type EffectKind = SkillKind | 'hello-impact' | 'support-heal' | 'support-combat' | 'support-speed' | 'boss-blast';
+export type EffectKind = SkillKind | 'hello-impact' | 'support-heal' | 'support-combat' | 'support-speed' | 'support-haste' | 'boss-blast';
 export interface EffectState { id: number; kind: EffectKind; x: number; radius: number; remaining: number; duration: number }
 export interface BossTelegraphState { ownerId: number; x: number; radius: number; remaining: number; duration: number }
 export interface UnitState {
@@ -104,5 +105,8 @@ export interface BattleSnapshot {
   bossTelegraphs: readonly Readonly<BossTelegraphState>[];
   defeatedBossCount: number;
   unlockedSkills: readonly SkillKind[];
+  levels: Readonly<Record<CharacterKind, number>>;
+  equippedAllies: readonly (AllyKind | null)[];
+  unlockedAllies: readonly AllyKind[];
   overclockRemaining: number;
 }

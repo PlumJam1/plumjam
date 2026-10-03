@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { BattleSession, getSkillValues } from '../src/game/BattleSession';
-import { BOSS, DEFAULT_STAGE, SKILLS, SUPPORT, UNIT_DEFINITIONS } from '../src/game/battle/balance';
+import { BOSS, DEFAULT_STAGE, SKILLS, UNIT_DEFINITIONS } from '../src/game/battle/balance';
 import type { BossTelegraphState, StageDefinition, UnitDefinition, UnitKind } from '../src/game/battle/types';
 import { STAGES } from '../src/game/progression/stages';
 
@@ -125,12 +125,12 @@ describe('GPT-4o locked frontal area attack', () => {
 });
 
 describe('skill values and authored rushes', () => {
-  it('uses the same hero level and active combat modifier in preview and actual projectile damage', () => {
+  it('uses the same hero level without service-worker attack-speed buffs affecting skills in preview and actual projectile damage', () => {
     const session = new BattleSession({ runId: 1, stage: { ...quietBossStage(), spawns: [] }, levels: { hero: 5 }, random: () => 0.5 });
     session.dispatch({ type: 'summon', kind: 'support' });
     session.step(5.01);
     const values = getSkillValues(session.snapshot().hero);
-    expect(values.helloDamage).toBeCloseTo(SKILLS['hello-world'].damage * 1.6 * SUPPORT.damageMultiplier);
+    expect(values.helloDamage).toBeCloseTo(SKILLS['hello-world'].damage * 1.6);
     expect(values.healAmount).toBeCloseTo(SKILLS.heal.amount * 1.6);
     expect(values).toMatchObject({ helloRange: 350, sleepRadius: 120, sleepDuration: 5, sleepSpeedMultiplier: 0.4, healRadius: 110 });
     session.dispatch({ type: 'skill', skill: 'hello-world' });
@@ -150,10 +150,9 @@ describe('skill values and authored rushes', () => {
     expect(slow.snapshot().units[0].x - normal.snapshot().units[0].x).toBeCloseTo(52 * 0.6);
   });
 
-  it('keeps the introduction unchanged and orders announced three/four-runner bursts before endless pressure', () => {
+  it('keeps the introduction unchanged and orders announced runner bursts before endless pressure', () => {
     expect(STAGES[0].spawns.every(spawn => spawn.kind !== 'robot-runner')).toBe(true);
-    expect(STAGES[1].spawns.filter(spawn => spawn.kind === 'robot-runner')).toHaveLength(2);
-    for (const [index, count] of [[2, 3], [3, 4], [4, 3]] as const) {
+    for (const [index, count] of [[1, 3], [4, 3]] as const) {
       const stage = STAGES[index];
       const runners = stage.spawns.filter(spawn => spawn.kind === 'robot-runner');
       expect(runners).toHaveLength(count);

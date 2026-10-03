@@ -58,3 +58,33 @@ describe('lobby MVVM', () => {
     context.dispose();
   });
 });
+
+
+describe('formation MVVM', () => {
+  it('selects slots, swaps existing allies, equips earned allies and protects the last teammate', () => {
+    const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
+    context.bridge.emit('scene-state', { scene: 'Lobby', runId: scope.id, phase: 'ready', lobbyTab: 'formation' });
+    const model = createLobbyViewModel(context, scope, 'formation');
+    expect(model.formation.value).toHaveLength(5); expect(model.roster.value).toHaveLength(6);
+    expect(model.roster.value.find(ally => ally.kind === 'technician')).toMatchObject({ unlocked: false, reason: '1-1 첫 클리어로 해금' });
+    model.selectSlot(1); model.equipAlly('melee');
+    expect(context.profile.snapshot().equippedAllies).toEqual(['ranged', 'melee', 'support', null, null]);
+    context.profile.rewardWin('first', '1-1'); model.selectSlot(3); model.equipAlly('technician');
+    expect(context.profile.snapshot().equippedAllies).toEqual(['ranged', 'melee', 'support', 'technician', null]);
+    expect(model.formationSummary.value).toContain('기술직');
+    context.profile.setFormation(['melee', null, null, null, null]); model.selectSlot(0); model.removeAlly();
+    expect(context.profile.snapshot().equippedAllies).toEqual(['melee', null, null, null, null]);
+    expect(model.upgradeFeedback.value).toContain('최소 1명');
+    context.dispose();
+  });
+  it('guards profile mutations by active Lobby scope and displays fixed support versus scalable heal', () => {
+    const context = new AppContext(); const scope = context.lifetimes.begin(fakeScene());
+    context.bridge.emit('scene-state', { scene: 'Lobby', runId: scope.id, phase: 'ready' });
+    const model = createLobbyViewModel(context, scope, 'formation'); const equip = vi.spyOn(context.profile, 'setFormation');
+    expect(model.characters.value.find(character => character.kind === 'support')).toMatchObject({ stat: 1.3, nextStat: 1.3, statLabel: '공격속도 ×' });
+    expect(model.characters.value.find(character => character.kind === 'counselor')).toMatchObject({ stat: 35, nextStat: 40, disabled: true, reason: '1-3 첫 클리어로 해금' });
+    context.bridge.emit('scene-state', { scene: 'Battle', runId: scope.id, phase: 'ready' }); model.equipAlly('melee'); model.removeAlly(); expect(equip).not.toHaveBeenCalled();
+    context.bridge.emit('scene-state', { scene: 'Lobby', runId: scope.id + 1, phase: 'ready' }); model.equipAlly('melee'); expect(equip).not.toHaveBeenCalled();
+    scope.dispose(); model.equipAlly('melee'); expect(equip).not.toHaveBeenCalled(); context.dispose();
+  });
+});

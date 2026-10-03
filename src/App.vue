@@ -64,10 +64,10 @@ onBeforeUnmount(() => {
           <p>졸업은 했는데, 세상이 업데이트됐다.</p>
           <div class="title-cast" aria-label="인간 병력과 AI 침공군"><img v-for="key in titleCast" :key="key" :src="assetUrl(key)" alt="" /></div>
           <button class="primary title-start" :disabled="state?.scene !== 'Lobby'" @click="viewModel.enterLobby()">{{ state?.scene === 'Lobby' ? '출근 시작' : '그림 불러오는 중...' }}</button>
-          <small>PC · A/D 이동 · 1/2/3 병력 · J/K/L 스킬 · P git push · O overclock</small>
+          <small>PC · A/D 이동 · 1~5 편성 병력 · J/K/L 스킬 · P git push · O overclock</small>
         </div>
         <div v-else-if="!isBattle && screen?.lobbyTab.value === 'menu'" class="lobby-home">
-          <div class="mission-nav"><button class="primary" @click="screen?.setLobbyTab('stages')">전투 시작!</button><button class="primary" @click="screen?.setLobbyTab('training')">캐릭터 강화</button><button class="primary" @click="screen?.setLobbyTab('shop')">스킬 상점</button></div>
+          <div class="mission-nav"><button class="primary" @click="screen?.setLobbyTab('stages')">전투 시작!</button><button class="primary" @click="screen?.setLobbyTab('formation')">출전 편성</button><button class="primary" @click="screen?.setLobbyTab('training')">캐릭터 강화</button><button class="primary" @click="screen?.setLobbyTab('shop')">스킬 상점</button></div>
           <div class="hero-welcome"><p>수업은 열심히 들었는데...<br />실전도 출근도 지금부터다!</p><img :src="assetUrl(characterArt('hero', screen.profile.value.levels.hero))" alt="주인공 개발자" /></div>
         </div>
         <div v-else-if="!isBattle && screen?.lobbyTab.value === 'stages'" class="stage-map-ui" :style="{ backgroundImage: `linear-gradient(#142337b0,#172337bb),url(${assetUrl(backgroundArt(screen.selectedStage.value.theme))})` }">
@@ -75,7 +75,7 @@ onBeforeUnmount(() => {
           <span class="eyebrow">{{ screen.selectedStage.value.theme === 'boss' ? 'BOSS INCOMING' : 'NEXT SHIFT' }}</span>
           <h2>{{ screen.selectedStage.value.id }} · {{ screen.selectedStage.value.label }}</h2>
           <p>{{ screen.selectedStage.value.enemies }}</p>
-          <strong>클리어 보상 {{ screen.selectedStage.value.clearReward }} XP</strong>
+          <strong>클리어 보상 {{ screen.selectedStage.value.clearReward }} XP</strong><p class="deploy-summary">편성 {{ screen.formationSummary.value }}</p><button class="summary-edit" @click="screen.setLobbyTab('formation')">편성 변경</button>
           <small v-if="screen.selectedStage.value.locked">앞 스테이지를 클리어하면 출근할 수 있어.</small>
         </div>
         <div class="stage-grid stage-route">
@@ -84,10 +84,20 @@ onBeforeUnmount(() => {
           </button>
         </div>
         </div>
+        <div v-else-if="!isBattle && screen?.lobbyTab.value === 'formation'" class="formation-overlay">
+          <div class="formation-heading"><strong>출전 편성 · 5칸</strong><span>칸 선택 → 동료 선택 · 이미 편성한 동료는 자리 교환</span></div>
+          <div class="formation-slots" aria-label="출전 편성">
+            <button v-for="slot in screen.formation.value" :key="slot.index" :aria-pressed="slot.index === screen.selectedSlot.value" @click="screen.selectSlot(slot.index)"><kbd>{{ slot.key }}</kbd><img v-if="slot.image" :src="slot.image" alt="" /><strong>{{ slot.label }}</strong></button>
+          </div>
+          <div class="formation-selection"><span>{{ screen.selectedSlot.value + 1 }}번 칸 선택 중 · 최소 1명 필요</span><button :disabled="screen.formation.value[screen.selectedSlot.value].kind === null" @click="screen.removeAlly()">선택 칸 비우기</button></div>
+          <div class="roster-grid">
+            <button v-for="ally in screen.roster.value" :key="ally.kind" class="roster-card" :disabled="!ally.unlocked" :title="ally.description" @click="screen.equipAlly(ally.kind)"><img :src="ally.image" alt="" /><div><strong>{{ ally.label }} <small>Lv.{{ ally.level }}</small></strong><span>{{ ally.role }} · {{ ally.cost }} 자금 / {{ ally.cooldown }}초</span><small>{{ ally.reason }}</small></div></button>
+          </div>
+        </div>
         <div v-else-if="!isBattle && screen?.lobbyTab.value === 'training'" class="training-grid training-overlay">
           <article v-for="character in screen?.characters.value" :key="character.kind" class="training-card">
             <div class="character-heading"><img :src="character.image" alt="" /><div><h3>{{ character.label }}</h3><span>Lv.{{ character.level }} / 10 · {{ character.evolved ? '성장 외형' : '기본 외형' }}</span></div></div>
-            <p>HP {{ character.hp }} <span v-if="character.cost !== null">→ {{ character.nextHp }}</span> · {{ character.statLabel }} {{ character.stat }} <span v-if="character.cost !== null">→ {{ character.nextStat }}</span></p>
+            <p v-if="character.supportNote" class="support-note">{{ character.supportNote }}</p><p>HP {{ character.hp }} <span v-if="character.cost !== null">→ {{ character.nextHp }}</span> · {{ character.statLabel }} {{ character.stat }} <span v-if="character.cost !== null">→ {{ character.nextStat }}</span></p>
             <div class="growth-preview"><img :src="character.preview" alt="레벨 5 성장 외형 미리보기" /><span>Lv.5 · {{ character.growth }}</span></div>
             <button :disabled="character.disabled || state?.scene !== 'Lobby'" class="primary" @click="screen?.upgradeCharacter(character.kind)">{{ character.reason }}</button>
           </article>
@@ -115,19 +125,19 @@ onBeforeUnmount(() => {
         <h2>{{ screen?.resultTitle.value }}</h2>
         <p>{{ screen?.resultDescription.value }}</p>
         <p class="reward-line">획득 육성 재화 <strong>+{{ screen?.reward.value ?? 0 }} XP</strong></p>
-        <div class="result-actions">
+        <p v-if="screen?.newAllies.value.length" class="unlock-line">새 동료 해금! {{ screen.newAllies.value.map(ally => ally.label).join(' · ') }} · 준비실에서 편성해줘.</p><div class="result-actions">
         <button v-if="screen?.hasNextStage.value" class="primary" @click="screen?.nextStage()">다음 출근</button>
         <button :class="{ primary: !screen?.hasNextStage.value }" @click="screen?.restartBattle()">다시 도전</button>
-        <button @click="screen?.openTraining()">캐릭터 육성</button>
+        <button @click="screen?.openFormation()">출전 편성</button><button @click="screen?.openTraining()">캐릭터 육성</button>
         <button @click="screen?.openShop()">스킬 상점</button>
         <button @click="screen?.openStages()">스테이지 선택</button>
         </div>
       </div>
       <section v-if="isBattle && battle" class="battle-controls">
         <div class="action-grid expanded-actions">
-          <button v-for="unit in screen?.units.value" :key="unit.kind" class="action-card unit-button" :disabled="unit.disabled" :title="unit.description" @click="screen?.summon(unit.kind)">
-            <img class="unit-portrait" :src="assetUrl(characterArt(unit.kind, screen?.profile.value.levels[unit.kind]))" alt="" /><span class="card-label"><kbd>{{ unit.key }}</kbd> {{ unit.label }}</span>
-            <strong>{{ unit.cost }} 자금</strong><small>{{ unit.reason }}</small>
+          <button v-for="unit in screen?.units.value" :key="unit.key" class="action-card unit-button" :disabled="unit.disabled" :title="unit.description" @click="screen?.summon(unit.kind)">
+            <img v-if="unit.kind" class="unit-portrait" :src="assetUrl(characterArt(unit.kind, unit.level))" alt="" /><span class="card-label"><kbd>{{ unit.key }}</kbd> {{ unit.label }}</span>
+            <strong>{{ unit.kind ? `${unit.cost} 자금` : '—' }}</strong><small>{{ unit.reason }}</small>
             <span class="ready-bar" aria-hidden="true"><i :style="{ width: `${unit.progress * 100}%` }"></i></span>
           </button>
           <button v-for="skill in screen?.skills.value" :key="skill.kind" class="action-card skill-button" :class="{ unavailable: skill.disabled }" :aria-disabled="skill.disabled" :title="skill.description" @mouseenter="screen?.previewSkill(skill.kind, 'hover', true)" @mouseleave="screen?.previewSkill(skill.kind, 'hover', false)" @focus="screen?.previewSkill(skill.kind, 'focus', true)" @blur="screen?.previewSkill(skill.kind, 'focus', false)" @click="!skill.disabled && screen?.useSkill(skill.kind)">
@@ -136,12 +146,7 @@ onBeforeUnmount(() => {
             <strong>{{ skill.cost }} 자금</strong><small>{{ skill.reason }}</small>
             <span class="ready-bar" aria-hidden="true"><i :style="{ width: `${skill.progress * 100}%` }"></i></span>
           </button>
-          <button class="action-card economy-button" :disabled="economyDisabled" :title="screen?.economyDescription.value" @click="screen?.upgradeEconomy()">
-            <span class="card-label"><kbd>U</kbd> 투자 Lv.{{ battle.economyLevel }}</span>
-            <strong>{{ battle.upgradeCost === null ? '최대 레벨' : `${battle.upgradeCost} 자금` }}</strong>
-            <small>{{ screen?.economyReason.value }}</small>
-            <span class="investment-note">수입 · 상한 증가</span>
-          </button>
+
         </div>
         <div class="combat-detail" aria-live="off">
           <span v-if="screen?.previewDescription.value">{{ screen.previewDescription.value }}<template v-if="screen.previewTargets.value"> · {{ screen.previewTargets.value }}</template></span>
@@ -150,12 +155,12 @@ onBeforeUnmount(() => {
         </div>
         <div v-if="screen?.intro.value" class="first-briefing">
           <span v-if="screen?.feedback.value" role="status" aria-live="polite">{{ screen.feedback.value }}</span>
-          <span v-else><b>A/D 이동</b> · <b>1/2/3 병력</b> · <b>J/K/L 스킬</b> · <b>P git push · O overclock</b> · 병력 뒤에서 싸우자! 소환·스킬·투자는 공유 자금을 써.</span>
+          <span v-else><b>A/D 이동</b> · <b>1~5 편성 병력</b> · <b>J/K/L 스킬</b> · <b>P git push · O overclock</b> · 병력 뒤에서 싸우자! 소환·스킬·투자는 공유 자금을 써.</span>
           <button @click="screen?.dismissIntro()">알겠어</button>
         </div>
         <div v-else class="battle-help"><span>A / D · ← / → 이동 <b :class="{ 'danger-text': danger }">{{ danger ? '위험! 개발자가 쓰러지면 패배해. 후퇴하자!' : '병력보다 앞에 나가면 공격받아!' }}</b></span><span role="status" aria-live="polite">{{ screen?.feedback.value }}</span></div>
         <div class="battle-menu">
-          <span>소환 · 스킬 · 투자 = 공유 자금. 기본 공격은 없어.</span>
+          <button class="compact-investment" :disabled="economyDisabled" :title="screen?.economyDescription.value" @click="screen?.upgradeEconomy()"><kbd>U</kbd> 투자 Lv.{{ battle.economyLevel }} · {{ battle.upgradeCost === null ? '최대' : `${battle.upgradeCost} 자금` }}<small>수입·상한 증가 · {{ screen?.economyReason.value }}</small></button>
           <div class="actions">
             <button @click="screen?.toggleMuted()">{{ screen?.profile.value.muted ? '음소거 중' : '소리 켜짐' }}</button>
             <button :disabled="ended" @click="screen?.togglePause()">{{ paused ? '전투 계속' : '일시정지' }} <kbd>Esc</kbd></button>
@@ -169,7 +174,7 @@ onBeforeUnmount(() => {
           <div class="lobby-tabs" role="tablist" aria-label="준비실">
             <button role="tab" :aria-selected="screen?.lobbyTab.value === 'menu'" @click="screen?.setLobbyTab('menu')">준비실</button>
             <button role="tab" :aria-selected="screen?.lobbyTab.value === 'stages'" @click="screen?.setLobbyTab('stages')">출근 경로</button>
-            <button role="tab" :aria-selected="screen?.lobbyTab.value === 'training'" @click="screen?.setLobbyTab('training')">캐릭터 육성</button>
+            <button role="tab" :aria-selected="screen?.lobbyTab.value === 'formation'" @click="screen?.setLobbyTab('formation')">출전 편성</button><button role="tab" :aria-selected="screen?.lobbyTab.value === 'training'" @click="screen?.setLobbyTab('training')">캐릭터 육성</button>
             <button role="tab" :aria-selected="screen?.lobbyTab.value === 'shop'" @click="screen?.setLobbyTab('shop')">스킬 상점</button>
           </div>
           <button class="mute-toggle" @click="screen?.toggleMuted()">{{ screen?.profile.value.muted ? '음소거 중' : '소리 켜짐' }}</button>

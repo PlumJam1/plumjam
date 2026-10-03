@@ -28,6 +28,7 @@ function createScreenViewModel(context: AppContext, scope: SceneScope, initial: 
       returnLobby: () => command({ type: 'return-lobby' }),
       openStages: () => command({ type: 'return-lobby', tab: 'stages' }),
       openTraining: () => command({ type: 'return-lobby', tab: 'training' }),
+      openFormation: () => command({ type: 'return-lobby', tab: 'formation' }),
       openShop: () => command({ type: 'return-lobby', tab: 'shop' }),
       nextStage: () => { const next = nextStage(state.value.stageId ?? ''); if (next && context.stageForBattle(next.id)) command({ type: 'start-battle', stageId: next.id }); },
       restartBattle: () => command({ type: 'restart-battle' }),

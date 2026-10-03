@@ -1,11 +1,27 @@
-import type { EconomyDefinition, SkillKind, StageDefinition, UnitDefinition, UnitKind } from './types';
+import type { AllyKind, EconomyDefinition, SkillKind, StageDefinition, UnitDefinition, UnitKind } from './types';
 
+export const ALLY_KINDS: readonly AllyKind[] = ['melee', 'ranged', 'support', 'technician', 'judge', 'counselor'];
+export const STARTER_ALLIES: readonly AllyKind[] = ['melee', 'ranged', 'support'];
+export const FORMATION_SIZE = 5;
+export const ALLY_UNLOCK_STAGES: Partial<Record<AllyKind, string>> = { technician: '1-1', judge: '1-2', counselor: '1-3' };
+export const ALLY_ROLES: Record<AllyKind, { role: string; description: string; evolution: string }> = {
+  melee: { role: '기본 탱커', description: '저렴한 서류가방 근접 공격', evolution: '시니어 좀비 회사원' },
+  ranged: { role: '기본 딜러', description: '서류를 던지는 단일 원거리 공격', evolution: '시니어 원거리 회사원' },
+  support: { role: '공격속도 지원', description: '주변 공격 유닛의 공격 준비 속도 ×1.3', evolution: '빨간 안경 서비스직' },
+  technician: { role: '튼튼한 탱커', description: '높은 체력으로 버티는 느린 렌치 공격', evolution: '용접공' },
+  judge: { role: '단일 딜러', description: '느리지만 강한 원거리 판결', evolution: '대법원장' },
+  counselor: { role: '회복 지원', description: '주변 동료와 주인공의 체력 회복', evolution: '시니어 심리상담사' },
+};
 export const FIELD = { width: 640, groundY: 230, humanBaseX: 55, aiBaseX: 585, humanSpawnX: 85, aiSpawnX: 550, heroStartX: 110, heroMinX: 80, heroMaxX: 560 } as const;
 export const HERO = { hp: 320, speed: 86 } as const;
 export const UNIT_DEFINITIONS: Record<UnitKind, UnitDefinition> = {
   melee: { label: '근접 회사원', team: 'human', bodyWidth: 32, hp: 180, damage: 23, speed: 24, range: 20, attackInterval: 1.1, cost: 60, summonCooldown: 3 },
   ranged: { label: '원거리 회사원', team: 'human', bodyWidth: 32, hp: 90, damage: 30, speed: 20, range: 105, attackInterval: 1.6, projectileSpeed: 170, cost: 110, summonCooldown: 5 },
   support: { label: '서비스직', team: 'human', bodyWidth: 32, hp: 100, damage: 0, speed: 20, range: 85, attackInterval: 5, cost: 140, summonCooldown: 8 },
+  technician: { label: '기술직', team: 'human', bodyWidth: 36, hp: 420, damage: 42, speed: 18, range: 22, attackInterval: 2.2, cost: 150, summonCooldown: 7 },
+  judge: { label: '판사', team: 'human', bodyWidth: 32, hp: 95, damage: 105, speed: 18, range: 130, attackInterval: 3.2, projectileSpeed: 200, cost: 190, summonCooldown: 9 },
+  counselor: { label: '심리상담사', team: 'human', bodyWidth: 32, hp: 120, damage: 0, speed: 20, range: 85, attackInterval: 5, cost: 155, summonCooldown: 8 },
+  'robot-heavy': { label: '중장갑 로봇', team: 'ai', bodyWidth: 42, hp: 340, damage: 28, speed: 12, range: 24, attackInterval: 2.1 },
   'robot-melee': { label: '생산성 로봇', team: 'ai', bodyWidth: 32, hp: 110, damage: 16, speed: 22, range: 20, attackInterval: 1.25 },
   'robot-ranged': { label: '자동화 로봇', team: 'ai', bodyWidth: 32, hp: 75, damage: 17, speed: 18, range: 95, attackInterval: 1.9, projectileSpeed: 145 },
   'robot-runner': { label: '긴급 배포 로봇', team: 'ai', bodyWidth: 28, hp: 60, damage: 12, speed: 52, range: 18, attackInterval: 1.1 },
@@ -39,6 +55,6 @@ export const DEFAULT_UNLOCKED_SKILLS: readonly SkillKind[] = ['hello-world', 'sl
 export const SKILL_UNLOCK_COSTS = { 'git-push': 240 } as const;
 export const SUPPORT = {
   period: 5, radius: 100, heal: 35, duration: 7,
-  damageMultiplier: 1.3, receivedDamageMultiplier: 0.75, speedMultiplier: 1.35,
+  hasteMultiplier: 1.3, damageMultiplier: 1.3, receivedDamageMultiplier: 0.75, speedMultiplier: 1.35,
 } as const;
 export const BOSS = { firstCastDelay: 6, cooldown: 9, windup: 1.4, forwardOffset: 100, radius: 80, damage: 80 } as const;

@@ -220,5 +220,131 @@
       928,
       1402
     ]
+  },
+  {
+    "name": "technician.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 826060,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      49,
+      53,
+      1121,
+      1402
+    ],
+    "sha256": "57363760cfa190beac35886866f619bab37d202c29d2d7087c84b35dc7b110a3",
+    "generator": "built-in image_gen.imagegen",
+    "sourcePath": "/Users/hajung/.codex/generated_images/01a101f2-e386-7e70-8707-641005a35356/exec-8c4dfbd8-6110-479b-b487-a8aa627bbfda.png"
+  },
+  {
+    "name": "technician-lv5.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 837738,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      0,
+      0,
+      1100,
+      1402
+    ],
+    "sha256": "90e4b73232d9877630ccb86f355feffacf2121bd3b34697d0070c9b8880bca91",
+    "generator": "built-in image_gen.imagegen",
+    "sourcePath": "/Users/hajung/.codex/generated_images/01a101f2-e386-7e70-8707-641005a35356/exec-e6bdbe52-13f1-4364-83e1-535b7c82345a.png"
+  },
+  {
+    "name": "judge.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 641095,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      51,
+      19,
+      1038,
+      1384
+    ],
+    "sha256": "03d2f411326807bb99d781e3cac2fe524e32523e74986205e965c195f67b9811",
+    "generator": "built-in image_gen.imagegen",
+    "sourcePath": "/Users/hajung/.codex/generated_images/01a101f2-e386-7e70-8707-641005a35356/exec-83aa786d-0265-4505-a655-5af8393fbf8c.png"
+  },
+  {
+    "name": "judge-lv5.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 767151,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      33,
+      35,
+      1094,
+      1386
+    ],
+    "sha256": "e142ad24dbe3a341aa614c8b51291324f19c95f9b8b1eafd1430b99f2ec5a7f3",
+    "generator": "built-in image_gen.imagegen",
+    "sourcePath": "/Users/hajung/.codex/generated_images/01a101f2-e386-7e70-8707-641005a35356/exec-55c0ba21-5c1c-4e1b-8a2f-0b2bc5e78b3f.png"
+  },
+  {
+    "name": "counselor.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 566588,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      49,
+      10,
+      1084,
+      1393
+    ],
+    "sha256": "8d03b25f7a48c1878f26b395a5af37b149530e72702a06804bc86da816069326",
+    "generator": "built-in image_gen.imagegen",
+    "sourcePath": "/Users/hajung/.codex/generated_images/01a101f2-e386-7e70-8707-641005a35356/exec-e4eef65b-f232-482a-8398-c5cfa9113858.png"
+  },
+  {
+    "name": "counselor-lv5.png",
+    "width": 1122,
+    "height": 1402,
+    "bitDepth": 8,
+    "colorType": 6,
+    "fileBytes": 666856,
+    "alphaRange": [
+      0,
+      255
+    ],
+    "alphaBoundingBox": [
+      49,
+      22,
+      1070,
+      1386
+    ],
+    "sha256": "7e3067371a5388592b9c4d93e2771841867077f4ae85f7917dc3c565c8089b83",
+    "generator": "built-in image_gen.imagegen",
+    "sourcePath": "/Users/hajung/.codex/generated_images/01a101f2-e386-7e70-8707-641005a35356/exec-486cf14e-8495-48cc-966f-88e415bae113.png"
   }
 ]

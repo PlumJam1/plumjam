@@ -1,5 +1,80 @@
 # Generated art assets
 
+## Roster expansion: 2026-10-03
+
+Six additional human sprites were generated using six separate built-in `image_gen.imagegen` calls with `transparent_background: true`. These are new assets; neither `referenced_image_paths` nor `num_last_images_to_include` was used. The existing sprites were inspected for art direction only. Each accepted original PNG was copied byte-for-byte from `/Users/hajung/.codex/generated_images/01a101f2-e386-7e70-8707-641005a35356/`, with no crop, resampling, pixel edits or alpha alteration. All six were visually inspected: a single complete right-facing human, no background or ground, readable equipment and distinct level-five evolution. Metadata records read-only RGBA/alpha checks, source paths and SHA-256 digests.
+
+The basic technician is a plumber; level five adds a welder's face shield. Judge evolves into chief justice with gray hair and maroon judicial trim. Counselor evolves into a senior counselor with purple jacket and gold-rim glasses; both remain civilian support characters. Runtime renderer uses the intact portrait, nearest-neighbor scaling and bottom-center origin. The heavy robot intentionally reuses the existing `robot-melee.png`; visual differentiation is runtime tint/size.
+
+### Exact expansion prompt set
+
+### technician.png
+
+```text
+Use case: stylized-concept
+Asset type: one transparent-background side-view pixel-art ally game character sprite for Plumjam, a satirical Korean humans-versus-AI lane battle game.
+Style: crisp chunky low-detail pixel art, 3-head chibi proportions, thick dark outline, limited muted warm/cool palette, 64x80 logical-pixel detail enlarged with sharp square pixels and no smoothing. Coherent with Korean office worker sprites in white shirts and navy pants.
+Composition: exactly one full-body side profile facing RIGHT, one standing combat idle pose, narrow portrait framing with small transparent padding. Entire silhouette including feet and weapon visible, character fills most of frame, no floor perspective.
+Constraints: genuinely transparent alpha background; one single character only; no text, labels, logos, ground, shadow, checkerboard pattern, gradients, glow, duplicate characters, spritesheet, border or scenery.
+Subject: Korean technical worker, a young adult plumber with short black hair under a muted yellow hard hat, determined round face, navy-blue work overalls over a pale rolled-sleeve shirt, tan leather work boots. Holds a chunky steel pipe wrench in the forward hand at waist height, ready for a close-range strike. Compact sturdy stance, clearly a working tradesperson.
+```
+
+### technician-lv5.png
+
+```text
+Use case: stylized-concept
+Asset type: one transparent-background side-view pixel-art ally game character sprite for Plumjam, a satirical Korean humans-versus-AI lane battle game.
+Style: crisp chunky low-detail pixel art, 3-head chibi proportions, thick dark outline, limited muted warm/cool palette, 64x80 logical-pixel detail enlarged with sharp square pixels and no smoothing. Coherent with Korean office worker sprites in white shirts and navy pants.
+Composition: exactly one full-body side profile facing RIGHT, one standing combat idle pose, narrow portrait framing with small transparent padding. Entire silhouette including feet and weapon visible, character fills most of frame, no floor perspective.
+Constraints: genuinely transparent alpha background; one single character only; no text, labels, logos, ground, shadow, checkerboard pattern, gradients, glow, duplicate characters, spritesheet, border or scenery.
+Subject: Level 5 Korean technical worker evolved into a skilled welder. Same sturdy body in navy-blue work overalls, pale rolled-sleeve shirt and tan leather work boots, now wearing a dark lowered welding face shield with a small cyan rectangular viewing window. Holds a chunky steel pipe wrench in forward hand at waist height. Quiet authoritative tradesperson, readable simple silhouette, no flying sparks.
+```
+
+### judge.png
+
+```text
+Use case: stylized-concept
+Asset type: one transparent-background side-view pixel-art ally game character sprite for Plumjam, a satirical Korean humans-versus-AI lane battle game.
+Style: crisp chunky low-detail pixel art, 3-head chibi proportions, thick dark outline, limited muted warm/cool palette, 64x80 logical-pixel detail enlarged with sharp square pixels and no smoothing. Coherent with Korean office worker sprites in white shirts and navy pants.
+Composition: exactly one full-body side profile facing RIGHT, one standing combat idle pose, narrow portrait framing with small transparent padding. Entire silhouette including feet and weapon visible, character fills most of frame, no floor perspective.
+Constraints: genuinely transparent alpha background; one single character only; no text, labels, logos, ground, shadow, checkerboard pattern, gradients, glow, duplicate characters, spritesheet, border or scenery.
+Subject: Korean judge, adult with neatly combed short black hair and serious determined face. Wears long black judicial robe with a plain white neck tab and black shoes. Holds a small brown wooden gavel in the forward hand, raised compactly at chest level, ready to issue judgment. Not a wizard, no hat, no wig, no scales.
+```
+
+### judge-lv5.png
+
+```text
+Use case: stylized-concept
+Asset type: one transparent-background side-view pixel-art ally game character sprite for Plumjam, a satirical Korean humans-versus-AI lane battle game.
+Style: crisp chunky low-detail pixel art, 3-head chibi proportions, thick dark outline, limited muted warm/cool palette, 64x80 logical-pixel detail enlarged with sharp square pixels and no smoothing. Coherent with Korean office worker sprites in white shirts and navy pants.
+Composition: exactly one full-body side profile facing RIGHT, one standing combat idle pose, narrow portrait framing with small transparent padding. Entire silhouette including feet and weapon visible, character fills most of frame, no floor perspective.
+Constraints: genuinely transparent alpha background; one single character only; no text, labels, logos, ground, shadow, checkerboard pattern, gradients, glow, duplicate characters, spritesheet, border or scenery.
+Subject: Level 5 Korean chief justice, senior adult with neatly combed gray hair, dignified stern expression. Wears long black judicial robe with restrained dark maroon trim and a plain white neck tab, black shoes. Holds a larger brown wooden gavel in the forward hand at chest level. Authoritative but comical 3-head proportion. No hat, no wig, no scales.
+```
+
+### counselor.png
+
+```text
+Use case: stylized-concept
+Asset type: one transparent-background side-view pixel-art ally game character sprite for Plumjam, a satirical Korean humans-versus-AI lane battle game.
+Style: crisp chunky low-detail pixel art, 3-head chibi proportions, thick dark outline, limited muted warm/cool palette, 64x80 logical-pixel detail enlarged with sharp square pixels and no smoothing. Coherent with Korean office worker sprites in white shirts and navy pants.
+Composition: exactly one full-body side profile facing RIGHT, one standing combat idle pose, narrow portrait framing with small transparent padding. Entire silhouette including feet and weapon visible, character fills most of frame, no floor perspective.
+Constraints: genuinely transparent alpha background; one single character only; no text, labels, logos, ground, shadow, checkerboard pattern, gradients, glow, duplicate characters, spritesheet, border or scenery.
+Subject: Korean psychological counselor, gentle adult with short tidy dark hair, calm reassuring smile. Wears muted teal cardigan over cream blouse, navy trousers and simple brown shoes. Holds a small blank tan clipboard notebook in arms at chest height, forward hand in a small reassuring gesture. Supportive civilian colleague, no medical coat, no stethoscope, no written symbols.
+```
+
+### counselor-lv5.png
+
+```text
+Use case: stylized-concept
+Asset type: one transparent-background side-view pixel-art ally game character sprite for Plumjam, a satirical Korean humans-versus-AI lane battle game.
+Style: crisp chunky low-detail pixel art, 3-head chibi proportions, thick dark outline, limited muted warm/cool palette, 64x80 logical-pixel detail enlarged with sharp square pixels and no smoothing. Coherent with Korean office worker sprites in white shirts and navy pants.
+Composition: exactly one full-body side profile facing RIGHT, one standing combat idle pose, narrow portrait framing with small transparent padding. Entire silhouette including feet and weapon visible, character fills most of frame, no floor perspective.
+Constraints: genuinely transparent alpha background; one single character only; no text, labels, logos, ground, shadow, checkerboard pattern, gradients, glow, duplicate characters, spritesheet, border or scenery.
+Subject: Level 5 senior Korean psychological counselor, gentle mature adult with tidy dark hair and thin gold-rim rectangular glasses, calm confident reassuring smile. Wears muted purple blazer over cream blouse, navy trousers and simple brown shoes. Holds blank tan clipboard notebook in arms at chest height, forward hand in small reassuring gesture. Experienced civilian colleague, no medical coat, no stethoscope, no written symbols.
+```
+
+
 Created 2026-10-03 for Plumjam, using the built-in `image_gen.imagegen` tool in the imagegen skill's preferred mode. One tool call per distinct asset; no API/CLI fallback, no external stock assets, no image postprocessing or alpha alteration. Original tool output files remain in `/Users/hajung/.codex/generated_images/01a1010b-1403-7aa0-9376-26bd9954a345/` and copies used by the game are saved beside this document.
 
 These are original generated depictions. Boss art is a fictional AI machine without an official product logo. Human sprites face right; enemy sprites face left. All 14 outputs were visually inspected at full resolution before acceptance. Backgrounds have empty, flat foreground lanes, no bases, and warm → dusk → bizarre data-center progression. Sprites are single full-body idle poses suitable for runtime bob/tilt/hit feedback. Output detail is finer than the requested logical 64×80 sprite style; use nearest-neighbor rendering to preserve the pixel appearance when scaled to game dimensions.

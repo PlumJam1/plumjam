@@ -88,7 +88,7 @@ describe('permanent progression', () => {
     const before = profile.snapshot().xp;
     expect(profile.upgrade('ranged').accepted).toBe(true);
     expect(profile.snapshot().xp).toBe(before - 60);
-    expect(profile.snapshot().levels).toEqual({ hero: 1, melee: 1, ranged: 2, support: 1 });
+    expect(profile.snapshot().levels).toMatchObject({ hero: 1, melee: 1, ranged: 2, support: 1 });
     for (let level = 2; level < 10; level++) expect(profile.upgrade('ranged').accepted).toBe(true);
     const capped = profile.snapshot();
     expect(profile.upgrade('ranged').accepted).toBe(false);
@@ -154,17 +154,71 @@ describe('permanent progression', () => {
   });
 });
 describe('five-stage campaign', () => {
-  it('has increasing wave pressure and rewards, and only stage five starts with GPT-4o', () => {
+  it('adds distinct tactical pressure with increasing base health and rewards, and only stage five starts with GPT-4o', () => {
     expect(STAGES.map(stage => stage.id)).toEqual(['1-1', '1-2', '1-3', '1-4', '1-5']);
     for (let index = 1; index < STAGES.length; index++) {
-      expect(STAGES[index].spawns.length).toBeGreaterThan(STAGES[index - 1].spawns.length);
-      expect(STAGES[index].repeat!.interval).toBeLessThan(STAGES[index - 1].repeat!.interval);
+      expect(STAGES[index].spawns.length).toBeGreaterThanOrEqual(STAGES[index - 1].spawns.length);
+      expect(STAGES[index].repeat!.interval).toBeLessThanOrEqual(STAGES[index - 1].repeat!.interval);
       expect(STAGES[index].aiBaseHp).toBeGreaterThan(STAGES[index - 1].aiBaseHp);
       expect(STAGES[index].clearReward).toBeGreaterThan(STAGES[index - 1].clearReward!);
     }
+    expect(getStage('1-2')!.spawns.filter(spawn => spawn.kind === 'robot-runner')).toHaveLength(3);
+    expect(getStage('1-3')!.spawns.filter(spawn => spawn.kind === 'robot-ranged').length).toBeGreaterThan(getStage('1-3')!.spawns.filter(spawn => spawn.kind === 'robot-melee').length);
+    expect(getStage('1-4')!.spawns.some(spawn => spawn.kind === 'robot-heavy')).toBe(true);
     const boss = new BattleSession({ runId: 1, stage: getStage('1-5') });
     expect(boss.snapshot().elapsed).toBe(0);
     expect(boss.snapshot().units.map(unit => unit.kind)).toEqual(['gpt-4o']);
     expect(nextStage('1-5')).toBeUndefined(); expect(nextStage('missing')).toBeUndefined();
+  });
+});
+
+
+describe('five-slot roster progression', () => {
+  const legacy = { version: 1, xp: 710, levels: { hero: 5, melee: 3, ranged: 2, support: 4 }, clearedStages: ['1-1', '1-2', '1-3'], unlockedStages: ['1-1', '1-2', '1-3', '1-4'], unlockedSkills: ['git-push'], muted: true };
+  it('backfills new levels and retroactive unlocks without changing existing progress or auto-equipping', () => {
+    const model = new ProfileService(memoryStorage(JSON.stringify(legacy)));
+    expect(model.snapshot()).toMatchObject({ xp: 710, levels: { ...legacy.levels, technician: 1, judge: 1, counselor: 1 }, clearedStages: legacy.clearedStages, muted: true, storageMessage: '' });
+    expect(model.snapshot().unlockedSkills).toContain('git-push');
+    expect(model.snapshot().unlockedAllies).toEqual(['melee', 'ranged', 'support', 'technician', 'judge', 'counselor']);
+    expect(model.snapshot().equippedAllies).toEqual(['melee', 'ranged', 'support', null, null]);
+  });
+  it('repairs malformed, duplicate, locked and empty formations while preserving earned progress', () => {
+    for (const equippedAllies of [[], ['melee', 'ranged'], ['hero', null, null, null, null], ['melee', 'melee', null, null, null], [null, null, null, null, null], ['invalid', null, null, null, null], 'bad']) {
+      const model = new ProfileService(memoryStorage(JSON.stringify({ ...legacy, equippedAllies })));
+      expect(model.snapshot().xp).toBe(710);
+      expect(model.snapshot().levels.hero).toBe(5);
+      expect(model.snapshot().equippedAllies).toEqual(['melee', 'ranged', 'support', null, null]);
+    }
+    const noClear = { ...legacy, clearedStages: [], unlockedStages: ['1-1'], equippedAllies: ['technician', null, null, null, null], unlockedAllies: ['technician'] };
+    expect(new ProfileService(memoryStorage(JSON.stringify(noClear))).snapshot()).toMatchObject({ xp: 710, unlockedAllies: ['melee', 'ranged', 'support'], equippedAllies: ['melee', 'ranged', 'support', null, null] });
+  });
+  it('rejects invalid slot updates and locked upgrades atomically without writing or spending', () => {
+    const storage = memoryStorage(); const write = vi.spyOn(storage, 'setItem'); const model = new ProfileService(storage);
+    const before = model.snapshot();
+    expect(model.setSlot(-1, 'melee').accepted).toBe(false);
+    expect(model.setSlot(5, 'melee').accepted).toBe(false);
+    expect(model.setSlot(.5, 'melee').accepted).toBe(false);
+    expect(model.setSlot(3, 'melee').accepted).toBe(false);
+    expect(model.setSlot(3, 'technician').accepted).toBe(false);
+    expect(model.setFormation([null, null, null, null, null]).accepted).toBe(false);
+    expect(model.upgrade('counselor').accepted).toBe(false);
+    expect(model.snapshot()).toEqual(before); expect(write).not.toHaveBeenCalled();
+  });
+  it('unlocks once on first victory, retains replay XP, and saves detached unique slots', () => {
+    const storage = memoryStorage(); const model = new ProfileService(storage);
+    const initial = model.snapshot();
+    expect(model.rewardWin('first', '1-1')).toBe(120);
+    expect(model.snapshot().unlockedAllies).toEqual(['melee', 'ranged', 'support', 'technician']);
+    expect(model.rewardWin('first', '1-1')).toBe(0);
+    expect(model.rewardWin('replay', '1-1')).toBe(120);
+    expect(model.snapshot().unlockedAllies).toEqual(['melee', 'ranged', 'support', 'technician']);
+    const slots: Array<'melee' | 'technician' | null> = ['technician', null, 'melee', null, null];
+    expect(model.setFormation(slots).accepted).toBe(true); slots[0] = null;
+    expect(model.snapshot().equippedAllies[0]).toBe('technician');
+    expect(Object.isFrozen(model.snapshot().equippedAllies)).toBe(true);
+    expect(Object.isFrozen(model.snapshot().unlockedAllies)).toBe(true);
+    expect(initial.equippedAllies).toEqual(['melee', 'ranged', 'support', null, null]);
+    expect(new ProfileService(storage).snapshot()).toEqual(model.snapshot());
+    expect(model.snapshot().xp).toBe(240);
   });
 });

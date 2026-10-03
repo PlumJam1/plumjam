@@ -5,11 +5,11 @@ import { drawPlaceholder } from './drawPlaceholder';
 
 export class LobbyScene extends Phaser.Scene {
   private scope!: SceneScope;
-  private tab: 'menu' | 'stages' | 'training' = 'menu';
+  private tab: 'menu' | 'stages' | 'training' | 'shop' | 'formation' = 'menu';
 
   constructor(private readonly context: AppContext) { super('Lobby'); }
 
-  init(data?: { tab?: 'menu' | 'stages' | 'training' }): void { this.scope = this.context.lifetimes.begin(this); this.tab = data?.tab ?? 'menu'; }
+  init(data?: { tab?: 'menu' | 'stages' | 'training' | 'shop' | 'formation' }): void { this.scope = this.context.lifetimes.begin(this); this.tab = data?.tab ?? 'menu'; }
 
   create(): void {
     drawPlaceholder(this, false);

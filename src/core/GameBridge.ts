@@ -1,4 +1,4 @@
-import type { BattleCommand, BattleSnapshot, CommandResult, SkillKind } from '../game/battle/types';
+import type { AllyKind, BattleCommand, BattleSnapshot, CommandResult, SkillKind } from '../game/battle/types';
 
 export type SceneKey = 'Boot' | 'Lobby' | 'Battle';
 export type ScenePhase = 'loading' | 'ready' | 'paused';
@@ -8,12 +8,12 @@ export interface SceneState {
   readonly runId: number;
   readonly phase: ScenePhase;
   readonly stageId?: string;
-  readonly lobbyTab?: 'menu' | 'stages' | 'training' | 'shop';
+  readonly lobbyTab?: 'menu' | 'stages' | 'training' | 'shop' | 'formation';
 }
 
 export type SceneCommand =
   | { type: 'start-battle'; stageId: string }
-  | { type: 'return-lobby'; tab?: 'menu' | 'stages' | 'training' | 'shop' }
+  | { type: 'return-lobby'; tab?: 'menu' | 'stages' | 'training' | 'shop' | 'formation' }
   | { type: 'restart-battle' }
   | { type: 'toggle-pause' };
 
@@ -31,7 +31,7 @@ export interface GameBridgeEvents {
   'battle-preview': { runId: number; skill: SkillKind | null };
   'battle-snapshot': BattleSnapshot;
   'battle-feedback': { runId: number; result: CommandResult };
-  'battle-result': { runId: number; stageId: string; reward: number; prototypeComplete: boolean };
+  'battle-result': { runId: number; stageId: string; reward: number; prototypeComplete: boolean; firstClear?: boolean; newlyUnlockedAllies?: readonly AllyKind[] };
 }
 
 export type Unsubscribe = () => void;

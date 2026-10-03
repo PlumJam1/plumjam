@@ -115,10 +115,10 @@ export class PhaserBattleRenderer {
         g.lineStyle(3, 0xffddb2, alpha).strokeEllipse(effect.x, 221, effect.radius * 2, 26);
         continue;
       }
-      const color = effect.kind === 'sleep' ? 0xb4a4ed : effect.kind === 'support-combat' ? 0xefb06a : effect.kind === 'support-speed' ? 0x8fcaee : 0x91d9ad;
+      const color = effect.kind === 'sleep' ? 0xb4a4ed : effect.kind === 'support-combat' ? 0xefb06a : effect.kind === 'support-haste' || effect.kind === 'support-speed' ? 0x8fcaee : 0x91d9ad;
       const progress = 1 - effect.remaining / effect.duration;
       g.lineStyle(2, color, (1 - progress) * 0.8).strokeEllipse(Math.round(effect.x), 221, effect.radius * 2 * Math.max(0.1, progress), 38 * progress);
-      const text = effect.kind === 'sleep' ? 'sleep()' : effect.kind === 'support-combat' ? 'ATK / DEF UP' : effect.kind === 'support-speed' ? 'SPEED UP' : 'HP UP';
+      const text = effect.kind === 'sleep' ? 'sleep()' : effect.kind === 'support-haste' ? 'ATK SPEED UP' : effect.kind === 'support-combat' ? 'ATK / DEF UP' : effect.kind === 'support-speed' ? 'SPEED UP' : 'HP UP';
       this.label(`effect-${effect.id}`, text, effect.x, 169 - progress * 8, color, 1 - progress);
     }
     this.health(FIELD.humanBaseX, 149, snapshot.humanBase.hp, snapshot.humanBase.maxHp, 50, 0xf0c28a);
@@ -177,6 +177,7 @@ export class PhaserBattleRenderer {
   }
 
   private buffs(x: number, y: number, buffs: TimedBuffs): void {
+    if (buffs.haste > 0) this.graphics.lineStyle(1, 0x99daf0).strokeTriangle(x + 11, y + 12, x + 16, y + 17, x + 11, y + 22);
     if (buffs.combat > 0) this.graphics.lineStyle(1, 0xf0b67f).strokeRect(x - 11, y, 23, 33);
     if (buffs.speed > 0) this.graphics.lineStyle(1, 0x99daf0).strokeTriangle(x - 14, y + 20, x - 10, y + 23, x - 14, y + 26);
   }
@@ -189,6 +190,10 @@ export class PhaserBattleRenderer {
     g.fillStyle(0x000000, 0.25).fillEllipse(x, 231, 20, 4);
     const boss = unit.kind === 'gpt-4o';
     this.actor(unit.id, characterArt(unit.kind, unit.level), x, y, unit.bodyWidth, boss ? 78 : 44, unit.hitFlash > 0, unit.attackFlash, elapsed, false, true);
+    if (unit.kind === 'robot-heavy') {
+      if (unit.hitFlash <= 0) this.actors.get(unit.id)?.image.setTint(0x9eabc0);
+      this.label(`heavy-${unit.id}`, '중장갑', x, y - 64, 0xc5d1e4);
+    }
     if (unit.kind === 'robot-runner') {
       const image = this.actors.get(unit.id)?.image;
       if (unit.hitFlash <= 0) image?.setTint(0xffaa86);
@@ -203,6 +208,7 @@ export class PhaserBattleRenderer {
       const rise = ((elapsed + unit.id * .17) % 1.2) / 1.2;
       this.label(`sleep-zzz-${unit.id}`, 'Zzz', x - unit.bodyWidth / 2 - 12, y - (boss ? 104 : 76) - rise * 8, 0xd5c5ff, 1 - rise * .45, 10);
     }
+    else if (unit.buffs.haste > 0) this.label(`buff-${unit.id}`, `공속 ${unit.buffs.haste.toFixed(1)}초`, x, y - 45, 0xa7e6ff);
     else if (unit.buffs.combat > 0) this.label(`buff-${unit.id}`, `공격/방어 ${unit.buffs.combat.toFixed(1)}초`, x, y - 45, 0xffc995);
     else if (unit.buffs.speed > 0) this.label(`buff-${unit.id}`, `이동 ${unit.buffs.speed.toFixed(1)}초`, x, y - 45, 0xa7e6ff);
     this.health(x, y - (unit.kind === 'gpt-4o' ? 82 : 48), unit.hp, unit.maxHp, 19, unit.team === 'human' ? 0xdfb878 : 0x77b6c1);

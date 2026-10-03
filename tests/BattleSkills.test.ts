@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { BattleSession } from '../src/game/BattleSession';
 import { DEFAULT_STAGE, SKILLS, SUPPORT, UNIT_DEFINITIONS } from '../src/game/battle/balance';
 import type { StageDefinition, UnitDefinition, UnitKind } from '../src/game/battle/types';
@@ -31,14 +31,15 @@ describe('shared skill funding and pause', () => {
   it('freezes skill/effect/buff clocks on pause and returns isolated nested snapshots', () => {
     const session = new BattleSession({ runId: 1, stage: quietStage(), random: () => 0.5 });
     session.dispatch({ type: 'summon', kind: 'support' });
+    session.dispatch({ type: 'summon', kind: 'melee' });
     session.step(5.1);
     session.dispatch({ type: 'skill', skill: 'sleep' });
     session.setPaused(true);
     const before = session.snapshot();
     session.step(20);
     expect(session.snapshot()).toEqual(before);
-    (before.hero.buffs as { combat: number }).combat = 0;
-    expect(session.snapshot().hero.buffs.combat).toBeGreaterThan(0);
+    before.units.find(unit => unit.kind === 'melee')!.buffs.haste = 0;
+    expect(session.snapshot().units.find(unit => unit.kind === 'melee')!.buffs.haste).toBeGreaterThan(0);
     expect(session.dispatch({ type: 'skill', skill: 'heal' }).accepted).toBe(false);
     session.setPaused(false);
     session.step(1);
@@ -135,46 +136,5 @@ describe('developer skills', () => {
     expect(after.units.find((unit) => unit.kind === 'melee')!.hp).toBe(Math.min(melee.maxHp, melee.hp + SKILLS.heal.amount));
     expect(after.units.find((unit) => unit.kind === 'ranged')!.healFlash).toBe(0);
     expect(after.effects[0]).toMatchObject({ kind: 'heal', radius: 110 });
-  });
-});
-
-describe('periodic random support', () => {
-  it.each([[0, 'support-heal'], [1 / 3, 'support-combat'], [2 / 3, 'support-speed']] as const)('uses equal thirds for random %s selecting %s', (random, kind) => {
-    const session = new BattleSession({ runId: 1, stage: quietStage(), random: () => random });
-    session.dispatch({ type: 'summon', kind: 'support' });
-    session.step(SUPPORT.period + 0.01);
-    expect(session.snapshot().effects.map((effect) => effect.kind)).toEqual([kind]);
-  });
-
-  it('makes exactly one choice every five simulation seconds at different frame rates', () => {
-    const defs = definitions(); defs.support.speed = 0;
-    const firstRandom = vi.fn(() => 0.5), secondRandom = vi.fn(() => 0.5);
-    const first = new BattleSession({ runId: 1, stage: quietStage(), unitDefinitions: defs, random: firstRandom });
-    const second = new BattleSession({ runId: 2, stage: quietStage(), unitDefinitions: defs, random: secondRandom });
-    first.dispatch({ type: 'summon', kind: 'support' }); second.dispatch({ type: 'summon', kind: 'support' });
-    first.step(20.2);
-    for (let i = 0; i < 202; i++) second.step(0.1);
-    expect(firstRandom).toHaveBeenCalledTimes(4);
-    expect(secondRandom).toHaveBeenCalledTimes(4);
-    expect(first.snapshot().hero.buffs.combat).toBeCloseTo(second.snapshot().hero.buffs.combat, 5);
-    expect(first.snapshot().hero.buffs.combat).toBeCloseTo(SUPPORT.duration - 0.2, 1);
-    expect(first.snapshot().hero.buffs.speed).toBe(0);
-  });
-
-  it('refreshes the same buff instead of multiplying strength, and expires outside support range', () => {
-    const defs = definitions(); defs.support.speed = 0;
-    const session = new BattleSession({ runId: 1, stage: quietStage(), unitDefinitions: defs, random: () => 0.99 });
-    session.dispatch({ type: 'summon', kind: 'support' });
-    session.step(5.01);
-    session.dispatch({ type: 'move', direction: 1 });
-    const start = session.snapshot().hero.x;
-    session.step(0.5);
-    expect(session.snapshot().hero.x - start).toBeCloseTo(86 * SUPPORT.speedMultiplier * 0.5);
-    session.dispatch({ type: 'move', direction: -1 }); session.step(0.5);
-    session.dispatch({ type: 'move', direction: 0 }); session.step(4.01);
-    expect(session.snapshot().hero.buffs.speed).toBeCloseTo(7, 1);
-    session.dispatch({ type: 'move', direction: 1 }); session.step(2);
-    session.dispatch({ type: 'move', direction: 0 }); session.step(6);
-    expect(session.snapshot().hero.buffs.speed).toBe(0);
   });
 });

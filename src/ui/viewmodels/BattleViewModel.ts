@@ -1,7 +1,7 @@
 import { computed, effectScope, readonly, shallowRef } from 'vue';
 import type { AppContext } from '../../core/AppContext';
 import type { SceneScope } from '../../core/SceneLifetimeManager';
-import { ECONOMY, SKILLS, SUPPORT, UNIT_DEFINITIONS } from '../../game/battle/balance';
+import { ALLY_ROLES, ECONOMY, SKILLS, SUPPORT, UNIT_DEFINITIONS } from '../../game/battle/balance';
 import { getCooldownEta, getSkillValues } from '../../game/BattleSession';
 import { skillPreview } from '../../game/presentation/battlePresentation';
 import type { AllyKind, BattleCommand, BattleSnapshot, SkillKind } from '../../game/battle/types';
@@ -14,6 +14,7 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
   const feedback = shallowRef('');
   const intro = shallowRef(showIntro);
   const reward = shallowRef(0);
+  const newAllies = shallowRef<readonly AllyKind[]>([]);
   const prototypeComplete = shallowRef(false);
   const previewSkill = shallowRef<SkillKind | null>(null);
   const bossNotice = shallowRef('');
@@ -30,7 +31,7 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
   const clearPreview = () => { previewSources.clear(); publishPreview(); };
   scope.defer(() => { previewSources.clear(); previewSkill.value = null; context.bridge.emit('battle-preview', { runId: scope.id, skill: null }); });
   scope.defer(context.bridge.subscribe('battle-result', value => {
-    if (!scope.disposed && value.runId === scope.id) { reward.value = value.reward; prototypeComplete.value = value.prototypeComplete; }
+    if (!scope.disposed && value.runId === scope.id) { reward.value = value.reward; prototypeComplete.value = value.prototypeComplete; newAllies.value = value.newlyUnlockedAllies ?? []; }
   }));
   let feedbackTimer: ReturnType<typeof setTimeout> | undefined;
   scope.defer(() => { if (feedbackTimer) clearTimeout(feedbackTimer); });
@@ -65,14 +66,15 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
       if (value.gold < cost) return `자금 ${Math.ceil(cost - value.gold)} 부족`;
       return '사용 가능';
     };
-    const units = computed(() => (['melee', 'ranged', 'support'] as AllyKind[]).map((kind, index) => {
+    const units = computed(() => (battle.value?.equippedAllies ?? [null, null, null, null, null]).map((kind, index) => {
+      if (kind === null) return { kind, label: '빈 칸', cost: 0, key: String(index + 1), cooldown: 0, progress: 0, reason: '준비실에서 편성', description: '이 칸에는 소환할 동료가 없어', disabled: true, level: 1 };
       const definition = UNIT_DEFINITIONS[kind];
       const cooldown = battle.value?.summonCooldowns[kind] ?? 0;
       const eta = getCooldownEta(cooldown, battle.value?.overclockRemaining ?? 0);
       const reason = availability(definition.cost!, eta);
-      const description = kind === 'melee' ? '전선을 지키는 서류가방' : kind === 'ranged' ? '뒤에서 서류 던지기' : '5초마다 랜덤 힐 · 버프';
+      const description = ALLY_ROLES[kind].description;
       return { kind, label: definition.label, cost: definition.cost!, key: String(index + 1), cooldown: eta,
-        progress: 1 - cooldown / definition.summonCooldown!, reason, description, disabled: reason !== '사용 가능' };
+        level: battle.value?.levels[kind] ?? 1, progress: 1 - cooldown / definition.summonCooldown!, reason, description, disabled: reason !== '사용 가능' };
     }));
     const skills = computed(() => (['hello-world', 'sleep', 'heal', 'git-push', 'overclock'] as SkillKind[]).map((kind, index) => {
       const definition = SKILLS[kind];
@@ -80,7 +82,7 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
       const eta = getCooldownEta(cooldown, battle.value?.overclockRemaining ?? 0, kind === 'overclock');
       const unlocked = battle.value?.unlockedSkills.includes(kind) ?? false;
       const reason = unlocked ? availability(definition.cost, eta) : '상점에서 해금';
-      const hero = battle.value?.hero ?? { level: 1, buffs: { combat: 0, speed: 0 } };
+      const hero = battle.value?.hero ?? { level: 1, buffs: { combat: 0, speed: 0, haste: 0 } };
       const values = getSkillValues(hero);
       const amount = (value: number) => Number(value.toFixed(1));
       const description = kind === 'hello-world' ? `피해 ${amount(values.helloDamage)} · 사거리 ${values.helloRange} · 오른쪽 첫 적` : kind === 'sleep' ? `반경 ${values.sleepRadius} · 이동속도 -${Math.round((1 - values.sleepSpeedMultiplier) * 100)}% · ${values.sleepDuration}초` : kind === 'heal' ? `회복 ${amount(values.healAmount)} · 반경 ${values.healRadius} · 나와 아군` : kind === 'git-push' ? `반경 ${values.pushRadius} · 일반 적 폭×3 / 보스 폭×1 밀기 · 적 기지 경계 제한` : `${values.overclockDuration}초간 소환·다른 스킬 쿨타임 50% · 자신 제외 · 수입 유지`;
@@ -124,9 +126,9 @@ export function createBattleViewModel(context: AppContext, scope: SceneScope, sh
       battle: readonly(battle), feedback: readonly(feedback), intro: readonly(intro), units, skills, ended, danger,
       boss, bossNotice: readonly(bossNotice), waveNotice, heroBuffs, preview, previewDescription, previewTargets,
       economyDisabled, economyDescription, economyReason, time, resultTitle, resultDescription,
-      reward: readonly(reward), prototypeComplete: readonly(prototypeComplete), hasNextStage,
+      newAllies: computed(() => newAllies.value.map(kind => ({ kind, label: UNIT_DEFINITIONS[kind].label }))), reward: readonly(reward), prototypeComplete: readonly(prototypeComplete), hasNextStage,
       dismissIntro: () => { intro.value = false; },
-      summon: (kind: AllyKind) => command({ type: 'summon', kind }),
+      summon: (kind: AllyKind | null) => { if (kind !== null) command({ type: 'summon', kind }); },
       useSkill: (skill: SkillKind) => command({ type: 'skill', skill }),
       upgradeEconomy: () => command({ type: 'upgrade-economy' }),
       move: (direction: -1 | 0 | 1) => command({ type: 'move', direction }),

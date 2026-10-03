@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import type { AppContext } from '../core/AppContext';
 import type { SceneScope } from '../core/SceneLifetimeManager';
-import { BattleSession } from '../game/BattleSession';
+import { BattleSession, getFormationCommand } from '../game/BattleSession';
 import { PhaserBattleRenderer } from '../game/PhaserBattleRenderer';
 import type { BattleCommand } from '../game/battle/types';
 
@@ -27,7 +27,7 @@ export class BattleScene extends Phaser.Scene {
     if (!stage) { this.scene.start('Lobby'); return; }
     const scope = this.scope;
     const profile = this.context.profile.snapshot();
-    this.session = new BattleSession({ runId: scope.id, stage, levels: profile.levels, unlockedSkills: profile.unlockedSkills });
+    this.session = new BattleSession({ runId: scope.id, stage, levels: profile.levels, unlockedSkills: profile.unlockedSkills, equippedAllies: profile.equippedAllies, unlockedAllies: profile.unlockedAllies });
     const session = this.session;
     this.battleRenderer = new PhaserBattleRenderer(this, stage.theme, stage.id);
     const battleRenderer = this.battleRenderer;
@@ -88,11 +88,17 @@ export class BattleScene extends Phaser.Scene {
       if (this.scene.isPaused() || session.snapshot().status !== 'active') return;
       if (['KeyA', 'KeyD', 'ArrowLeft', 'ArrowRight'].includes(event.code)) { event.preventDefault(); pressed.add(event.code); movement(); return; }
       const commands: Record<string, BattleCommand> = {
-        Digit1: { type: 'summon', kind: 'melee' }, Digit2: { type: 'summon', kind: 'ranged' }, Digit3: { type: 'summon', kind: 'support' },
         KeyJ: { type: 'skill', skill: 'hello-world' }, KeyK: { type: 'skill', skill: 'sleep' }, KeyL: { type: 'skill', skill: 'heal' },
         KeyP: { type: 'skill', skill: 'git-push' }, KeyO: { type: 'skill', skill: 'overclock' },
         KeyU: { type: 'upgrade-economy' },
       };
+      const slot = /^Digit[1-5]$/.test(event.code) ? Number(event.code.slice(-1)) - 1 : -1;
+      if (slot >= 0) {
+        event.preventDefault();
+        const command = getFormationCommand(session.snapshot().equippedAllies, slot);
+        if (command && !event.repeat) dispatch(command);
+        return;
+      }
       if (commands[event.code]) { event.preventDefault(); if (!event.repeat) dispatch(commands[event.code]); }
     };
     const keyUp = (event: KeyboardEvent) => { if (pressed.delete(event.code)) { event.preventDefault(); if (!this.scene.isPaused()) movement(); } };
@@ -116,8 +122,12 @@ export class BattleScene extends Phaser.Scene {
     if (!this.resultPublished && (snapshot.status === 'won' || snapshot.status === 'lost')) {
       this.resultPublished = true;
       this.context.sound.play(snapshot.status === 'won' ? 'win' : 'lose', this.scope.id);
+      const before = this.context.profile.snapshot();
       const reward = snapshot.status === 'won' ? this.context.profile.rewardWin(this.receipt, this.stageId) : 0;
-      this.context.bridge.emit('battle-result', { runId: this.scope.id, stageId: this.stageId, reward, prototypeComplete: snapshot.status === 'won' && this.stageId === '1-5' });
+      const after = this.context.profile.snapshot();
+      const firstClear = snapshot.status === 'won' && !before.clearedStages.includes(this.stageId) && after.clearedStages.includes(this.stageId);
+      const newlyUnlockedAllies = after.unlockedAllies.filter(kind => !before.unlockedAllies.includes(kind));
+      this.context.bridge.emit('battle-result', { firstClear, newlyUnlockedAllies, runId: this.scope.id, stageId: this.stageId, reward, prototypeComplete: snapshot.status === 'won' && this.stageId === '1-5' });
     }
     this.battleRenderer.render(snapshot);
     this.context.bridge.emit('battle-snapshot', snapshot);
