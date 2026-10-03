@@ -19,9 +19,9 @@ function earnedProfile() {
 }
 
 describe('original story catalog and actual clear eligibility', () => {
-  it('contains ten compact original pages using only existing backgrounds and portrait keys', () => {
+  it('contains thirteen compact original pages using only existing backgrounds and portrait keys', () => {
     expect(STORIES.map(story => story.id)).toEqual(['prologue', 'chapter-1', 'chapter-2']);
-    expect(STORIES.map(story => story.pages.length)).toEqual([4, 3, 3]);
+    expect(STORIES.map(story => story.pages.length)).toEqual([4, 4, 5]);
     for (const story of STORIES) for (const page of story.pages) {
       expect(page.title.trim()).not.toBe(''); expect(page.body).toHaveLength(3);
       expect(page.body.join('').length).toBeGreaterThanOrEqual(90);
