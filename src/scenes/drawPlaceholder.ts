@@ -19,6 +19,7 @@ export function drawPlaceholder(scene: Phaser.Scene, battle: boolean): void {
   graphics.fillStyle(0x547386).fillRect(548, 122, 73, 8);
   for (let y = 142; y < 215; y += 17) graphics.fillStyle(0x75d7db).fillRect(562, y, 45, 3);
   if (scene.textures.exists('seoultech-symbol')) scene.add.image(54, 182, 'seoultech-symbol').setDisplaySize(30, 28);
+  if (battle) return;
   graphics.fillStyle(0xf5cba2).fillRect(110, 190, 12, 12);
   graphics.fillStyle(0xdf886c).fillRect(108, 202, 16, 16);
   graphics.fillStyle(0x34415a).fillRect(109, 218, 5, 12).fillRect(118, 218, 5, 12);

@@ -2,6 +2,7 @@ import { EventEmitter } from 'node:events';
 import type Phaser from 'phaser';
 import { describe, expect, it, vi } from 'vitest';
 import { GameBridge } from '../src/core/GameBridge';
+import { BattleSession } from '../src/game/BattleSession';
 import { AppContext } from '../src/core/AppContext';
 import { createShellViewModel } from '../src/ui/viewmodels/ShellViewModel';
 
@@ -54,4 +55,30 @@ describe('GameBridge and scene ViewModels', () => {
     expect(context.bridge.listenerCount).toBe(0);
     expect(context.lifetimes.activeCount).toBe(0);
   });
+
+  it('ignores snapshots from a previous battle run and disposes battle subscriptions', () => {
+    const context = new AppContext();
+    const scene = { events: new EventEmitter() } as unknown as Phaser.Scene;
+    const shell = createShellViewModel(context);
+    const oldScope = context.lifetimes.begin(scene);
+    context.bridge.emit('scene-state', { scene: 'Battle', runId: oldScope.id, phase: 'ready' });
+    const oldSnapshot = new BattleSession({ runId: oldScope.id }).snapshot();
+    context.bridge.emit('battle-snapshot', oldSnapshot);
+    const oldScreen = shell.screen.value!;
+    expect(oldScreen.battle.value?.runId).toBe(oldScope.id);
+    scene.events.emit('shutdown');
+    const nextScope = context.lifetimes.begin(scene);
+    context.bridge.emit('scene-state', { scene: 'Battle', runId: nextScope.id, phase: 'ready' });
+    context.bridge.emit('battle-snapshot', oldSnapshot);
+    expect(shell.screen.value!.battle.value).toBeNull();
+    const listener = vi.fn();
+    context.bridge.subscribe('battle-command', listener);
+    oldScreen.summon('melee');
+    expect(listener).not.toHaveBeenCalled();
+    shell.screen.value!.summon('melee');
+    expect(listener).toHaveBeenCalledWith({ runId: nextScope.id, command: { type: 'summon', kind: 'melee' } });
+    shell.dispose(); context.dispose();
+    expect(context.bridge.listenerCount).toBe(0);
+  });
+
 });

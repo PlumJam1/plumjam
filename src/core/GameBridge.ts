@@ -1,3 +1,5 @@
+import type { BattleCommand, BattleSnapshot, CommandResult } from '../game/battle/types';
+
 export type SceneKey = 'Boot' | 'Lobby' | 'Battle';
 export type ScenePhase = 'loading' | 'ready' | 'paused';
 
@@ -22,6 +24,9 @@ export interface SceneCommandEnvelope {
 export interface GameBridgeEvents {
   'scene-state': SceneState;
   'scene-command': SceneCommandEnvelope;
+  'battle-command': { runId: number; command: BattleCommand };
+  'battle-snapshot': BattleSnapshot;
+  'battle-feedback': { runId: number; result: CommandResult };
 }
 
 export type Unsubscribe = () => void;
