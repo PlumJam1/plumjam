@@ -28,6 +28,8 @@ export class BootScene extends Phaser.Scene {
     if (!this.textures.exists('enemy-base-destroyed')) this.load.image('enemy-base-destroyed', `${import.meta.env.BASE_URL}assets/bases/enemy-base-destroyed.png`);
     if (!this.textures.exists('enemy-base-chapter-2')) this.load.image('enemy-base-chapter-2', `${import.meta.env.BASE_URL}assets/bases/enemy-base-chapter-2.png`);
     if (!this.textures.exists('enemy-base-chapter-2-destroyed')) this.load.image('enemy-base-chapter-2-destroyed', `${import.meta.env.BASE_URL}assets/bases/enemy-base-chapter-2-destroyed.png`);
+    if (!this.textures.exists('enemy-base-chapter-2-boss')) this.load.image('enemy-base-chapter-2-boss', `${import.meta.env.BASE_URL}assets/bases/enemy-base-chapter-2-boss.png`);
+    if (!this.textures.exists('enemy-base-chapter-2-boss-destroyed')) this.load.image('enemy-base-chapter-2-boss-destroyed', `${import.meta.env.BASE_URL}assets/bases/enemy-base-chapter-2-boss-destroyed.png`);
     if (!this.textures.exists('enemy-base-3')) this.load.image('enemy-base-3', `${import.meta.env.BASE_URL}assets/bases/enemy-base-3.png`);
     if (!this.textures.exists('enemy-base-3-destroyed')) this.load.image('enemy-base-3-destroyed', `${import.meta.env.BASE_URL}assets/bases/enemy-base-3-destroyed.png`);
     if (!this.textures.exists('seoultech-symbol')) this.load.image('seoultech-symbol', `${import.meta.env.BASE_URL}assets/bases/seoultech-symbol.gif`);
