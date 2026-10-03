@@ -87,7 +87,7 @@ describe('firefighter back-line coverage at native engagement ranges', () => {
     const back = state.units.find(unit => unit.kind === 'robot-ranged')!;
     const source = state.units.find(unit => unit.kind === 'firefighter')!;
     const channel = state.waterChannels[0]!;
-    expect(front.x).toBeCloseTo(337); expect(back.x).toBeCloseTo(412); expect(source.x).toBeCloseTo(251.666667);
+    expect(front.x).toBeCloseTo(337); expect(back.x).toBeCloseTo(412); expect(source.x).toBeCloseTo(258.666667);
     expect(back.x - front.x).toBeCloseTo(75);
     // At the old engagement-range endpoint this live back-line target was unreachable.
     expect(back.x).toBeGreaterThan(source.x + UNIT_DEFINITIONS.firefighter.range);

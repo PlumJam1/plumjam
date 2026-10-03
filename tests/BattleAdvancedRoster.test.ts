@@ -78,7 +78,7 @@ describe('tracking judge hammer', () => {
 });
 
 describe('four-tick firefighter water channel', () => {
-  it('deals 15 damage to every unit and base in the forward line on each of four .25-second ticks, staying still', () => {
+  it('deals 12 damage to every unit and base in the forward line on each of four .25-second ticks, staying still', () => {
     const definitions = defs(); definitions.firefighter.range = 600; definitions.firefighter.speed = 20;
     const session = new BattleSession({ runId: 1, stage: quiet({ spawns: [{ at: 0, kind: 'robot-melee' }, { at: 0, kind: 'robot-ranged' }] }), unitDefinitions: definitions, ...options });
     session.dispatch({ type: 'summon', kind: 'firefighter' }); session.step(.001);
@@ -87,14 +87,14 @@ describe('four-tick firefighter water channel', () => {
     expect(session.snapshot().units.filter(unit => unit.team === 'ai').every(unit => unit.hp === 1000)).toBe(true);
     session.step(.001);
     for (let tick = 1; tick <= 4; tick++) {
-      expect(session.snapshot().units.filter(unit => unit.team === 'ai').map(unit => unit.hp)).toEqual([1000 - tick * 15, 1000 - tick * 15]);
-      expect(session.snapshot().aiBase.hp).toBe(quiet().aiBaseHp - tick * 15);
+      expect(session.snapshot().units.filter(unit => unit.team === 'ai').map(unit => unit.hp)).toEqual([1000 - tick * 12, 1000 - tick * 12]);
+      expect(session.snapshot().aiBase.hp).toBe(quiet().aiBaseHp - tick * 12);
       expect(unit(session, 'firefighter').x).toBe(sourceX);
       if (tick < 4) session.step(.25);
     }
     expect(session.snapshot().waterChannels).toHaveLength(0);
     session.step(.5);
-    expect(session.snapshot().aiBase.hp).toBe(quiet().aiBaseHp - 60);
+    expect(session.snapshot().aiBase.hp).toBe(quiet().aiBaseHp - 48);
   });
 
   it('cancels the remaining channel when its source dies and freezes every tick during pause', () => {
@@ -119,10 +119,10 @@ describe('four-tick firefighter water channel', () => {
     for (let tick = 0; tick < 59; tick++) session.step(1 / 60);
     expect(unit(session, 'firefighter').hp).toBe(1);
     expect(session.snapshot().waterChannels[0]!.remaining).toBeCloseTo(1 / 60);
-    expect(unit(session, 'robot-melee').hp).toBe(955);
+    expect(unit(session, 'robot-melee').hp).toBe(964);
     session.step(1 / 60);
     expect(session.snapshot().units.some(unit => unit.kind === 'firefighter')).toBe(false);
-    expect(unit(session, 'robot-melee').hp).toBe(955);
+    expect(unit(session, 'robot-melee').hp).toBe(964);
     expect(session.snapshot().waterChannels).toHaveLength(0);
   });
 });

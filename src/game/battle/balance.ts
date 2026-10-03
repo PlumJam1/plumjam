@@ -25,8 +25,8 @@ export const UNIT_DEFINITIONS: Record<UnitKind, UnitDefinition> = {
   technician: { label: '기술직', team: 'human', bodyWidth: 36, hp: 520, damage: 42, speed: 18, range: 22, attackInterval: 2.2, cost: 150, summonCooldown: 7 },
   judge: { label: '판사', team: 'human', bodyWidth: 32, hp: 95, damage: 120, speed: 18, range: 130, attackInterval: 3.2, cost: 190, summonCooldown: 9 },
   counselor: { label: '심리상담사', team: 'human', bodyWidth: 32, hp: 120, damage: 0, speed: 20, range: 85, attackInterval: 5, cost: 125, summonCooldown: 8 },
-  athlete: { label: '운동선수', team: 'human', bodyWidth: 32, hp: 260, damage: 32, speed: 34, range: 24, attackInterval: .7, cost: 160, summonCooldown: 5 },
-  firefighter: { label: '소방관', team: 'human', bodyWidth: 32, hp: 220, damage: 60, speed: 20, range: 115, attackInterval: 2.2, cost: 200, summonCooldown: 8 },
+  athlete: { label: '운동선수', team: 'human', bodyWidth: 32, hp: 260, damage: 32, speed: 34, range: 24, attackInterval: .7, cost: 180, summonCooldown: 5 },
+  firefighter: { label: '소방관', team: 'human', bodyWidth: 32, hp: 220, damage: 48, speed: 20, range: 100, attackInterval: 2.75, cost: 200, summonCooldown: 8 },
   singer: { label: '가수', team: 'human', bodyWidth: 32, hp: 110, damage: 0, speed: 20, range: 85, attackInterval: 5, cost: 175, summonCooldown: 10 },
   'robot-heavy': { label: '중장갑 로봇', team: 'ai', bodyWidth: 42, hp: 340, damage: 28, speed: 12, range: 24, attackInterval: 2.1 },
   'robot-melee': { label: '생산성 로봇', team: 'ai', bodyWidth: 32, hp: 110, damage: 16, speed: 22, range: 20, attackInterval: 1.25 },
@@ -69,5 +69,6 @@ export const SUPPORT = {
 } as const;
 export const BOSS = { firstCastDelay: 6, cooldown: 9, windup: 1.4, forwardOffset: 100, radius: 80, damage: 80 } as const;
 export const JUDGE = { windup: .25, fall: .35 } as const;
-export const WATER = { duration: 1, tickInterval: .25, ticks: 4, extraReach: 75 } as const;
+export const WATER = { duration: 1, tickInterval: .25, ticks: 4, extraReach: 60 } as const;
 export const SONG = { period: 5, radius: 100, duration: 7, enemyDamageMultiplier: .85 } as const;
+export const ATHLETE = { knockback: 20, knockbackDuration: 0.15 } as const;

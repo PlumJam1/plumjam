@@ -1,4 +1,4 @@
-import { ALLY_KINDS, FORMATION_SIZE, STARTER_ALLIES, BOSS, DEFAULT_STAGE, DEFAULT_UNLOCKED_SKILLS, ECONOMY, FIELD, HERO, JUDGE, SKILLS, SKILL_SLOT_COUNT, SONG, SUPPORT, UNIT_DEFINITIONS, WATER } from './battle/balance';
+import { ALLY_KINDS, ATHLETE, FORMATION_SIZE, STARTER_ALLIES, BOSS, DEFAULT_STAGE, DEFAULT_UNLOCKED_SKILLS, ECONOMY, FIELD, HERO, JUDGE, SKILLS, SKILL_SLOT_COUNT, SONG, SUPPORT, UNIT_DEFINITIONS, WATER } from './battle/balance';
 import type { AllyKind, BaseState, BattleCommand, BattleSnapshot, BattleSpeed, BattleStatus, BossTelegraphState, CharacterKind, CommandResult, DefeatReason, EffectKind, EffectState, ForeachFlightState, HeroState, JudgeAttackState, ProjectileState, SkillKind, StageDefinition, Team, UnitDefinition, UnitKind, UnitState, WaterChannelState } from './battle/types';
 import { levelMultiplier } from './progression/ProfileService';
 
@@ -312,7 +312,14 @@ export class BattleSession {
             this.projectiles.push({ id: this.nextId++, source: unit.kind, team: unit.team, x: unit.x,
               direction: target.x >= unit.x ? 1 : -1, speed: definition.projectileSpeed,
               damage, remainingRange: definition.range + 20 });
-          } else hits.push({ target, damage });
+          } else {
+            hits.push({ target, damage });
+            if (unit.kind === 'athlete' && 'kind' in target) {
+              // Always shoves toward the AI base, mirroring git-push's one-way displacement.
+              const destination = Math.min(this.aiBase.x - target.bodyWidth / 2, target.x + ATHLETE.knockback);
+              if (destination > target.x) this.pushes.set(target.id, { destination, speed: (destination - target.x) / ATHLETE.knockbackDuration });
+            }
+          }
         }
       } else if (!pushedThisTick.has(unit.id)) {
         const direction = target.x >= unit.x ? 1 : -1;
